@@ -1,0 +1,10 @@
+{
+  "modelVersion": "6.0.0",
+  "name": "novaforge_studio",
+  "version": "1.0.0",
+  "description": "NovaForge Studio HarmonyOS client",
+  "main": "",
+  "author": "NovaForge",
+  "license": "MIT",
+  "dependencies": {}
+}

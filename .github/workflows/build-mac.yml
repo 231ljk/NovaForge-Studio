@@ -1,0 +1,73 @@
+name: Build macOS
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+
+    # 签名 + notarization 需要 Secrets；没配的话走 unsigned 打包
+    env:
+      # 如果 Secrets 里没配，这些变量就是空字符串 → electron-builder 跳过签名
+      CSC_NAME: ${{ secrets.CSC_NAME || '' }}
+      CSC_LINK: ${{ secrets.CSC_LINK || '' }}
+      CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD || '' }}
+      APPLE_API_KEY: ${{ secrets.APPLE_API_KEY || '' }}
+      APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER || '' }}
+      APPLE_API_KEY_P8_BASE64: ${{ secrets.APPLE_API_KEY_P8_BASE64 || '' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Decode signing cert to keychain (if provided)
+        if: ${{ env.CSC_LINK != '' }}
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain-db"
+          echo "$CSC_LINK" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security create-keychain -p "$CSC_KEY_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$CSC_KEY_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN_PATH" -P "$CSC_KEY_PASSWORD" -A
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$CSC_KEY_PASSWORD" "$KEYCHAIN_PATH"
+          security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | sed 's/"//g')
+
+      - name: Prepare notary .p8 key (if provided)
+        if: ${{ env.APPLE_API_KEY_P8_BASE64 != '' }}
+        run: |
+          echo "$APPLE_API_KEY_P8_BASE64" | base64 --decode > "$RUNNER_TEMP/notary.p8"
+          echo "APPLE_KEY_PATH=$RUNNER_TEMP/notary.p8" >> "$GITHUB_ENV"
+
+      - name: Build + Pack (unsigned fallback if no cert)
+        run: |
+          if [ -z "$CSC_LINK" ]; then
+            echo "⚠️  无签名证书（CSC_LINK 未配置），走 unsigned 打包"
+            export CSC_IDENTITY_AUTO_DISCOVERY=false
+          fi
+          npm run pack:mac
+        timeout-minutes: 15
+
+      - name: List outputs
+        run: ls -lh C:/nfbuild/release/ 2>/dev/null || ls -lh release/ 2>/dev/null || echo "没找到产物目录"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-builds
+          path: |
+            release/*.dmg
+            release/*.zip
+            release/*.yml
+          if-no-files-found: error

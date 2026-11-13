@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">NovaForge Studio</string>
+    <string name="title_activity_main">NovaForge Studio</string>
+    <string name="package_name">com.novaforge.studio</string>
+    <string name="custom_url_scheme">com.novaforge.studio</string>
+</resources>

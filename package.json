@@ -1,0 +1,138 @@
+{
+  "name": "novaforge-studio",
+  "version": "0.1.0",
+  "description": "NovaForge Studio - ESP32 / Raspberry Pi firmware IDE, flashing and device control",
+  "homepage": "https://github.com/231ljk",
+  "main": "./out/main/index.js",
+  "author": "NovaForge",
+  "license": "MIT",
+  "scripts": {
+    "dev": "electron-vite dev -- --js-flags=\"--max-old-space-size=2048 --max-semi-space-size=16 --no-turbo-fan --no-opt\" --disable-gpu --disable-gpu-compositing --no-sandbox",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
+    "pack:win": "electron-vite build && electron-builder --win --x64",
+    "pack:linux": "electron-vite build && electron-builder --linux dir --x64 && node scripts/make-deb.mjs",
+    "pack:mac": "electron-vite build && electron-builder --mac --x64 --arm64 -c.directories.output=release",
+    "mobile:sync": "cap sync android",
+    "pack:android": "cap sync android && cd android && gradlew.bat assembleDebug && cd ..",
+    "pack:harmony": "node scripts/pack-harmony.mjs",
+    "pack:ios": "node_modules/.bin/cap.cmd sync ios && xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release -sdk iphoneos -archivePath build/ios.xcarchive CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO archive",
+    "pack:linux:deb": "node scripts/make-deb.mjs",
+    "icon": "electron scripts/make-icon.cjs"
+  },
+  "build": {
+    "appId": "com.novaforge.studio",
+    "compression": "store",
+    "productName": "NovaForge Studio",
+    "copyright": "Copyright (c) 2026 NovaForge",
+    "directories": {
+      "output": "C:/nfbuild/release",
+      "buildResources": "build"
+    },
+    "extraResources": [
+      {
+        "from": "build/mimo",
+        "to": "mimo",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "files": [
+      "out/**/*",
+      "package.json",
+      "!node_modules/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "license": "build/license.txt",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "NovaForge Studio",
+      "artifactName": "NovaForge-Studio-Setup-${version}.${ext}",
+      "unicode": true,
+      "differentialPackage": false
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "build/icon.png",
+      "category": "Development",
+      "maintainer": "NovaForge",
+      "synopsis": "ESP32 / Raspberry Pi firmware IDE, flashing and device control",
+      "artifactName": "NovaForge-Studio-${version}-${arch}.${ext}"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "category": "public.app-category.developer-tools",
+      "icon": "build/icon.png",
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "gatekeeperAssess": false,
+      "hardenedRuntime": true,
+      "artifactName": "NovaForge-Studio-${version}-${arch}.${ext}"
+    },
+    "dmg": {
+      "iconSize": 96,
+      "window": {
+        "width": 540,
+        "height": 380
+      }
+    },
+    "afterSign": "scripts/notarize.cjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.6.0",
+    "@capacitor/cli": "^8.6.0",
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/ios": "^8.6.2",
+    "@monaco-editor/react": "^4.7.0",
+    "blockly": "^13.4.0",
+    "esptool-js": "^0.7.1",
+    "monaco-editor": "^0.57.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/w3c-web-serial": "^1.0.9",
+    "@vitejs/plugin-react": "^6.2.1",
+    "electron": "^45.2.3",
+    "electron-builder": "^26.18.0",
+    "electron-vite": "^6.0.0",
+    "typescript": "^5.9.0"
+  }
+}

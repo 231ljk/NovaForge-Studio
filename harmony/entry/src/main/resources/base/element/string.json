@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "NovaForge Studio 移动客户端"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "NovaForge Studio"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "NovaForge"
+    }
+  ]
+}

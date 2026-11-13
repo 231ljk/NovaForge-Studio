@@ -1,0 +1,74 @@
+# Dependencies and package caches
+node_modules/
+node_modules-*/
+.npm-cache/
+
+# Local runtimes, SDKs and toolchains
+.node-runtime/
+.rustup/
+.cargo/
+.android-home/
+.gradle-home/
+java/
+ohos-sdk/
+tools/
+
+# Build outputs and release artifacts
+out/
+dist/
+release/
+releases/
+nf-artifacts/
+nf-build/
+pkg/
+packages/
+firmware-dist/
+public/firmware/
+build-cache-*/
+tmp/
+.android-debug/
+.vscode-test-web/
+.hvigor/
+.cache/
+
+# Keep distributable Electron resources, never large model weights
+build/*
+!build/icon.png
+!build/icon.ico
+!build/entitlements.mac.plist
+!build/mimo/
+!build/mimo/**
+*.gguf
+
+# Native build outputs
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+ios/App/Pods/
+ios/App/build/
+ios/DerivedData/
+*.xcuserstate
+
+# Secrets and signing materials
+.env
+.env.*
+!.env.example
+*.p12
+*.p8
+*.mobileprovision
+*.keystore
+*.jks
+*.pem
+
+# Logs and OS/editor files
+*.log
+*.local
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+.vscode/
+.codebuddy/
+
+# Independent nested repository (has its own remote and pending changes)
+ha-integration/

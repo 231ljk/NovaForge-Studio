@@ -1,0 +1,9 @@
+{
+  "name": "entry",
+  "version": "1.0.0",
+  "description": "NovaForge Studio entry module",
+  "main": "",
+  "author": "NovaForge",
+  "license": "MIT",
+  "dependencies": {}
+}
