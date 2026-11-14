@@ -9,15 +9,13 @@ jobs:
   build-mac:
     runs-on: macos-latest
 
-    # 签名 + notarization 需要 Secrets；没配的话走 unsigned 打包
     env:
-      # 如果 Secrets 里没配，这些变量就是空字符串 → electron-builder 跳过签名
-      CSC_NAME: ${{ secrets.CSC_NAME || '' }}
-      CSC_LINK: ${{ secrets.CSC_LINK || '' }}
-      CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD || '' }}
-      APPLE_API_KEY: ${{ secrets.APPLE_API_KEY || '' }}
-      APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER || '' }}
-      APPLE_API_KEY_P8_BASE64: ${{ secrets.APPLE_API_KEY_P8_BASE64 || '' }}
+      CSC_LINK: ${{ secrets.CSC_LINK }}
+      CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+      CSC_NAME: ${{ secrets.CSC_NAME }}
+      APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+      APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+      NOTARY_KEY: ${{ secrets.APPLE_API_KEY_P8_BASE64 }}
 
     steps:
       - name: Checkout
@@ -26,15 +24,29 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
+          node-version: 22
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Decode signing cert to keychain (if provided)
-        if: ${{ env.CSC_LINK != '' }}
+      - name: Prepare macOS icon
         run: |
+          # 源图非正方形，先补齐为 1024x1024 再用系统工具生成 icns
+          sips -p 1024 1024 --padColor 0A0F15 build/icon.png --out /tmp/icon-square.png > /dev/null
+          rm -rf /tmp/icon.iconset && mkdir -p /tmp/icon.iconset
+          for s in 16 32 128 256 512; do
+            sips -z $s $s /tmp/icon-square.png --out /tmp/icon.iconset/icon_${s}x${s}.png > /dev/null
+            sips -z $((s*2)) $((s*2)) /tmp/icon-square.png --out /tmp/icon.iconset/icon_${s}x${s}@2x.png > /dev/null
+          done
+          iconutil -c icns /tmp/icon.iconset -o build/icon.icns
+          ls -l build/icon.icns
+
+      - name: Import signing certificate (if provided)
+        run: |
+          if [ -z "$CSC_LINK" ]; then
+            echo "没有 CSC_LINK，跳过证书导入"
+            exit 0
+          fi
           KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain-db"
           echo "$CSC_LINK" | base64 --decode > "$RUNNER_TEMP/cert.p12"
           security create-keychain -p "$CSC_KEY_PASSWORD" "$KEYCHAIN_PATH"
@@ -44,23 +56,50 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$CSC_KEY_PASSWORD" "$KEYCHAIN_PATH"
           security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | sed 's/"//g')
 
-      - name: Prepare notary .p8 key (if provided)
-        if: ${{ env.APPLE_API_KEY_P8_BASE64 != '' }}
+      - name: Prepare notary API key (if provided)
         run: |
-          echo "$APPLE_API_KEY_P8_BASE64" | base64 --decode > "$RUNNER_TEMP/notary.p8"
+          if [ -z "$NOTARY_KEY" ]; then
+            echo "没有公证 API Key，跳过"
+            exit 0
+          fi
+          echo "$NOTARY_KEY" | base64 --decode > "$RUNNER_TEMP/notary.p8"
           echo "APPLE_KEY_PATH=$RUNNER_TEMP/notary.p8" >> "$GITHUB_ENV"
 
-      - name: Build + Pack (unsigned fallback if no cert)
+      - name: Build + Pack
         run: |
+          # 空字符串会被 electron-builder 当成路径解析（报 "not a file"），必须彻底 unset
           if [ -z "$CSC_LINK" ]; then
-            echo "⚠️  无签名证书（CSC_LINK 未配置），走 unsigned 打包"
+            echo "无签名证书，产出未签名的 dmg/zip"
+            unset CSC_LINK
+            unset CSC_KEY_PASSWORD
+            unset CSC_NAME
             export CSC_IDENTITY_AUTO_DISCOVERY=false
           fi
+          if [ -z "$APPLE_API_KEY" ]; then
+            unset APPLE_API_KEY
+            unset APPLE_API_ISSUER
+          fi
           npm run pack:mac
-        timeout-minutes: 15
+        timeout-minutes: 25
+
+      - name: Verify signature and notarization
+        if: always()
+        run: |
+          shopt -s nullglob
+          for app in release/mac*/*.app; do
+            echo "== $app =="
+            codesign --verify --deep --strict --verbose=2 "$app" || echo "（未签名或用例不适用）"
+            spctl --assess --type execute --verbose=2 "$app" || echo "（Gatekeeper 未通过）"
+            xcrun stapler validate "$app" || echo "（无公证票据）"
+          done
+          for dmg in release/*.dmg; do
+            echo "== $dmg =="
+            ls -lh "$dmg"
+          done
 
       - name: List outputs
-        run: ls -lh C:/nfbuild/release/ 2>/dev/null || ls -lh release/ 2>/dev/null || echo "没找到产物目录"
+        if: always()
+        run: ls -lh release/ || true
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -69,5 +108,4 @@ jobs:
           path: |
             release/*.dmg
             release/*.zip
-            release/*.yml
           if-no-files-found: error

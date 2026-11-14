@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "pack:win": "electron-vite build && electron-builder --win --x64",
     "pack:linux": "electron-vite build && electron-builder --linux dir --x64 && node scripts/make-deb.mjs",
-    "pack:mac": "electron-vite build && electron-builder --mac --x64 --arm64 -c.directories.output=release",
+    "pack:mac": "electron-vite build && electron-builder --mac --x64 --arm64 -c.directories.output=release --publish never",
     "mobile:sync": "cap sync android",
     "pack:android": "cap sync android && cd android && gradlew.bat assembleDebug && cd ..",
     "pack:harmony": "node scripts/pack-harmony.mjs",
@@ -113,6 +113,7 @@
     "afterSign": "scripts/notarize.cjs"
   },
   "dependencies": {
+    "@capacitor-community/bluetooth-le": "^8.3.0",
     "@capacitor/android": "^8.6.0",
     "@capacitor/cli": "^8.6.0",
     "@capacitor/core": "^8.6.0",

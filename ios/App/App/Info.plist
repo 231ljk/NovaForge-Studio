@@ -64,6 +64,15 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>用于搜索并添加附近的 NovaForge 开发板</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>用于在局域网内发现 Home Assistant 与开发板</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_http._tcp</string>
+		<string>_home-assistant._tcp</string>
+	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 </dict>

@@ -3,1165 +3,199 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#0d1117" />
-<title>NovaForge Studio</title>
-<style>
-  :root {
-    --bg: #0d1117; --panel: #161b22; --panel2: #1c2129; --border: #30363d;
-    --text: #e6edf3; --muted: #8b949e; --accent: #4493f8;
-    --ok: #3fb950; --err: #ff7b72; --warn: #d29922;
-  }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
-    font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; }
-  header { position: sticky; top: 0; z-index: 10; background: rgba(13,17,23,.92);
-    backdrop-filter: blur(8px); border-bottom: 1px solid var(--border);
-    padding: calc(10px + env(safe-area-inset-top)) 16px 10px; display: flex; align-items: center; gap: 10px; }
-  header .logo { font-size: 20px; }
-  header b { font-size: 17px; }
-  header .muted { margin-left: auto; font-size: 12px; color: var(--muted); }
-  main { padding: 14px 14px calc(76px + env(safe-area-inset-bottom)); max-width: 640px; margin: 0 auto;
-    display: flex; flex-direction: column; gap: 12px; }
-  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
-  .panel h3 { margin: 0 0 10px; font-size: 15px; }
-  .muted { color: var(--muted); }
-  .small { font-size: 12px; }
-  .mono { font-family: ui-monospace, Consolas, monospace; word-break: break-all; }
-  .row { display: flex; gap: 8px; }
-  input, textarea { flex: 1; min-width: 0; background: var(--panel2); border: 1px solid var(--border);
-    border-radius: 8px; color: var(--text); padding: 11px 12px; font-size: 15px; outline: none; }
-  input:focus, textarea:focus { border-color: var(--accent); }
-  button { background: var(--accent); border: 0; color: #fff; border-radius: 8px;
-    padding: 11px 16px; font-size: 15px; font-weight: 600; cursor: pointer; }
-  button:disabled { opacity: .5; }
-  button.ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
-  button.danger { background: transparent; border: 1px solid var(--border); color: var(--err); padding: 6px 10px; font-size: 13px; }
-  .dev { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
-  .dev-head { display: flex; align-items: center; gap: 8px; }
-  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); flex: none; }
-  .dot.on { background: var(--ok); box-shadow: 0 0 6px var(--ok); }
-  .dot.off { background: var(--err); }
-  .dot.warn { background: var(--warn); }
-  .dev-head b { font-size: 16px; }
-  .dev-head .id { font-size: 11px; color: var(--muted); margin-left: auto; }
-  .meta { font-size: 12px; color: var(--muted); margin: 6px 0 10px; }
-  .pins { display: flex; flex-direction: column; gap: 8px; }
-  .pin { background: var(--panel2); border: 1px solid var(--border); border-radius: 10px;
-    padding: 10px 12px; display: flex; align-items: center; gap: 10px; min-height: 52px; }
-  .pin .name { font-weight: 600; font-size: 15px; }
-  .vault-row { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0;
-    border-bottom: 1px solid rgba(255,255,255,.06); cursor: pointer; }
-  .pin .key { font-size: 11px; color: var(--muted); font-family: ui-monospace, Consolas, monospace; }
-  .switch { margin-left: auto; position: relative; width: 52px; height: 30px; flex: none;
-    background: var(--border); border-radius: 15px; transition: background .15s; cursor: pointer; border: 0; padding: 0; }
-  .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px;
-    background: #fff; border-radius: 50%; transition: transform .15s; }
-  .switch.on { background: var(--ok); }
-  .switch.on::after { transform: translateX(22px); }
-  .badge { font-size: 12px; padding: 3px 8px; border-radius: 20px; background: var(--panel2);
-    border: 1px solid var(--border); color: var(--muted); }
-  .badge.ok { color: var(--ok); border-color: var(--ok); }
-  .badge.err { color: var(--err); border-color: var(--err); }
-  .toast { position: fixed; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom)); transform: translateX(-50%);
-    background: #1f2733; border: 1px solid var(--border); color: var(--text);
-    border-radius: 10px; padding: 10px 18px; font-size: 14px; z-index: 99;
-    opacity: 0; pointer-events: none; transition: opacity .2s; max-width: 88vw; text-align: center; }
-  .toast.show { opacity: 1; }
-  .scan-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
-  .scan-item { display: flex; align-items: center; gap: 10px; background: var(--panel2);
-    border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 14px; }
-  .scan-item button { margin-left: auto; padding: 7px 14px; font-size: 13px; }
-  .empty { text-align: center; color: var(--muted); padding: 34px 10px; font-size: 14px; line-height: 1.8; }
-  .err-line { color: var(--err); font-size: 13px; margin-top: 8px; }
-  .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border);
-    border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; vertical-align: -2px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  /* 底部主导航 */
-  .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
-    background: rgba(13,17,23,.96); backdrop-filter: blur(10px);
-    border-top: 1px solid var(--border); display: flex;
-    padding-bottom: env(safe-area-inset-bottom); }
-  .tabbar button { flex: 1; background: none; border: 0; color: var(--muted);
-    padding: 8px 0 6px; font-size: 11px; font-weight: 500;
-    display: flex; flex-direction: column; align-items: center; gap: 3px; }
-  .tabbar button.active { color: var(--accent); }
-  .tabbar svg { width: 22px; height: 22px; }
-  .sec { display: none; }
-  .sec.active { display: flex; flex-direction: column; gap: 12px; }
-  /* AI 聊天 */
-  .chat-box { display: flex; flex-direction: column; gap: 10px; }
-  .msg { max-width: 86%; padding: 10px 13px; border-radius: 14px; font-size: 14px; line-height: 1.65;
-    white-space: pre-wrap; word-break: break-word; }
-  .msg.user { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
-  .msg.ai { align-self: flex-start; background: var(--panel2); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
-  .msg.sys { align-self: center; background: none; color: var(--muted); font-size: 12px; padding: 2px; }
-  .chat-input { display: flex; gap: 8px; }
-  .chat-input textarea { resize: none; height: 48px; }
-  /* 编译 */
-  .proj { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
-  .proj-head { display: flex; align-items: center; gap: 8px; }
-  .console { background: #010409; border: 1px solid var(--border); border-radius: 10px;
-    padding: 10px; height: 260px; overflow-y: auto; font-family: ui-monospace, Consolas, monospace;
-    font-size: 11.5px; line-height: 1.55; color: #9db2c8; white-space: pre-wrap; word-break: break-all; }
-  .progress { height: 5px; background: var(--panel2); border-radius: 3px; overflow: hidden; }
-  .progress > div { height: 100%; background: var(--accent); transition: width .2s; }
-  .ha-entity { display: flex; align-items: center; gap: 10px; background: var(--panel2);
-    border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; min-height: 52px; }
-  .ha-entity .val { margin-left: auto; font-size: 13px; color: var(--muted); }
-  select { background: var(--panel2); border: 1px solid var(--border); border-radius: 8px;
-    color: var(--text); padding: 10px; font-size: 14px; }
-</style>
+<meta name="theme-color" content="#080b11" />
+<title>NovaForge</title>
+<link rel="stylesheet" href="app.css" />
 </head>
 <body>
-<header>
-  <span class="logo">⚡</span><b>NovaForge</b>
-  <span class="muted" id="hdr-sub"></span>
-</header>
-<main>
-  <!-- 设备：ESP 开发板直接控制 -->
-  <section class="sec active" id="sec-dev">
-    <div id="dev-list" style="display:flex;flex-direction:column;gap:12px"></div>
-    <div class="empty" id="dev-empty">
-      还没有设备<br /><span class="small">在下方手动添加，或扫描局域网发现设备</span>
-    </div>
-    <div class="panel">
-      <h3>添加开发板</h3>
-      <div class="row" style="margin-bottom:8px">
-        <input id="in-host" placeholder="设备 IP，如 192.168.1.20" autocomplete="off" />
-        <input id="in-port" placeholder="端口" value="80" inputmode="numeric" style="max-width:86px" />
-      </div>
-      <div class="row">
-        <input id="in-token" placeholder="控制授权码（电脑端软件中查看）" autocomplete="off" />
-        <button id="btn-add">连接</button>
-      </div>
-      <div class="err-line" id="add-err"></div>
-      <div class="row" style="margin-top:10px">
-        <input id="in-net" placeholder="扫描网段，如 192.168.1." autocomplete="off" />
-        <button id="btn-scan" class="ghost">扫描</button>
-      </div>
-      <div class="scan-list" id="scan-list"></div>
-      <div class="small muted" id="scan-stat"></div>
-    </div>
-  </section>
 
-  <!-- 编译：远程触发电脑端编译/烧录 -->
-  <section class="sec" id="sec-build">
-    <div class="panel" id="build-need-pc" style="display:none">
-      <h3>需要连接电脑</h3>
-      <div class="small muted">编译在电脑的编译器上执行。请到「我的」页配对电脑后使用。</div>
-    </div>
-    <div id="proj-list" style="display:flex;flex-direction:column;gap:12px"></div>
-    <div class="panel" id="build-log-panel" style="display:none">
-      <h3 id="build-log-title">编译日志</h3>
-      <div class="progress" id="build-prog" style="display:none;margin-bottom:8px"><div style="width:0%"></div></div>
-      <div class="console" id="build-log"></div>
-    </div>
-    <div class="panel" id="flash-panel" style="display:none">
-      <h3>烧录到开发板</h3>
-      <div class="small muted" style="margin-bottom:8px">开发板需插在已配对的电脑上</div>
-      <div class="row">
-        <select id="flash-port" style="flex:1"></select>
-        <button id="btn-flash">烧录</button>
-      </div>
-    </div>
-  </section>
+<!-- ============ 登录（仅邮箱验证码 / GitHub，无需电脑地址与密码） ============ -->
+<div class="login-wrap" id="view-login" style="display:none">
+  <div class="login-card">
+    <div class="login-logo">⚡</div>
+    <h1>NovaForge</h1>
+    <p class="muted small">登录你的 Home Assistant，控制家里的所有设备</p>
 
-  <!-- AI 助手 -->
-  <section class="sec" id="sec-ai">
-    <div class="panel">
-      <h3 style="display:flex;align-items:center;gap:8px">AI 助手
-        <span class="badge ok" id="ai-badge">内置</span>
-        <span style="margin-left:auto"></span>
-        <button class="ghost" id="btn-ai-toggle" style="padding:6px 12px;font-size:13px;display:none">启动</button>
-      </h3>
-      <div class="row" style="margin-bottom:8px">
-        <button class="ghost active" id="src-local" style="flex:1;padding:8px;font-size:13px">内置 AI（离线）</button>
-        <button class="ghost" id="src-pc" style="flex:1;padding:8px;font-size:13px">电脑 MiMo</button>
-      </div>
-      <div class="small muted" id="ai-desc">内置引擎直接运行在手机上，不联网、无需电脑，可写固件、解释报错、编排设备。</div>
+    <input id="login-ha-url" placeholder="HA 地址，如 http://192.168.1.10:8123" autocomplete="off" inputmode="url" />
+    <input id="login-email" placeholder="邮箱" type="email" autocomplete="email" />
+    <div class="row">
+      <input id="login-code" placeholder="6 位邮箱验证码" inputmode="numeric" maxlength="6" autocomplete="one-time-code" />
+      <button class="btn ghost" id="btn-code" style="flex:none">获取验证码</button>
     </div>
-    <div class="chat-box" id="chat-box"></div>
-    <div class="chat-input">
-      <textarea id="chat-in" placeholder="问点什么，比如：帮我编译客厅灯项目"></textarea>
-      <button id="btn-chat" style="align-self:stretch">发送</button>
-    </div>
-  </section>
+    <button class="btn" id="btn-login" style="width:100%">登录</button>
 
-  <!-- Home Assistant -->
-  <section class="sec" id="sec-ha">
-    <div class="panel" id="ha-setup">
-      <h3>接入 Home Assistant</h3>
-      <div class="row" style="margin-bottom:8px">
-        <input id="ha-url" placeholder="HA 地址，如 http://homeassistant.local:8123" autocomplete="off" />
-      </div>
-      <div class="row">
-        <input id="ha-token" placeholder="长期访问令牌（HA 用户资料页最下方创建）" autocomplete="off" />
-        <button id="btn-ha-save">连接</button>
-      </div>
-      <div class="small muted" style="margin-top:8px" id="ha-hint">手机与 HA 同一内网时直连；不在同一内网时自动经已配对电脑转发。</div>
-      <div class="err-line" id="ha-err"></div>
+    <div class="login-divider"><span>或</span></div>
+    <button class="btn ghost" id="btn-github" style="width:100%">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" style="vertical-align:-3px;margin-right:6px"><path d="M12 .5A11.5 11.5 0 0 0 .5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.15c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.72-1.53-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.59.23 2.76.11 3.05.73.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.25 5.67.41.35.78 1.05.78 2.12v3.14c0 .3.21.67.8.55A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
+      使用 GitHub 登录
+    </button>
+    <button class="btn ghost" id="btn-gitee" style="width:100%">
+      使用 Gitee 登录
+    </button>
+    <div class="small muted" style="text-align:center;margin-top:14px;line-height:1.8">
+      验证码由你 HA 上的 NovaForge 插件发送<br />同一邮箱在 HA 与手机间自动关联，无需电脑
     </div>
-    <div id="ha-list" style="display:flex;flex-direction:column;gap:8px"></div>
-    <div class="empty" id="ha-empty" style="display:none">没有可控实体<br /><span class="small">只会列出开关、灯光与传感器</span></div>
-  </section>
+    <div class="err-line" id="login-err"></div>
+  </div>
 
-  <!-- 我的：电脑配对 + 账号 -->
-  <section class="sec" id="sec-me">
-    <div class="panel">
-      <h3 style="display:flex;align-items:center;gap:8px">邮箱账号
-        <span class="badge" id="acc-badge">未登录</span>
-      </h3>
-      <div id="acc-signedin" style="display:none">
-        <div class="small" style="margin-bottom:4px"><b id="acc-email"></b></div>
-        <div class="small muted" id="acc-repos" style="margin-bottom:10px"></div>
-        <button class="danger" id="btn-acc-logout">退出登录</button>
-      </div>
-      <div id="acc-vault" style="margin-top:10px;border-top:1px solid rgba(255,255,255,.08);padding-top:10px">
-        <div class="small muted" style="display:flex;justify-content:space-between;align-items:center;gap:8px">
-          <span id="acc-vault-tip">本机账号库：0 个</span>
-          <button class="ghost" id="btn-acc-sync" style="flex:none;padding:5px 10px;font-size:12px">与电脑同步</button>
-        </div>
-        <div id="acc-vault-list" class="small" style="margin-top:6px"></div>
-      </div>
-      <div id="acc-form">
-        <div class="small muted" style="margin-bottom:10px">
-          用邮箱登录后即可控制所有设备：手机、电脑、HA 共用这一个账号。
-          注册与登录都需要发到真实邮箱的验证码，首次使用请先注册。
-        </div>
-        <div class="row" style="margin-bottom:8px">
-          <input id="in-pc-host" placeholder="电脑地址，如 192.168.1.5:18700" autocomplete="off" />
-        </div>
-        <div class="row" style="margin-bottom:8px">
-          <input id="in-email" placeholder="邮箱" type="email" autocomplete="email" />
-        </div>
-        <div class="row" style="margin-bottom:8px">
-          <input id="in-code" placeholder="6 位邮箱验证码" inputmode="numeric" maxlength="6" autocomplete="one-time-code" />
-          <button class="ghost" id="btn-get-code" style="flex:none">获取验证码</button>
-        </div>
-        <div class="row" id="in-pass-row" style="margin-bottom:8px;display:none">
-          <input id="in-pass" placeholder="密码（至少 6 位）" type="password" autocomplete="current-password" />
-        </div>
-        <div class="row" id="in-name-row" style="margin-bottom:8px;display:none">
-          <input id="in-name" placeholder="昵称（可选）" autocomplete="off" />
-        </div>
-        <div class="row">
-          <button id="btn-acc-submit" style="flex:1">登录</button>
-          <button class="ghost" id="btn-acc-mode" style="flex:none">注册</button>
-        </div>
-        <div class="row" id="in-kind-row" style="margin-top:8px">
-          <button class="ghost" id="btn-acc-kind" style="flex:1">改用密码登录</button>
-        </div>
-        <div class="err-line" id="acc-err"></div>
-      </div>
-    </div>
+  <div class="login-card" id="oauth-panel" style="display:none;text-align:center">
+    <h3 id="oauth-title">在浏览器中完成 GitHub 授权</h3>
+    <div class="oauth-code" id="oauth-code"></div>
+    <a class="oauth-link" id="oauth-link" target="_blank" rel="noopener">打开 github.com/login/device</a>
+    <div class="small muted" style="margin:12px 0" id="oauth-tip">输入上方代码并授权后，此处会自动完成登录</div>
+    <button class="btn ghost sm" id="oauth-cancel">取消</button>
+  </div>
+</div>
 
-    <div class="panel" id="pc-info" style="display:none">
-      <h3>当前电脑</h3>
-      <div class="small" style="margin-bottom:6px">已连接 <b class="mono" id="pc-addr"></b></div>
-      <div class="small muted" style="margin-bottom:10px">AI、编译、串口、代码仓库均由这台电脑提供</div>
-      <button class="danger" id="btn-unpair">断开</button>
-    </div>
-    <div class="panel">
-      <h3>关于</h3>
-      <div class="small muted" style="line-height:1.8">
-        NovaForge Studio 移动客户端。一个账号控制多台设备：<br />
-        · 「设备」— 局域网直连 ESP 开发板引脚<br />
-        · 「编译」— 手机远程调用电脑编译器<br />
-        · 「AI」— 电脑内置 MiMo 大模型<br />
-        · 「HA」— 接入 Home Assistant 控制智能设备
-      </div>
-    </div>
-  </section>
-</main>
+<!-- ============ 主界面 ============ -->
+<div class="app" id="view-app" style="display:none">
+  <aside class="rail">
+    <div class="rail-logo">⚡</div>
+    <nav class="rail-nav">
+      <button class="active" data-tab="home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>首页
+      </button>
+      <button data-tab="scenes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v3M5.6 5.6l2.1 2.1M3 12h3M18 12h3M16.3 7.7l2.1-2.1"/><circle cx="12" cy="14" r="4"/></svg>场景
+      </button>
+      <button data-tab="ai">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16v10H8l-4 4z"/><path d="M9 10h6M9 13h3"/></svg>AI
+      </button>
+      <button data-tab="me">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>我的
+      </button>
+    </nav>
+  </aside>
 
-<nav class="tabbar">
-  <button class="active" data-tab="dev"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v8"/><path d="M6.5 6.5a7 7 0 1 0 11 0"/></svg>设备</button>
-  <button data-tab="build"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6 3 12l6 6"/><path d="M15 6l6 6-6 6"/></svg>编译</button>
-  <button data-tab="ai"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l1.8 4.6L18 9l-4.2 1.4L12 15l-1.8-4.6L6 9l4.2-1.4z"/><circle cx="19" cy="17" r="2.4"/></svg>AI</button>
-  <button data-tab="ha"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11 12 4l8 7"/><path d="M6 10v10h12V10"/></svg>HA</button>
-  <button data-tab="me"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>我的</button>
-</nav>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="logo">⚡</span><b id="hdr-title">NovaForge</b></div>
+      <span class="hdr-sub" id="hdr-sub"></span>
+      <button class="add-btn" id="btn-add-device" title="搜索添加设备">＋</button>
+      <button class="avatar" id="hdr-avatar">N</button>
+    </header>
+
+    <main>
+      <!-- 首页：HA 设备 -->
+      <section class="sec active" id="sec-home">
+        <div class="hero">
+          <div class="hero-greet" id="home-greet">你好</div>
+          <div class="hero-title" id="home-ha-name">我的家</div>
+          <div class="hero-stats" id="home-sum">正在连接 Home Assistant…</div>
+        </div>
+        <div class="sec-title">设备 <span id="home-dev-count"></span>
+          <button class="link" onclick="NF.refresh()">刷新</button>
+        </div>
+        <div class="dev-grid" id="home-grid"></div>
+        <div class="empty" id="home-empty" style="display:none">
+          HA 里还没有设备<br /><span class="small">点右上角 ＋ 搜索添加开发板，或在 HA 中添加其他设备</span>
+        </div>
+      </section>
+
+      <!-- 场景与自动化（全部来自 HA） -->
+      <section class="sec" id="sec-scenes">
+        <div class="sec-title" style="margin-top:0">场景 <span>来自 Home Assistant</span></div>
+        <div class="dev-grid" id="scene-list"></div>
+        <div class="sec-title">自动化 <span id="auto-count"></span></div>
+        <div id="auto-list" style="display:flex;flex-direction:column;gap:8px"></div>
+        <div class="empty" id="scene-empty" style="display:none">
+          还没有场景与自动化<br /><span class="small">在 HA 的「设置 → 自动化与场景」中创建后，这里会自动出现</span>
+        </div>
+      </section>
+
+      <!-- AI：对话与设备控制（能力来自 HA Assist） -->
+      <section class="sec" id="sec-ai">
+        <div class="ai-hero" id="ai-hero">
+          <div class="ai-badge">NovaForge AI</div>
+          <h2>用对话控制家，也让 AI 帮你写固件</h2>
+          <p class="small muted">由你 HA 上的 Assist 驱动，不需要额外填模型密钥</p>
+          <div class="ai-chips">
+            <button class="chip" data-prompt="家里现在哪些灯是开着的？">哪些灯开着</button>
+            <button class="chip" data-prompt="把客厅的灯关掉">关客厅灯</button>
+            <button class="chip" data-prompt="帮我写一个 ESP32 点亮板载 LED 的 Arduino 程序">写点灯程序</button>
+          </div>
+        </div>
+        <div class="ai-thread" id="ai-thread"></div>
+        <div class="ai-compose">
+          <textarea id="ai-input" rows="1" placeholder="问点什么，或让它控制设备…"></textarea>
+          <button class="btn" id="btn-ai-send">发送</button>
+        </div>
+      </section>
+
+      <!-- 搜索添加设备（自动蓝牙 + WiFi 扫描） -->
+      <section class="sec" id="sec-add">
+        <div class="panel">
+          <h3 id="scan-title">正在搜索附近设备…</h3>
+          <div class="scan-bar"><div class="scan-bar-inner" id="scan-bar"></div></div>
+          <div class="small muted" id="scan-status">正在通过蓝牙与 WiFi 搜索，请确保设备已通电</div>
+          <div id="scan-results" style="display:flex;flex-direction:column;gap:8px;margin-top:12px"></div>
+          <div class="row" style="margin-top:12px">
+            <input id="in-net" placeholder="WiFi 网段，如 192.168.1." autocomplete="off" />
+            <button class="btn ghost" id="btn-rescan" style="flex:none">重新扫描</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>搜索不到？手动添加</h3>
+          <div class="row" style="margin-bottom:8px">
+            <input id="add-host" placeholder="设备 IP，如 192.168.1.20" autocomplete="off" />
+            <input id="add-port" placeholder="端口" value="80" inputmode="numeric" style="max-width:82px" />
+          </div>
+          <div class="row">
+            <input id="add-token" placeholder="控制授权码（电脑端 NovaForge Studio 中查看）" autocomplete="off" />
+            <button class="btn" id="btn-manual-add" style="flex:none">添加</button>
+          </div>
+          <div class="small muted" style="margin-top:8px">添加后设备将接入你的 Home Assistant，由 HA 统一管理</div>
+          <div class="err-line" id="add-err"></div>
+        </div>
+      </section>
+
+      <!-- 我的 -->
+      <section class="sec" id="sec-me">
+        <div class="panel">
+          <h3 style="display:flex;align-items:center;gap:8px">账号
+            <span class="badge ok" id="me-provider">邮箱</span>
+          </h3>
+          <div class="small" style="margin-bottom:12px"><b id="me-email"></b></div>
+          <div class="small muted" style="margin-bottom:12px">HA 插件与手机使用同一账号，设备与控制自动互通</div>
+          <button class="btn danger sm" id="btn-logout">退出登录</button>
+        </div>
+        <div class="panel">
+          <h3>Home Assistant</h3>
+          <div class="small" style="margin-bottom:4px"><b id="me-ha-name"></b></div>
+          <div class="small muted mono" id="me-ha-url" style="margin-bottom:12px"></div>
+          <button class="btn ghost sm" id="btn-relogin">更换 HA / 重新登录</button>
+        </div>
+        <div class="panel">
+          <h3>关于</h3>
+          <div class="small muted" style="line-height:1.9">
+            NovaForge 手机端是 Home Assistant 的遥控器：<br />
+            · 首页与场景全部来自 HA，实时同步<br />
+            · 开发板通过 HA 插件接入，由 HA 统一调度<br />
+            · 编写固件与 AI 编程请在电脑端 NovaForge Studio 进行
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <nav class="tabbar">
+    <button class="active" data-tab="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg>首页
+    </button>
+    <button data-tab="scenes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v3M5.6 5.6l2.1 2.1M3 12h3M18 12h3M16.3 7.7l2.1-2.1"/><circle cx="12" cy="14" r="4"/></svg>场景
+    </button>
+    <button data-tab="ai">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16v10H8l-4 4z"/><path d="M9 10h6M9 13h3"/></svg>AI
+    </button>
+    <button data-tab="me">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>我的
+    </button>
+  </nav>
+</div>
 
 <div class="toast" id="toast"></div>
-
-<script src="local-ai.js"></script>
-<script>
-(function () {
-  'use strict'
-  // ============================== 通用 ==============================
-  function $(id) { return document.getElementById(id) }
-  function load(key, def) {
-    try { var v = JSON.parse(localStorage.getItem(key)); return v == null ? def : v } catch (e) { return def }
-  }
-  function save(key, v) { localStorage.setItem(key, JSON.stringify(v)) }
-  function esc(s) {
-    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
-    })
-  }
-  var toastTimer = null
-  function toast(msg) {
-    var t = $('toast')
-    t.textContent = msg
-    t.classList.add('show')
-    clearTimeout(toastTimer)
-    toastTimer = setTimeout(function () { t.classList.remove('show') }, 2600)
-  }
-  function req(url, opt, timeoutMs) {
-    var ctrl = new AbortController()
-    var timer = setTimeout(function () { ctrl.abort() }, timeoutMs || 8000)
-    opt = opt || {}
-    opt.signal = ctrl.signal
-    return fetch(url, opt).then(function (r) { clearTimeout(timer); return r },
-      function (e) { clearTimeout(timer); throw e })
-  }
-
-  // ============================== 电脑 + 邮箱账号 ==============================
-  var gw = load('nf-mobile-gw', null)  // { host, token, email, name }
-  var accMode = 'login'   // login | register
-  var accKind = 'code'    // code | password（仅登录时有效）
-  var codeTimer = null
-  function gwBase() { return gw ? 'http://' + gw.host : null }
-  function gwFetch(path, opt, timeoutMs) {
-    if (!gw) return Promise.reject(new Error('未连接电脑'))
-    opt = opt || {}
-    opt.headers = Object.assign({ 'Content-Type': 'application/json' }, opt.headers || {})
-    if (gw.token) opt.headers.Authorization = 'Bearer ' + gw.token
-    return req(gwBase() + path, opt, timeoutMs).then(function (r) {
-      if (r.status === 401) { disconnect(true); throw new Error('登录已失效，请重新登录') }
-      return r.json()
-    })
-  }
-  function gwSseUrl() { return gwBase() + '/api/events?token=' + encodeURIComponent(gw.token) }
-
-  function normalizeHost(v) {
-    var host = (v || '').trim().replace(/^https?:\/\//, '').replace(/\/+$/, '')
-    if (!host) return ''
-    if (host.indexOf(':') < 0) host += ':18700'
-    return host
-  }
-
-  /** 根据「登录/注册」与「验证码/密码」同步表单显隐与文案 */
-  function syncAccForm() {
-    var reg = accMode === 'register'
-    $('btn-acc-submit').textContent = reg ? '注册并登录' : (accKind === 'code' ? '验证码登录' : '密码登录')
-    $('btn-acc-mode').textContent = reg ? '返回登录' : '注册'
-    $('in-name-row').style.display = reg ? 'flex' : 'none'
-    $('in-kind-row').style.display = reg ? 'none' : 'flex'
-    $('btn-acc-kind').textContent = accKind === 'code' ? '改用密码登录' : '改用验证码登录'
-    $('in-pass-row').style.display = reg || accKind === 'password' ? 'flex' : 'none'
-    $('in-pass').placeholder = reg ? '设置密码（可选，至少 6 位）' : '密码（至少 6 位）'
-  }
-
-  // —— 本机账号库：手机上独立保存的一份邮箱账号（与电脑互相同步，不需要服务器） ——
-  var accVault = load('nf-mobile-accounts', {})
-
-  function persistVault() { save('nf-mobile-accounts', accVault) }
-
-  function newSalt() {
-    var b = new Uint8Array(16)
-    if (window.crypto && crypto.getRandomValues) crypto.getRandomValues(b)
-    else for (var i = 0; i < 16; i++) b[i] = Math.floor(Math.random() * 256)
-    return Array.prototype.map.call(b, function (x) { return ('0' + x.toString(16)).slice(-2) }).join('')
-  }
-
-  /** 本机用 PBKDF2-SHA256 存密码哈希（与电脑端 scrypt 各存各的，互不接触明文） */
-  function hashPass(pass, salt) {
-    if (!window.crypto || !crypto.subtle) return Promise.resolve('')
-    var enc = new TextEncoder()
-    return crypto.subtle.importKey('raw', enc.encode(pass), { name: 'PBKDF2' }, false, ['deriveBits'])
-      .then(function (key) {
-        return crypto.subtle.deriveBits(
-          { name: 'PBKDF2', salt: enc.encode(salt), iterations: 120000, hash: 'SHA-256' }, key, 256)
-      })
-      .then(function (bits) {
-        return Array.prototype.map.call(new Uint8Array(bits), function (x) {
-          return ('0' + x.toString(16)).slice(-2)
-        }).join('')
-      })
-  }
-
-  function vaultRemember(email, name, pass) {
-    var rec = accVault[email] || { email: email, createdAt: Date.now() }
-    rec.name = name || rec.name || ''
-    rec.syncedAt = Date.now()
-    if (pass) {
-      var salt = newSalt()
-      rec.salt = salt
-      return hashPass(pass, salt).then(function (h) {
-        if (h) { rec.hash = h; rec.codeOnly = false } else { rec.codeOnly = true }
-        accVault[email] = rec
-        persistVault()
-        renderVault()
-      })
-    }
-    rec.codeOnly = !rec.hash
-    accVault[email] = rec
-    persistVault()
-    renderVault()
-    return Promise.resolve()
-  }
-
-  function renderVault() {
-    var emails = Object.keys(accVault)
-    $('acc-vault-tip').textContent = '本机账号库：' + emails.length + ' 个'
-    var list = $('acc-vault-list')
-    if (!list) return
-    list.innerHTML = emails.map(function (e) {
-      var r = accVault[e]
-      return '<div class="vault-row" data-email="' + esc(e) + '"><span>' + esc(e) + '</span>' +
-        '<span class="muted">' + (r.hash ? '可离线密码登录' : '仅验证码') + '</span></div>'
-    }).join('')
-    Array.prototype.forEach.call(list.querySelectorAll('.vault-row'), function (row) {
-      row.addEventListener('click', function () {
-        $('in-email').value = row.getAttribute('data-email')
-      })
-    })
-  }
-
-  /** 与电脑双向对齐账号清单；密码哈希只留本机，绝不上传 */
-  function syncVault() {
-    if (!gw || !gw.token) return Promise.resolve(-1)
-    return gwFetch('/api/account/list').then(function (res) {
-      if (!res.ok || !res.accounts) return 0
-      var added = 0
-      res.accounts.forEach(function (a) {
-        var rec = accVault[a.email]
-        if (!rec) { rec = { email: a.email, createdAt: a.createdAt || Date.now() }; added++ }
-        rec.name = a.name || rec.name || ''
-        rec.syncedAt = Date.now()
-        accVault[a.email] = rec
-      })
-      persistVault()
-      renderVault()
-      return added
-    }).catch(function () { return 0 })
-  }
-
-  /** 连不上电脑时，用本机保存的哈希完成离线密码登录 */
-  function offlineLogin(host, email, pass) {
-    var rec = accVault[email]
-    if (!rec || !rec.hash) {
-      $('acc-err').textContent = '连不上电脑，且本机没有该账号的离线凭据'
-      return Promise.resolve()
-    }
-    return hashPass(pass, rec.salt).then(function (h) {
-      if (h !== rec.hash) { $('acc-err').textContent = '密码不正确'; return }
-      gw = { host: host, token: '', email: email, name: rec.name || '', offline: true }
-      save('nf-mobile-gw', gw)
-      $('acc-err').textContent = ''
-      toast('离线登录成功（未连接电脑）')
-      $('in-pass').value = ''
-      renderPc()
-      refreshProjects()
-      connectSse()
-    })
-  }
-
-  function getCode() {
-    var host = normalizeHost($('in-pc-host').value)
-    var email = $('in-email').value.trim()
-    $('acc-err').textContent = ''
-    if (!host) { $('acc-err').textContent = '请填写电脑地址（电脑端「设置」页可查看）'; return }
-    if (!email) { $('acc-err').textContent = '请先填写邮箱'; return }
-    var btn = $('btn-get-code')
-    btn.disabled = true
-    req('http://' + host + '/api/auth/request-code', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email, purpose: accMode === 'register' ? 'register' : 'login' })
-    }, 20000).then(function (r) { return r.json() }).then(function (res) {
-      if (!res.ok) {
-        $('acc-err').textContent = res.error || '验证码发送失败'
-        btn.disabled = false
-        return
-      }
-      toast('验证码已发送，30 秒内有效')
-      var left = 30
-      btn.textContent = left + ' 秒'
-      if (codeTimer) clearInterval(codeTimer)
-      codeTimer = setInterval(function () {
-        left--
-        if (left <= 0) {
-          clearInterval(codeTimer); codeTimer = null
-          btn.disabled = false
-          btn.textContent = '获取验证码'
-          $('acc-err').textContent = '验证码已过期，请重新获取'
-        } else {
-          btn.textContent = left + ' 秒'
-        }
-      }, 1000)
-    }).catch(function () {
-      $('acc-err').textContent = '连不上电脑，请确认地址正确且在同一 Wi-Fi'
-      btn.disabled = false
-    })
-  }
-
-  function submitAccount() {
-    var host = normalizeHost($('in-pc-host').value)
-    var email = $('in-email').value.trim()
-    var code = $('in-code').value.trim()
-    var pass = $('in-pass').value
-    var name = $('in-name').value.trim()
-    $('acc-err').textContent = ''
-    if (!host) { $('acc-err').textContent = '请填写电脑地址（电脑端「设置」页可查看）'; return }
-    if (!email) { $('acc-err').textContent = '请填写邮箱'; return }
-    var path = ''
-    var body = { email: email }
-    if (accMode === 'register') {
-      if (!/^\d{6}$/.test(code)) { $('acc-err').textContent = '请先获取并填写 6 位邮箱验证码'; return }
-      path = '/api/auth/register'
-      body.code = code
-      body.name = name
-      if (pass) body.password = pass
-    } else if (accKind === 'code') {
-      if (!/^\d{6}$/.test(code)) { $('acc-err').textContent = '请先获取并填写 6 位邮箱验证码'; return }
-      path = '/api/auth/login-code'
-      body.code = code
-    } else {
-      if (!pass) { $('acc-err').textContent = '请填写密码'; return }
-      path = '/api/auth/login'
-      body.password = pass
-    }
-    var btn = $('btn-acc-submit')
-    btn.disabled = true
-    req('http://' + host + path, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    }, 15000).then(function (r) { return r.json() }).then(function (res) {
-      if (!res.ok) { $('acc-err').textContent = res.error || '操作失败'; return }
-      gw = { host: host, token: res.token, email: (res.account && res.account.email) || email, name: (res.account && res.account.name) || name }
-      save('nf-mobile-gw', gw)
-      toast(accMode === 'register' ? '注册成功' : '登录成功')
-      $('in-code').value = ''
-      vaultRemember(gw.email, gw.name, accMode === 'register' || accKind === 'password' ? pass : '')
-        .then(function () { return syncVault() })
-      $('in-pass').value = ''
-      renderPc()
-      refreshAccount()
-      refreshProjects()
-      refreshAiStatus()
-      connectSse()
-    }).catch(function () {
-      if (accMode === 'login' && accKind === 'password') return offlineLogin(host, email, pass)
-      $('acc-err').textContent = '连不上电脑，请确认地址正确且在同一 Wi-Fi'
-    }).finally(function () { btn.disabled = false })
-  }
-
-  function disconnect(silent) {
-    if (gw && gw.token) {
-      req(gwBase() + '/api/unpair', { method: 'DELETE', headers: { Authorization: 'Bearer ' + gw.token } }, 5000)
-        .catch(function () {})
-    }
-    gw = null
-    localStorage.removeItem('nf-mobile-gw')
-    closeSse()
-    if (!silent) toast('已断开')
-    renderPc()
-    renderAccount(null)
-    renderProjects(null)
-    setAiBadge(null)
-  }
-
-  function renderPc() {
-    $('acc-form').style.display = gw ? 'none' : 'block'
-    $('acc-signedin').style.display = gw ? 'block' : 'none'
-    $('pc-info').style.display = gw ? 'block' : 'none'
-    if (gw) {
-      $('pc-addr').textContent = gw.host
-      $('acc-email').textContent = gw.email || '已登录'
-      $('acc-badge').textContent = gw.offline ? '离线' : '已登录'
-      $('acc-badge').className = gw.offline ? 'badge' : 'badge ok'
-    } else {
-      $('acc-badge').textContent = '未登录'
-      $('acc-badge').className = 'badge'
-    }
-    $('build-need-pc').style.display = gw ? 'none' : 'block'
-    updateHeader()
-  }
-
-  function refreshAccount() {
-    renderAccount(null)
-    if (!gw) return
-    gwFetch('/api/account').then(function (res) {
-      renderAccount(res.ok ? res : null)
-    }).catch(function () {})
-  }
-  function renderAccount(res) {
-    if (!gw) return
-    var acc = res && res.account
-    var repo = res && res.repo
-    if (acc && acc.email) {
-      $('acc-email').textContent = (acc.name ? acc.name + ' · ' : '') + acc.email
-      var bound = (acc.repos || []).map(function (r) {
-        return (r.provider === 'gitee' ? 'Gitee' : 'GitHub') + ' @' + r.login
-      })
-      $('acc-repos').textContent = bound.length
-        ? '已绑定：' + bound.join(' / ')
-        : '尚未绑定代码仓库，请在电脑端「设置 → 账号」绑定 GitHub / Gitee'
-    } else if (repo) {
-      $('acc-repos').textContent = '电脑端仓库账号：@' + repo.login
-    }
-    updateHeader()
-  }
-
-  // ============================== SSE 进度推送 ==============================
-  var evtSource = null
-  function connectSse() {
-    closeSse()
-    if (!gw || !gw.token || typeof EventSource === 'undefined') return
-    try {
-      evtSource = new EventSource(gwSseUrl())
-      evtSource.onmessage = function (ev) {
-        var data
-        try { data = JSON.parse(ev.data) } catch (e) { return }
-        if (data.type === 'progress' && data.scope === 'build') appendBuildLog(data.line)
-        if (data.type === 'ai' && data.status) setAiBadge(data.status)
-      }
-      evtSource.onerror = function () {
-        closeSse()
-        setTimeout(connectSse, 8000)  // 断线重连
-      }
-    } catch (e) { /* ignore */ }
-  }
-  function closeSse() {
-    if (evtSource) { try { evtSource.close() } catch (e) {} evtSource = null }
-  }
-
-  // ============================== 项目 / 编译 / 烧录 ==============================
-  var projects = []
-  var activeBuild = null  // projectId
-  var lastBuiltId = null  // 最近一次编译成功的项目，独立「烧录」按钮用它
-  function refreshProjects() {
-    if (!gw) { renderProjects(null); return }
-    gwFetch('/api/projects').then(function (res) {
-      renderProjects(res.ok ? res : null)
-    }).catch(function () { renderProjects(null) })
-    gwFetch('/api/ports').then(function (res) {
-      if (res.ok) renderPorts(res.ports)
-    }).catch(function () {})
-  }
-  function renderProjects(res) {
-    projects = (res && res.projects) || []
-    var box = $('proj-list')
-    if (!gw) { box.innerHTML = ''; $('flash-panel').style.display = 'none'; return }
-    if (!projects.length) {
-      box.innerHTML = '<div class="empty">电脑端还没有项目<br /><span class="small">在电脑端工作台创建项目后，这里会自动出现</span></div>'
-      $('flash-panel').style.display = 'none'
-      return
-    }
-    box.innerHTML = projects.map(function (p) {
-      var active = res.activeProjectId === p.id
-      return '<div class="proj">' +
-        '<div class="proj-head"><b>' + esc(p.name) + '</b>' +
-        (active ? '<span class="badge ok">当前</span>' : '') +
-        '<span class="badge" style="margin-left:auto">' + esc(p.boardId) + '</span></div>' +
-        '<div class="meta">' + p.pinLabels.length + ' 个引脚 · ' +
-        esc(p.pinLabels.map(function (x) { return x.label }).join('、') || '无') + '</div>' +
-        '<div class="row"><button class="ghost" style="flex:1" onclick="NF.build(\'' + p.id + '\')"' +
-        (activeBuild ? ' disabled' : '') + '>编译</button>' +
-        '<button style="flex:1" onclick="NF.flash(\'' + p.id + '\')"' + (activeBuild ? ' disabled' : '') + '>编译并烧录</button></div>' +
-        '</div>'
-    }).join('')
-    $('flash-panel').style.display = 'block'
-  }
-  function renderPorts(ports) {
-    var sel = $('flash-port')
-    sel.innerHTML = ports.length
-      ? ports.map(function (p) { return '<option value="' + esc(p.address) + '">' + esc(p.label) + '</option>' }).join('')
-      : '<option value="">（电脑上未检测到串口设备）</option>'
-  }
-  var buildLogLines = []
-  function appendBuildLog(line) {
-    if (!line) return
-    buildLogLines.push(String(line).replace(/\s+$/, ''))
-    if (buildLogLines.length > 600) buildLogLines = buildLogLines.slice(-600)
-    var el = $('build-log')
-    el.textContent = buildLogLines.join('\n')
-    el.scrollTop = el.scrollHeight
-  }
-  function startBuild(projectId, thenFlash) {
-    if (!gw || activeBuild) return
-    activeBuild = projectId
-    buildLogLines = []
-    appendBuildLog('开始编译…')
-    $('build-log-panel').style.display = 'block'
-    $('build-log-title').textContent = thenFlash ? '编译并烧录' : '编译日志'
-    renderProjects({ projects: projects, activeProjectId: null })
-    gwFetch('/api/build', { method: 'POST', body: JSON.stringify({ projectId: projectId }) }, 600000)
-      .then(function (res) {
-        appendBuildLog(res.success ? '✔ 编译成功' : '✘ 编译失败：' + (res.output || res.error || ''))
-        if (res.success) lastBuiltId = projectId
-        if (res.success && thenFlash) doFlash(projectId)
-        else { activeBuild = null; refreshProjects() }
-        toast(res.success ? '编译成功' : '编译失败')
-      })
-      .catch(function (e) {
-        appendBuildLog('✘ ' + (e.message || '编译请求失败'))
-        activeBuild = null
-        refreshProjects()
-      })
-  }
-  function doFlash(projectId) {
-    var port = $('flash-port').value
-    if (!port) { toast('请选择串口'); activeBuild = null; refreshProjects(); return }
-    appendBuildLog('烧录到 ' + port + ' …')
-    gwFetch('/api/upload', { method: 'POST', body: JSON.stringify({ projectId: projectId, port: port }) }, 300000)
-      .then(function (res) {
-        appendBuildLog(res.ok ? '✔ 烧录完成' : '✘ 烧录失败：' + (res.log || ''))
-        toast(res.ok ? '烧录完成' : '烧录失败')
-      })
-      .catch(function (e) { appendBuildLog('✘ ' + (e.message || '烧录请求失败')) })
-      .finally(function () { activeBuild = null; refreshProjects() })
-  }
-
-  // ============================== AI 助手 ==============================
-  var chatHistory = load('nf-mobile-ai', [])
-  var aiSource = load('nf-mobile-ai-src', 'local')  // local=手机内置；pc=电脑 MiMo
-  function applyAiSource() {
-    $('src-local').classList.toggle('active', aiSource === 'local')
-    $('src-local').style.background = aiSource === 'local' ? 'var(--panel2)' : 'transparent'
-    $('src-local').style.borderColor = aiSource === 'local' ? 'var(--accent)' : 'var(--border)'
-    $('src-local').style.color = aiSource === 'local' ? 'var(--text)' : 'var(--muted)'
-    $('src-pc').style.background = aiSource === 'pc' ? 'var(--panel2)' : 'transparent'
-    $('src-pc').style.borderColor = aiSource === 'pc' ? 'var(--accent)' : 'var(--border)'
-    $('src-pc').style.color = aiSource === 'pc' ? 'var(--text)' : 'var(--muted)'
-    $('btn-ai-toggle').style.display = aiSource === 'pc' ? 'inline-block' : 'none'
-    $('ai-desc').textContent = aiSource === 'local'
-      ? '内置引擎直接运行在手机上，不联网、无需电脑，可写固件、解释报错、编排设备。'
-      : '使用已登录电脑上的 MiMo 大模型，能力更强，需要电脑在线。'
-    if (aiSource === 'local') {
-      $('ai-badge').textContent = '内置'
-      $('ai-badge').className = 'badge ok'
-    } else {
-      refreshAiStatus()
-    }
-  }
-  function setAiBadge(status) {
-    if (aiSource === 'local') return
-    var b = $('ai-badge')
-    var btn = $('btn-ai-toggle')
-    if (!gw) { b.textContent = '未登录'; b.className = 'badge'; btn.textContent = '启动'; btn.disabled = true; return }
-    btn.disabled = false
-    var state = status && status.state
-    if (state === 'running') { b.textContent = '运行中'; b.className = 'badge ok'; btn.textContent = '停止' }
-    else if (state === 'starting') { b.textContent = '加载中…'; b.className = 'badge'; btn.textContent = '加载中'; btn.disabled = true }
-    else if (state === 'error') { b.textContent = '启动失败'; b.className = 'badge err'; btn.textContent = '重试' }
-    else { b.textContent = '未启动'; b.className = 'badge'; btn.textContent = '启动' }
-  }
-  function refreshAiStatus() {
-    if (!gw || aiSource !== 'pc') return
-    $('btn-ai-toggle').style.display = 'inline-block'
-    gwFetch('/api/ai/status').then(function (res) { if (res.ok) setAiBadge(res.status) }).catch(function () {})
-  }
-  function toggleAi() {
-    if (!gw) return
-    var isRunning = $('ai-badge').textContent === '运行中'
-    setAiBadge({ state: 'starting' })
-    gwFetch(isRunning ? '/api/ai/stop' : '/api/ai/start', { method: 'POST', body: '{}' }, 120000)
-      .then(function (res) { setAiBadge(res.status) })
-      .catch(function (e) { setAiBadge({ state: 'stopped' }); toast(e.message || '操作失败') })
-  }
-  function renderChat() {
-    var box = $('chat-box')
-    box.innerHTML = chatHistory.length
-      ? chatHistory.map(function (m) {
-          return '<div class="msg ' + (m.role === 'user' ? 'user' : 'ai') + '">' + esc(m.content) + '</div>'
-        }).join('')
-      : '<div class="msg sys">内置 AI 已就绪，无需联网。试着问：「让 GPIO2 每秒闪一次」</div>'
-    box.scrollTop = box.scrollHeight
-  }
-  function aiContext() {
-    var ctx = { projects: projects, ha: haEntities.filter(function (s) { return /^(switch|light)\./.test(s.entity_id) }) }
-    return ctx
-  }
-  function runAiAction(action) {
-    if (!action) return
-    if (action.type === 'build') {
-      var target = projects.filter(function (p) { return p.name === action.projectName })[0]
-      if (!target) { toast('没找到项目：' + action.projectName); return }
-      if (!gw) { toast('编译需要先在「我的」页登录电脑账号'); return }
-      lastBuiltId = target.id
-      startBuild(target.id, false)
-      toast('已开始编译 ' + target.name)
-      return
-    }
-    if (action.type === 'ha') {
-      var hit = haEntities.filter(function (s) {
-        var t = ((s.attributes && s.attributes.friendly_name) || '') + s.entity_id
-        return action.query && t.indexOf(action.query) !== -1
-      })[0]
-      if (!hit) { toast('没找到实体：' + (action.query || '目标设备')); return }
-      var domain = hit.entity_id.split('.')[0]
-      haFetch('/api/services/' + domain + '/' + (action.on ? 'turn_on' : 'turn_off'), 'POST', { entity_id: hit.entity_id })
-        .then(function () { toast(action.on ? '已打开' : '已关闭'); setTimeout(refreshHa, 800) })
-        .catch(function (e) { toast('控制失败：' + e.message) })
-    }
-  }
-  function sendChat() {
-    var text = $('chat-in').value.trim()
-    if (!text) return
-    $('chat-in').value = ''
-    chatHistory.push({ role: 'user', content: text })
-    save('nf-mobile-ai', chatHistory)
-    renderChat()
-    chatHistory.push({ role: 'assistant', content: '…' })
-    save('nf-mobile-ai', chatHistory)
-    renderChat()
-    var placeholder = chatHistory.length - 1
-
-    function finish(content, action) {
-      chatHistory[placeholder] = { role: 'assistant', content: content }
-      save('nf-mobile-ai', chatHistory)
-      renderChat()
-      if (action) runAiAction(action)
-    }
-
-    if (aiSource === 'local') {
-      var engine = window.NovaLocalAI
-      if (!engine) { finish('内置 AI 未能加载，请重新安装应用。'); return }
-      engine.chat(chatHistory.slice(0, placeholder), aiContext()).then(function (res) {
-        finish(res.content, res.action)
-      }).catch(function (e) { finish('出错了：' + (e.message || e)) })
-      return
-    }
-
-    if (!gw) { finish('使用电脑 MiMo 需要先在「我的」页用邮箱登录电脑账号。'); return }
-    var sysPrompt = '你是 NovaForge Studio 的内置 AI 助手，运行在用户电脑本地。用户可以：编译/烧录固件、控制 ESP 开发板、控制 Home Assistant 设备。回答用简体中文，简明扼要。'
-    var messages = [{ role: 'system', content: sysPrompt }].concat(chatHistory.slice(0, placeholder))
-    gwFetch('/api/ai/chat', { method: 'POST', body: JSON.stringify({ messages: messages }) }, 330000)
-      .then(function (res) {
-        finish(res.ok ? (res.content || '（空回复）') : ('出错了：' + (res.error || '未知错误')))
-      })
-      .catch(function (e) { finish('出错了：' + (e.message || '网络失败')) })
-  }
-
-  // ============================== Home Assistant ==============================
-  var ha = load('nf-mobile-ha', null)  // { url, token }
-  var haEntities = []
-  function haFetch(path, method, body) {
-    if (!ha) return Promise.reject(new Error('未配置 HA'))
-    var direct = function () {
-      return req(ha.url.replace(/\/+$/, '') + path, {
-        method: method || 'GET',
-        headers: { Authorization: 'Bearer ' + ha.token, 'Content-Type': 'application/json' },
-        body: body ? JSON.stringify(body) : undefined
-      }, 8000)
-    }
-    return direct().catch(function () {
-      // 手机与 HA 不在同一网段：经已配对电脑转发（仅限内网地址）
-      if (!gw) throw new Error('连不上 HA，且未配对电脑')
-      return gwFetch('/api/ha/proxy', {
-        method: 'POST',
-        body: JSON.stringify({
-          url: ha.url.replace(/\/+$/, '') + path,
-          method: method || 'GET',
-          headers: { Authorization: 'Bearer ' + ha.token, 'Content-Type': 'application/json' },
-          body: body ? JSON.stringify(body) : undefined
-        })
-      }, 15000).then(function (res) {
-        if (res.status === 0) throw new Error('经电脑转发也连不上 HA')
-        return {
-          ok: res.ok,
-          status: res.status,
-          json: function () { return Promise.resolve(JSON.parse(res.body || 'null')) }
-        }
-      })
-    })
-  }
-  function saveHa() {
-    var url = $('ha-url').value.trim()
-    var token = $('ha-token').value.trim()
-    $('ha-err').textContent = ''
-    if (!url || !token) { $('ha-err').textContent = '地址与令牌都要填'; return }
-    ha = { url: url, token: token }
-    save('nf-mobile-ha', ha)
-    refreshHa()
-  }
-  function refreshHa() {
-    if (!ha) { renderHa([]); return }
-    haFetch('/api/states').then(function (r) {
-      if (r.status === 401) { $('ha-err').textContent = 'HA 令牌无效'; throw new Error('401') }
-      return r.json()
-    }).then(function (states) {
-      var list = (states || []).filter(function (s) {
-        return /^(switch|light|binary_sensor|sensor)\./.test(s.entity_id)
-      })
-      renderHa(list)
-      $('ha-err').textContent = ''
-    }).catch(function (e) {
-      if (e.message !== '401') $('ha-err').textContent = '连接失败：' + e.message
-    })
-  }
-  function renderHa(list) {
-    haEntities = list
-    var box = $('ha-list')
-    $('ha-empty').style.display = ha && !list.length ? 'block' : 'none'
-    box.innerHTML = list.map(function (s, i) {
-      var isToggle = /^(switch|light)\./.test(s.entity_id)
-      var name = (s.attributes && s.attributes.friendly_name) || s.entity_id
-      var on = s.state === 'on'
-      return '<div class="ha-entity">' +
-        '<span class="dot ' + (s.state === 'unavailable' ? 'off' : on ? 'on' : '') + '"></span>' +
-        '<div><div style="font-weight:600;font-size:14px">' + esc(name) + '</div>' +
-        '<div class="small muted mono">' + esc(s.entity_id) + '</div></div>' +
-        (isToggle
-          ? '<button class="switch' + (on ? ' on' : '') + '" onclick="NF.haToggle(' + i + ')"></button>'
-          : '<span class="val">' + esc(s.state) + (s.attributes && s.attributes.unit_of_measurement ? ' ' + esc(s.attributes.unit_of_measurement) : '') + '</span>') +
-        '</div>'
-    }).join('')
-    if (ha) {
-      $('ha-url').value = ha.url
-      $('ha-token').value = ha.token
-    }
-  }
-  function haToggle(i) {
-    var s = haEntities[i]
-    if (!s) return
-    var domain = s.entity_id.split('.')[0]
-    var service = s.state === 'on' ? 'turn_off' : 'turn_on'
-    haFetch('/api/services/' + domain + '/' + service, 'POST', { entity_id: s.entity_id })
-      .then(function () { setTimeout(refreshHa, 600) })
-      .catch(function (e) { toast('控制失败：' + e.message) })
-  }
-
-  // ============================== ESP 设备直连 ==============================
-  var devices = load('nf-mobile-devices', [])
-  function saveDevices() { save('nf-mobile-devices', devices) }
-  var inflight = {}
-  function devBase(d) { return 'http://' + d.host + ':' + (d.port || 80) }
-  function fetchState(d, timeoutMs) {
-    return req(devBase(d) + '/api/state?token=' + encodeURIComponent(d.token || ''), null, timeoutMs || 4000)
-      .then(function (r) {
-        if (r.status === 403) return { _err403: true }
-        if (!r.ok) throw new Error('HTTP ' + r.status)
-        return r.json()
-      })
-  }
-  function refreshAll() {
-    devices.forEach(function (d) {
-      fetchState(d).then(function (st) {
-        if (st && st._err403) { d.online = true; d.badToken = true }
-        else if (st && st.ok) { d.online = true; d.badToken = false; d.state = st; d.name = st.name || d.name }
-        else { d.online = false }
-        renderDevices()
-      }).catch(function () { d.online = false; renderDevices() })
-    })
-  }
-  function setPin(d, idx, pin, value) {
-    var k = idx + ':' + pin.key
-    if (inflight[k]) return
-    inflight[k] = true
-    var url = devBase(d) + '/api/set?key=' + encodeURIComponent(pin.key) +
-      '&value=' + (value ? 1 : 0) + '&token=' + encodeURIComponent(d.token || '')
-    req(url).then(function (r) {
-      if (r.status === 403) throw new Error('token')
-      return r.json()
-    }).then(function (st) {
-      if (st && st.ok) { d.online = true; d.badToken = false; d.state = st }
-      renderDevices()
-    }).catch(function (e) {
-      if (String(e.message) === 'token') { d.badToken = true; d.online = true; toast('授权码错误，设备拒绝控制') }
-      else { d.online = false; toast('控制失败：设备不可达') }
-      renderDevices()
-    }).finally(function () { delete inflight[k] })
-  }
-  function renderDevices() {
-    var list = $('dev-list')
-    $('dev-empty').style.display = devices.length ? 'none' : 'block'
-    list.innerHTML = devices.map(function (d, idx) {
-      var pins = (d.state && d.state.pins) || []
-      return '<div class="dev">' +
-        '<div class="dev-head"><span class="dot ' + (d.online ? 'on' : 'off') + '"></span>' +
-        '<b>' + esc(d.name || d.host) + '</b>' +
-        '<span class="id">' + esc(d.host) + '</span>' +
-        '<button class="danger" onclick="NF.rmDev(' + idx + ')">删除</button></div>' +
-        '<div class="meta">' + (d.online ? (d.badToken ? '<span style="color:var(--err)">授权码错误</span>' : '在线 · ' + (d.state && d.state.chip ? esc(d.state.chip) : 'ESP')) : '离线') + '</div>' +
-        (d.badToken ? '<div class="row" style="margin-bottom:10px">' +
-          '<input placeholder="输入正确授权码" id="dev-token-' + idx + '" />' +
-          '<button class="ghost" onclick="NF.fixToken(' + idx + ')">保存</button></div>' : '') +
-        '<div class="pins">' + (pins.length ? pins.map(function (p) {
-          var isOut = p.mode === 'output'
-          return '<div class="pin"><div><div class="name">' + esc(p.label || p.key) + '</div>' +
-            '<div class="key">' + esc(p.key) + '</div></div>' +
-            (isOut
-              ? '<button class="switch' + (p.value ? ' on' : '') + '" onclick="NF.setPin(' + idx + ',\'' + esc(p.key) + '\',' + (p.value ? 0 : 1) + ')"></button>'
-              : '<span style="margin-left:auto;font-size:13px;color:var(--muted)">' + (p.value ? '高' : '低') + '</span>') +
-            '</div>'
-        }).join('') : '<div class="small muted">' + (d.online ? '此设备没有引脚' : '设备离线') + '</div>') + '</div>' +
-        '</div>'
-    }).join('')
-    updateHeader()
-  }
-  function addDevice() {
-    var host = $('in-host').value.trim()
-    var port = parseInt($('in-port').value, 10) || 80
-    var token = $('in-token').value.trim()
-    $('add-err').textContent = ''
-    if (!host) { $('add-err').textContent = '请填写设备 IP'; return }
-    var d = { host: host, port: port, token: token, name: '' }
-    fetchState(d, 6000).then(function (st) {
-      if (st && st._err403) { $('add-err').textContent = '授权码错误'; return }
-      if (!st || !st.ok) { $('add-err').textContent = '这不是 NovaForge 设备'; return }
-      d.name = st.name || host
-      d.online = true
-      d.state = st
-      devices.push(d)
-      saveDevices()
-      renderDevices()
-      $('in-host').value = ''
-      $('in-token').value = ''
-      toast('已添加 ' + d.name)
-    }).catch(function () { $('add-err').textContent = '连不上设备，请确认 IP 与同一 Wi-Fi' })
-  }
-  function scanNet() {
-    var prefix = $('in-net').value.trim()
-    if (!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.$/.test(prefix)) { toast('网段格式如 192.168.1.'); return }
-    var list = $('scan-list')
-    list.innerHTML = ''
-    var found = 0, done = 0
-    $('btn-scan').disabled = true
-    for (var i = 1; i <= 254; i++) {
-      (function (ip) {
-        req('http://' + ip + '/api/state', null, 2500).then(function (r) {
-          if (!r.ok) return
-          return r.json().then(function (st) {
-            if (st && st.ok && st.name) {
-              found++
-              var item = document.createElement('div')
-              item.className = 'scan-item'
-              item.innerHTML = '<span class="dot on"></span><span>' + esc(st.name) + '</span><span class="muted small">' + ip + '</span>' +
-                '<button>添加</button>'
-              item.querySelector('button').onclick = function () {
-                devices.push({ host: ip, port: 80, token: '', name: st.name })
-                saveDevices(); renderDevices(); toast('已添加（记得补授权码）')
-              }
-              list.appendChild(item)
-            }
-          })
-        }).catch(function () {}).finally(function () {
-          done++
-          $('scan-stat').textContent = '扫描 ' + done + '/254 · 发现 ' + found + ' 台'
-          if (done >= 254) $('btn-scan').disabled = false
-        })
-      })(prefix + i)
-    }
-  }
-
-  // ============================== 框架 ==============================
-  function updateHeader() {
-    var parts = []
-    var online = devices.filter(function (d) { return d.online }).length
-    if (devices.length) parts.push(online + '/' + devices.length + ' 设备')
-    if (gw) parts.push('已连电脑')
-    $('hdr-sub').textContent = parts.join(' · ')
-  }
-  function switchTab(tab) {
-    document.querySelectorAll('.tabbar button').forEach(function (b) {
-      b.classList.toggle('active', b.dataset.tab === tab)
-    })
-    document.querySelectorAll('.sec').forEach(function (s) {
-      s.classList.toggle('active', s.id === 'sec-' + tab)
-    })
-    if (tab === 'build') refreshProjects()
-    if (tab === 'ai') { refreshAiStatus(); renderChat() }
-    if (tab === 'ha' && ha) refreshHa()
-    if (tab === 'me') { renderPc(); refreshAccount() }
-  }
-
-  // 暴露给内联事件
-  window.NF = {
-    setPin: function (idx, key, val) {
-      var d = devices[idx]
-      var pin = (d.state && d.state.pins || []).find(function (p) { return p.key === key })
-      if (d && pin) setPin(d, idx, pin, !!val)
-    },
-    rmDev: function (idx) {
-      if (!confirm('删除设备 ' + (devices[idx].name || devices[idx].host) + '？')) return
-      devices.splice(idx, 1)
-      saveDevices(); renderDevices()
-    },
-    fixToken: function (idx) {
-      var input = $('dev-token-' + idx)
-      var token = input ? input.value.trim() : ''
-      if (!token) { toast('请输入授权码'); return }
-      devices[idx].token = token
-      saveDevices()
-      refreshAll()
-      toast('已保存，正在重新连接')
-    },
-    build: function (id) { startBuild(id, false) },
-    flash: function (id) { startBuild(id, true) },
-    haToggle: haToggle
-  }
-
-  document.querySelectorAll('.tabbar button').forEach(function (b) {
-    b.addEventListener('click', function () { switchTab(b.dataset.tab) })
-  })
-  $('btn-add').addEventListener('click', addDevice)
-  $('btn-scan').addEventListener('click', scanNet)
-  $('btn-acc-submit').addEventListener('click', submitAccount)
-  $('btn-get-code').addEventListener('click', getCode)
-  $('btn-acc-sync').addEventListener('click', function () {
-    if (!gw || !gw.token) { toast('请先登录并连接电脑'); return }
-    syncVault().then(function (n) {
-      toast(n > 0 ? '已同步 ' + n + ' 个账号' : '本机账号库已与电脑一致')
-    })
-  })
-  $('btn-acc-mode').addEventListener('click', function () {
-    accMode = accMode === 'login' ? 'register' : 'login'
-    syncAccForm()
-    $('acc-err').textContent = ''
-  })
-  $('btn-acc-kind').addEventListener('click', function () {
-    accKind = accKind === 'code' ? 'password' : 'code'
-    syncAccForm()
-    $('acc-err').textContent = ''
-  })
-  $('btn-acc-logout').addEventListener('click', function () {
-    if (confirm('退出登录并断开这台电脑？')) disconnect()
-  })
-  $('btn-unpair').addEventListener('click', function () {
-    if (confirm('断开这台电脑？')) disconnect()
-  })
-  $('src-local').addEventListener('click', function () {
-    aiSource = 'local'; save('nf-mobile-ai-src', aiSource); applyAiSource(); renderChat()
-  })
-  $('src-pc').addEventListener('click', function () {
-    aiSource = 'pc'; save('nf-mobile-ai-src', aiSource); applyAiSource(); renderChat()
-  })
-  $('btn-ai-toggle').addEventListener('click', toggleAi)
-  $('btn-chat').addEventListener('click', sendChat)
-  $('chat-in').addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat() }
-  })
-  $('btn-ha-save').addEventListener('click', saveHa)
-  $('btn-flash').addEventListener('click', function () {
-    if (!lastBuiltId) { toast('请先编译成功一次'); return }
-    doFlash(lastBuiltId)
-  })
-
-  // 启动
-  if (gw && !gw.token) {
-    // 离线会话不跨重启，避免下次打开时误以为已连上电脑
-    gw = null
-    localStorage.removeItem('nf-mobile-gw')
-  }
-  renderVault()
-  renderPc()
-  syncAccForm()
-  renderDevices()
-  applyAiSource()
-  renderChat()
-  if (ha) { $('ha-url').value = ha.url; $('ha-token').value = ha.token }
-  if (gw) {
-    $('in-pc-host').value = gw.host
-    refreshAccount(); refreshProjects(); refreshAiStatus(); connectSse()
-  }
-  setInterval(refreshAll, 10000)
-  refreshAll()
-})()
-</script>
+<script src="app.js"></script>
 </body>
 </html>

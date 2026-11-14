@@ -59,6 +59,7 @@ ios/DerivedData/
 *.mobileprovision
 *.keystore
 *.jks
+android/keystore.properties
 *.pem
 
 # Logs and OS/editor files
