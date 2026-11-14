@@ -169,24 +169,147 @@
   }
 
   var oauthTimer = null
+  var GH_CLIENT_ID = 'Ov23liGYZuxISGkahFRw'
+  var GH_SCOPE = 'read:user gist'
+  var GIST_FILE = 'novaforge-hub.json'
 
+  function showOAuth(title, code, linkText, href, tip) {
+    $('oauth-panel').style.display = 'block'
+    $('oauth-title').textContent = title
+    $('oauth-code').textContent = code
+    $('oauth-link').textContent = linkText
+    $('oauth-link').href = href
+    $('oauth-tip').textContent = tip
+  }
+
+  function hideOAuth() {
+    clearInterval(oauthTimer)
+    clearTimeout(oauthTimer)
+    $('oauth-panel').style.display = 'none'
+  }
+
+  function ghForm(url, params) {
+    return fetch(url, {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams(params).toString()
+    }).then(function (r) { return r.json() })
+  }
+
+  function ghJson(url, token) {
+    return fetch(url, {
+      headers: { Authorization: 'Bearer ' + token, Accept: 'application/vnd.github+json' }
+    }).then(function (r) {
+      if (!r.ok) throw new Error('GitHub 返回 HTTP ' + r.status)
+      return r.json()
+    })
+  }
+
+  /* 用同一个 GitHub 账号登录：授权 → 读取该账号 Gist 里的 HA 地址 → 配对。
+     全程不需要用户填写任何地址，和米家第三方平台的账号绑定是同一思路。 */
   function githubLogin() {
-    if (!requireHaUrl()) return
     setLoginError('')
     $('btn-github').disabled = true
-    api('/api/novaforge/account/github-start', { method: 'POST', body: {} })
+    ghForm('https://github.com/login/device/code', { client_id: GH_CLIENT_ID, scope: GH_SCOPE })
       .then(function (res) {
         $('btn-github').disabled = false
-        if (!res.ok) { setLoginError(res.error || '无法发起 GitHub 授权'); return }
-        $('oauth-panel').style.display = 'block'
-        $('oauth-title').textContent = '在浏览器中完成 GitHub 授权'
-        $('oauth-code').textContent = res.userCode || ''
-        $('oauth-link').textContent = '打开 github.com/login/device'
-        $('oauth-link').href = res.verificationUri || 'https://github.com/login/device'
-        $('oauth-tip').textContent = '输入上方代码并授权后，此处会自动完成登录'
-        pollOAuth('github-poll', res.session)
+        if (!res || !res.device_code) {
+          throw new Error(res && res.error_description ? res.error_description : 'GitHub 未返回授权码')
+        }
+        showOAuth('在浏览器中完成 GitHub 授权', res.user_code || '',
+          '打开 github.com/login/device', res.verification_uri || 'https://github.com/login/device',
+          '输入上面代码并同意授权，这里会自动登录')
+        pollDevice(res.device_code, Number(res.interval) || 5)
       })
-      .catch(function (err) { $('btn-github').disabled = false; setLoginError(errText(err)) })
+      .catch(function (err) {
+        $('btn-github').disabled = false
+        setLoginError('无法发起 GitHub 授权：' + (err && err.message ? err.message : err) +
+          '（浏览器预览受跨域限制，请在 App 内登录）')
+      })
+  }
+
+  function pollDevice(deviceCode, interval) {
+    clearTimeout(oauthTimer)
+    oauthTimer = setTimeout(function () {
+      ghForm('https://github.com/login/oauth/access_token', {
+        client_id: GH_CLIENT_ID,
+        device_code: deviceCode,
+        grant_type: 'urn:ietf:params:oauth:grant-type:device_code'
+      }).then(function (res) {
+        if (res && res.access_token) {
+          discoverHa(res.access_token)
+          return
+        }
+        if (res && (res.error === 'authorization_pending' || res.error === 'slow_down')) {
+          pollDevice(deviceCode, res.error === 'slow_down' ? interval + 5 : interval)
+          return
+        }
+        hideOAuth()
+        setLoginError((res && res.error_description) || 'GitHub 授权失败，请重试')
+      }).catch(function () {
+        pollDevice(deviceCode, interval)
+      })
+    }, Math.max(interval, 5) * 1000)
+  }
+
+  function discoverHa(token) {
+    $('oauth-tip').textContent = '正在查找你绑定的 Home Assistant…'
+    ghJson('https://api.github.com/gists?per_page=100', token)
+      .then(function (list) {
+        if (!Array.isArray(list)) throw new Error('读取 GitHub 数据失败')
+        var hit = null
+        list.forEach(function (g) {
+          if (!hit && g.files && g.files[GIST_FILE]) hit = g
+        })
+        if (!hit) {
+          throw new Error('没找到已绑定的 HA：请先在 HA 的 NovaForge 插件里「绑定 GitHub 账号」，且用同一个账号登录')
+        }
+        return ghJson(hit.files[GIST_FILE].raw_url, token)
+      })
+      .then(function (hub) {
+        var urls = (hub && hub.urls) || []
+        if (!urls.length) throw new Error('这台 HA 没有配置可访问地址，请在 HA 的「设置 → 系统 → 网络」中填写')
+        return pairHa(urls, token, 0)
+      })
+      .then(function (res) {
+        hideOAuth()
+        state.haUrl = res.haUrl
+        localStorage.setItem(HA_KEY, res.haUrl)
+        saveSession(res.token, res.account)
+        toast('已连接到 ' + (res.ha || 'Home Assistant'))
+        enterApp()
+      })
+      .catch(function (err) {
+        hideOAuth()
+        setLoginError((err && err.message) || '登录失败，请重试')
+      })
+  }
+
+  function pairHa(urls, token, i) {
+    if (i >= urls.length) {
+      return Promise.reject(new Error('连不上这台 HA：' + urls.join(' / ') + '（请确认手机网络能访问该地址）'))
+    }
+    var base = normalizeUrl(urls[i])
+    var ctrl = new AbortController()
+    var timer = setTimeout(function () { ctrl.abort() }, 8000)
+    return fetch(base + '/api/novaforge/account/token-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ provider: 'github', token: token }),
+      signal: ctrl.signal
+    }).then(function (r) {
+      clearTimeout(timer)
+      return r.json()
+    }, function (err) {
+      clearTimeout(timer)
+      return pairHa(urls, token, i + 1)
+    }).then(function (res) {
+      if (res && res.ok && res.token) {
+        res.haUrl = base
+        return res
+      }
+      throw new Error((res && res.error) || 'HA 拒绝了这次登录')
+    })
   }
 
   function giteeLogin() {
@@ -197,12 +320,9 @@
       .then(function (res) {
         $('btn-gitee').disabled = false
         if (!res.ok) { setLoginError(res.error || '无法发起 Gitee 授权'); return }
-        $('oauth-panel').style.display = 'block'
-        $('oauth-title').textContent = '在浏览器中完成 Gitee 授权'
-        $('oauth-code').textContent = 'Gitee'
-        $('oauth-link').textContent = '打开 Gitee 授权页'
-        $('oauth-link').href = res.authorizeUrl
-        $('oauth-tip').textContent = '授权后会自动跳回 HA，这里几秒内完成登录'
+        showOAuth('在浏览器中完成 Gitee 授权', 'Gitee',
+          '打开 Gitee 授权页', res.authorizeUrl,
+          '授权后会自动跳回 HA，这里几秒内完成登录')
         pollOAuth('gitee-poll', res.session)
       })
       .catch(function (err) { $('btn-gitee').disabled = false; setLoginError(errText(err)) })
@@ -215,13 +335,11 @@
       api('/api/novaforge/account/' + action, { method: 'POST', body: { session: session } })
         .then(function (res) {
           if (res.ok && res.token) {
-            clearInterval(oauthTimer)
-            $('oauth-panel').style.display = 'none'
+            hideOAuth()
             saveSession(res.token, res.account)
             enterApp()
           } else if (!res.ok) {
-            clearInterval(oauthTimer)
-            $('oauth-panel').style.display = 'none'
+            hideOAuth()
             setLoginError(res.error || '授权失败')
           }
         })
@@ -230,8 +348,7 @@
   }
 
   function cancelGithub() {
-    clearInterval(oauthTimer)
-    $('oauth-panel').style.display = 'none'
+    hideOAuth()
   }
 
   function logout() {
@@ -602,6 +719,11 @@
     $('btn-login').addEventListener('click', loginByCode)
     $('btn-github').addEventListener('click', githubLogin)
     $('btn-gitee').addEventListener('click', giteeLogin)
+    $('btn-more').addEventListener('click', function () {
+      var box = $('login-advanced')
+      var open = box.style.display === 'none' || !box.style.display
+      box.style.display = open ? 'block' : 'none'
+    })
     $('oauth-cancel').addEventListener('click', cancelGithub)
     $('login-code').addEventListener('keydown', function (e) { if (e.key === 'Enter') loginByCode() })
 

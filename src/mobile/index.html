@@ -9,31 +9,34 @@
 </head>
 <body>
 
-<!-- ============ 登录（仅邮箱验证码 / GitHub，无需电脑地址与密码） ============ -->
+<!-- ============ 登录（同账号自动对接，无需填写任何地址） ============ -->
 <div class="login-wrap" id="view-login" style="display:none">
   <div class="login-card">
     <div class="login-logo">⚡</div>
     <h1>NovaForge</h1>
-    <p class="muted small">登录你的 Home Assistant，控制家里的所有设备</p>
+    <p class="muted small">用 HA 插件里绑定的同一个账号登录<br />账号相同就会自动对接，不用填地址</p>
 
-    <input id="login-ha-url" placeholder="HA 地址，如 http://192.168.1.10:8123" autocomplete="off" inputmode="url" />
-    <input id="login-email" placeholder="邮箱" type="email" autocomplete="email" />
-    <div class="row">
-      <input id="login-code" placeholder="6 位邮箱验证码" inputmode="numeric" maxlength="6" autocomplete="one-time-code" />
-      <button class="btn ghost" id="btn-code" style="flex:none">获取验证码</button>
-    </div>
-    <button class="btn" id="btn-login" style="width:100%">登录</button>
-
-    <div class="login-divider"><span>或</span></div>
-    <button class="btn ghost" id="btn-github" style="width:100%">
+    <button class="btn" id="btn-github" style="width:100%">
       <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" style="vertical-align:-3px;margin-right:6px"><path d="M12 .5A11.5 11.5 0 0 0 .5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.15c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.72-1.53-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.59.23 2.76.11 3.05.73.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.25 5.67.41.35.78 1.05.78 2.12v3.14c0 .3.21.67.8.55A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></svg>
       使用 GitHub 登录
     </button>
-    <button class="btn ghost" id="btn-gitee" style="width:100%">
-      使用 Gitee 登录
-    </button>
-    <div class="small muted" style="text-align:center;margin-top:14px;line-height:1.8">
-      验证码由你 HA 上的 NovaForge 插件发送<br />同一邮箱在 HA 与手机间自动关联，无需电脑
+    <div class="small muted" style="text-align:center;margin:12px 0 4px;line-height:1.7">
+      手机与 HA 插件绑定同一个 GitHub 账号<br />两者自动对接，无需任何地址
+    </div>
+
+    <button class="btn ghost" id="btn-more" style="width:100%;margin-top:10px">Gitee / 邮箱验证码</button>
+    <div id="login-advanced" style="display:none">
+      <input id="login-ha-url" placeholder="HA 地址，如 http://192.168.1.10:8123" autocomplete="off" inputmode="url" />
+      <button class="btn ghost" id="btn-gitee" style="width:100%">使用 Gitee 登录</button>
+      <input id="login-email" placeholder="邮箱" type="email" autocomplete="email" />
+      <div class="row">
+        <input id="login-code" placeholder="6 位邮箱验证码" inputmode="numeric" maxlength="6" autocomplete="one-time-code" />
+        <button class="btn ghost" id="btn-code" style="flex:none">获取验证码</button>
+      </div>
+      <button class="btn" id="btn-login" style="width:100%">使用邮箱验证码登录</button>
+      <div class="small muted" style="text-align:center;margin-top:10px;line-height:1.7">
+        Gitee 授权与邮箱验证码都需要 HA 的访问地址
+      </div>
     </div>
     <div class="err-line" id="login-err"></div>
   </div>
