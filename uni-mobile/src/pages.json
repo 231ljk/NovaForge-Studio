@@ -1,0 +1,21 @@
+{
+  "pages": [
+    { "path": "pages/login/index", "style": { "navigationBarTitleText": "登录" } },
+    { "path": "pages/home/index", "style": { "navigationBarTitleText": "NovaForge", "enablePullDownRefresh": true } },
+    { "path": "pages/scenes/index", "style": { "navigationBarTitleText": "场景", "enablePullDownRefresh": true } },
+    { "path": "pages/me/index", "style": { "navigationBarTitleText": "我的" } },
+    { "path": "pages/add-device/index", "style": { "navigationBarTitleText": "添加设备" } }
+  ],
+  "globalStyle": { "navigationBarBackgroundColor": "#ffffff", "navigationBarTextStyle": "black", "backgroundColor": "#f5f6f7" },
+  "tabBar": {
+    "color": "#9aa0a6",
+    "selectedColor": "#008a7f",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/home/index", "text": "首页" },
+      { "pagePath": "pages/scenes/index", "text": "场景" },
+      { "pagePath": "pages/me/index", "text": "我的" }
+    ]
+  }
+}

@@ -79,12 +79,22 @@ export interface BuildArtifact {
   base64: string
 }
 
+export interface BuildError {
+  severity: 'error' | 'warning' | 'info'
+  file?: string
+  line?: number
+  col?: number
+  message: string
+}
+
 export interface BuildResult {
   success: boolean
   output: string
   sketchPath: string
   artifacts: BuildArtifact[]
   durationMs: number
+  /** 结构化编译错误，用于 AI 自动修复 */
+  errors: BuildError[]
 }
 
 export interface BuildRequest {
@@ -117,6 +127,9 @@ export interface HttpResult {
 export interface SerialPortInfo {
   address: string
   label: string
+  /** Windows 下从 PnP DeviceID 解析，用于和 Web Serial 选择的设备对应 */
+  vendorId?: number
+  productId?: number
 }
 
 export interface AvrdudeUploadRequest {

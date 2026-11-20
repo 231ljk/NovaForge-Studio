@@ -1,0 +1,61 @@
+<view class="add-device {{themeClass}}">
+  <view class="hero">
+    <text class="hero-title">添加设备</text>
+    <text class="hero-subtitle">搜索同一局域网内的设备</text>
+  </view>
+
+  <view class="card connect-empty" wx:if="{{!connected}}">
+    <text class="card-title">尚未连接家庭</text>
+    <text class="card-tip">连接 Home Assistant 后再添加设备</text>
+    <view class="submit" bindtap="goMe"><text>去连接家庭</text></view>
+  </view>
+
+  <block wx:else>
+    <view class="notice" wx:if="{{demo}}"><text>演示模式仅模拟搜索和配对</text></view>
+
+    <view class="card scan-card">
+      <view class="scan-heading">
+        <view class="scan-heading-info">
+          <text class="card-title">{{scanning ? '正在搜索' : '局域网设备'}}</text>
+          <text class="card-tip">设备需通电并连接家庭 WiFi</text>
+        </view>
+        <view class="scanning-ring" wx:if="{{scanning}}"></view>
+      </view>
+
+      <view class="device-list" wx:if="{{devices.length > 0}}">
+        <view class="scan-item {{selectedDevice && selectedDevice.host === item.host ? 'scan-item-active' : ''}}" wx:for="{{devices}}" wx:key="host" data-host="{{item.host}}" bindtap="onPickDevice">
+          <view class="scan-icon"><text>N</text></view>
+          <view class="scan-info"><text class="scan-name">{{item.name}}</text><text class="scan-host">{{item.label}}</text></view>
+          <text class="scan-pick">{{selectedDevice && selectedDevice.host === item.host ? '已选择' : '配对'}}</text>
+        </view>
+      </view>
+      <view class="scan-empty" wx:elif="{{scanned && !scanning}}">
+        <text>{{scanError ? '搜索失败，可重试或手动添加' : '未发现设备，可重试或手动添加'}}</text>
+        <view class="retry-button" bindtap="onScan"><text>重新搜索</text></view>
+      </view>
+    </view>
+
+    <view class="card" wx:if="{{selectedDevice}}">
+      <text class="card-title">配对 {{selectedDevice.name}}</text>
+      <text class="card-tip">输入设备首次启动时生成的配对密钥</text>
+      <text class="field-label">配对密钥</text>
+      <input class="field" value="{{token}}" password focus placeholder="请输入配对密钥" placeholder-class="field-placeholder" bindinput="onTokenInput" />
+      <view class="submit {{adding ? 'button-disabled' : ''}}" bindtap="onAdd"><text>{{adding ? '正在添加…' : '完成配对'}}</text></view>
+      <view class="cancel-button" bindtap="onCancelPair"><text>重新选择设备</text></view>
+    </view>
+
+    <view class="card" wx:if="{{showManual && !selectedDevice}}">
+      <text class="card-title">手动添加</text>
+      <text class="card-tip">填写开发板地址和配对密钥</text>
+      <text class="field-label">设备地址</text>
+      <input class="field" value="{{host}}" placeholder="192.168.1.66" placeholder-class="field-placeholder" bindinput="onHostInput" />
+      <text class="field-label">API 端口</text>
+      <input class="field" value="{{port}}" type="number" placeholder="80" placeholder-class="field-placeholder" bindinput="onPortInput" />
+      <text class="field-label">配对密钥</text>
+      <input class="field" value="{{token}}" password placeholder="设备首次启动时生成的密钥" placeholder-class="field-placeholder" bindinput="onTokenInput" />
+      <view class="submit {{adding ? 'button-disabled' : ''}}" bindtap="onAdd"><text>{{adding ? '正在添加…' : '添加设备'}}</text></view>
+    </view>
+
+    <view class="status" wx:if="{{status}}"><text>{{status}}</text></view>
+  </block>
+</view>

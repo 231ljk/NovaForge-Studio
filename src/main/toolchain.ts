@@ -48,6 +48,83 @@ function execFile(command: string, args: string[], emit?: Emit, scope: ProgressE
   })
 }
 
+/** 从 Windows PnP DeviceID 里取 USB VID/PID，用于和 Web Serial 选中的设备对应 */
+function parseUsbIds(deviceId?: string): { vendorId?: number; productId?: number } {
+  const match = /VID_([0-9A-F]{4})&PID_([0-9A-F]{4})/i.exec(deviceId ?? '')
+  if (!match) return {}
+  return { vendorId: parseInt(match[1], 16), productId: parseInt(match[2], 16) }
+}
+
+async function nativeSerialPorts(): Promise<SerialPortInfo[]> {
+  if (process.platform === 'win32') {
+    // 注册表能拿到当前占用的 COM 号；PnP 能拿到友好名称和 VID/PID。两者都取，互为补充。
+    const script = [
+      "$ErrorActionPreference='SilentlyContinue'",
+      "$names=@();",
+      "$reg=Get-ItemProperty -Path 'HKLM:\\HARDWARE\\DEVICEMAP\\SERIALCOMM';",
+      "if($reg){$reg.PSObject.Properties | Where-Object { $_.Name -notlike 'PS*' } | ForEach-Object { $names += [string]$_.Value }};",
+      "@{ ports=@(Get-PnpDevice -Class Ports -PresentOnly | Select-Object FriendlyName,InstanceId); names=$names } |",
+      'ConvertTo-Json -Compress -Depth 4'
+    ].join(' ')
+    const res = await execFile('powershell', ['-NoProfile', '-NonInteractive', '-Command', script])
+    if (res.code !== 0) return []
+    const text = res.output.trim()
+    if (!text) return []
+    try {
+      const parsed = JSON.parse(text) as {
+        ports?: { FriendlyName?: string; InstanceId?: string } | { FriendlyName?: string; InstanceId?: string }[]
+        names?: string | string[]
+      }
+      const rows = Array.isArray(parsed.ports) ? parsed.ports : parsed.ports ? [parsed.ports] : []
+      const registered = Array.isArray(parsed.names) ? parsed.names : parsed.names ? [parsed.names] : []
+      const ports: SerialPortInfo[] = []
+      for (const row of rows) {
+        const name = row.FriendlyName ?? ''
+        const address = /\((COM\d+)\)/.exec(name)?.[1]
+        if (!address) continue
+        ports.push({
+          address,
+          label: name.replace(/\s*\(COM\d+\)\s*$/, '').trim() || address,
+          ...parseUsbIds(row.InstanceId)
+        })
+      }
+      // 只有注册表记录的串口（驱动名称不完整时）也要显示出来
+      for (const name of registered) {
+        const address = String(name).trim().toUpperCase()
+        if (!/^COM\d+$/.test(address)) continue
+        if (ports.some((p) => p.address === address)) continue
+        ports.push({ address, label: address })
+      }
+      return ports
+    } catch {
+      return []
+    }
+  }
+
+  // macOS 与 Linux：直接读 /dev 下的串口设备
+  const dirs = process.platform === 'darwin'
+    ? [{ dir: '/dev', match: /^cu\.(usb|serial|wchusbserial|SLAB_USBtoUART)/ }]
+    : [
+        { dir: '/dev', match: /^(ttyUSB|ttyACM|ttyAMA|ttyS\d+)/ },
+        { dir: '/dev/serial/by-id', match: /.*/ }
+      ]
+  const ports: SerialPortInfo[] = []
+  for (const { dir, match } of dirs) {
+    try {
+      const entries = await fs.readdir(dir)
+      for (const entry of entries) {
+        if (entry === 'ttyS0' || !match.test(entry)) continue
+        const address = path.join(dir, entry)
+        if (ports.some((p) => p.address === address)) continue
+        ports.push({ address, label: entry })
+      }
+    } catch {
+      // 目录不存在时跳过
+    }
+  }
+  return ports
+}
+
 function cliAssetUrl(): { url: string; ext: 'zip' | 'tar.gz' } {
   const platform = process.platform
   const arch = process.arch
@@ -296,7 +373,8 @@ export class ToolchainService {
         output: '未找到 arduino-cli。请在「设置」中点击「安装工具链」。',
         sketchPath: '',
         artifacts: [],
-        durationMs: 0
+        durationMs: 0,
+        errors: []
       }
     }
     const safe =
@@ -353,30 +431,47 @@ export class ToolchainService {
       output: compile.output,
       sketchPath: sketchFile,
       artifacts,
-      durationMs: Date.now() - started
+      durationMs: Date.now() - started,
+      errors: []
     }
   }
 
+  /** 直接枚举系统串口：不依赖 arduino-cli，驱动装好后设备管理器能看到，这里就能看到 */
   async listPorts(): Promise<SerialPortInfo[]> {
-    const cli = await this.resolveCli()
-    if (!cli) return []
-    const result = await execFile(cli, ['board', 'list', '--format', 'json'])
-    if (result.code !== 0) return []
-    try {
-      const parsed = JSON.parse(result.output) as {
-        detected_ports?: { address?: string; protocol?: string; matching_boards?: { name?: string }[] }[]
-      }
-      const ports: SerialPortInfo[] = []
-      for (const p of parsed.detected_ports ?? []) {
-        if (p.protocol !== 'serial' || !p.address) continue
-        const boardName = p.matching_boards?.[0]?.name
-        const label = boardName ? `${p.address} — ${boardName}` : p.address
-        ports.push({ address: p.address, label })
-      }
-      return ports
-    } catch {
-      return []
+    const byAddress = new Map<string, SerialPortInfo>()
+    for (const port of await nativeSerialPorts()) {
+      byAddress.set(port.address, port)
     }
+
+    // arduino-cli 能识别出具体开发板型号时补全名称，识别不到也不影响返回已有串口
+    const cli = await this.resolveCli()
+    if (cli) {
+      const result = await execFile(cli, ['board', 'list', '--format', 'json'])
+      if (result.code === 0) {
+        try {
+          const parsed = JSON.parse(result.output) as {
+            detected_ports?: { address?: string; protocol?: string; matching_boards?: { name?: string }[] }[]
+          }
+          for (const p of parsed.detected_ports ?? []) {
+            if (p.protocol !== 'serial' || !p.address) continue
+            const boardName = p.matching_boards?.[0]?.name
+            const existing = byAddress.get(p.address)
+            if (existing) {
+              if (boardName) existing.label = `${p.address} — ${boardName}`
+            } else {
+              byAddress.set(p.address, {
+                address: p.address,
+                label: boardName ? `${p.address} — ${boardName}` : p.address
+              })
+            }
+          }
+        } catch {
+          // arduino-cli 输出异常时保留系统串口列表
+        }
+      }
+    }
+
+    return [...byAddress.values()].sort((a, b) => a.address.localeCompare(b.address, 'en', { numeric: true }))
   }
 
   async avrdudeUpload(req: AvrdudeUploadRequest): Promise<{ ok: boolean; log: string }> {

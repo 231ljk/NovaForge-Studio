@@ -1,0 +1,93 @@
+<view class="me {{themeClass}}">
+  <view class="profile">
+    <view class="avatar-wrap">
+      <image wx:if="{{avatar}}" class="avatar-image" src="{{avatar}}" mode="aspectFill" />
+      <text wx:else class="avatar-text">{{initial}}</text>
+    </view>
+    <view class="profile-info">
+      <text class="profile-name">{{displayName}}</text>
+      <text class="profile-sub">{{subtitle || (connected ? 'Home Assistant 家庭' : '尚未连接家庭')}}</text>
+    </view>
+    <view class="provider-tag"><text>{{providerLabel}}</text></view>
+  </view>
+
+  <view class="stats-card" wx:if="{{connected}}">
+    <view class="stat-item"><text class="stat-value">{{deviceCount}}</text><text class="stat-label">设备</text></view>
+    <view class="stat-item"><text class="stat-value">{{sceneCount}}</text><text class="stat-label">场景</text></view>
+    <view class="stat-item"><text class="stat-value">{{automationCount}}</text><text class="stat-label">自动化</text></view>
+  </view>
+
+  <view class="group">
+    <text class="group-title">家庭连接</text>
+    <view class="group-card">
+      <view class="connection-form" wx:if="{{!connected}}">
+        <text class="row-label">连接 Home Assistant</text>
+        <text class="row-desc">例如 192.168.1.10:8123</text>
+        <input class="ha-input" placeholder="家庭地址" value="{{haUrl}}" bindinput="onHaUrlInput" />
+        <view class="connect-button {{connecting ? 'button-busy' : ''}}" bindtap="onConnect"><text>{{connecting ? '正在连接' : '连接家庭'}}</text></view>
+        <text class="connect-status" wx:if="{{connectStatus}}">{{connectStatus}}</text>
+      </view>
+      <view class="row" wx:else bindtap="onRefresh">
+        <view class="row-main"><text class="row-label">{{haName || '连接状态'}}</text><text class="row-desc">{{demo ? '本地演示数据' : haUrl}}</text></view>
+        <view class="row-value-wrap">
+          <text class="row-value">{{connectionLabel}}</text>
+          <text class="row-arrow">›</text>
+        </view>
+      </view>
+      <view class="row" bindtap="goAddDevice">
+        <view class="row-main"><text class="row-label">添加设备</text><text class="row-desc">搜索局域网设备</text></view>
+        <view class="row-value-wrap"><text class="row-arrow">›</text></view>
+      </view>
+      <block wx:if="{{homes.length && !demo}}">
+        <view class="row" wx:for="{{homes}}" wx:key="haUrl" data-url="{{item.haUrl}}" bindtap="onForgetHome">
+          <view class="row-main">
+            <text class="row-label">{{item.haName || 'Home Assistant'}}</text>
+            <text class="row-desc">{{item.haUrl}} · 点按移除关联</text>
+          </view>
+          <view class="row-value-wrap"><text class="row-arrow">›</text></view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <view class="group">
+    <text class="group-title">外观</text>
+    <view class="group-card appearance-card">
+      <view class="appearance-head"><text class="row-label">深色模式</text><text class="row-value">当前：{{themeLabel}}</text></view>
+      <view class="theme-options">
+        <view class="theme-option {{themeMode === 'auto' ? 'theme-option-active' : ''}}" data-mode="auto" bindtap="onThemeMode"><text>跟随系统</text></view>
+        <view class="theme-option {{themeMode === 'light' ? 'theme-option-active' : ''}}" data-mode="light" bindtap="onThemeMode"><text>浅色</text></view>
+        <view class="theme-option {{themeMode === 'dark' ? 'theme-option-active' : ''}}" data-mode="dark" bindtap="onThemeMode"><text>深色</text></view>
+      </view>
+    </view>
+  </view>
+
+  <view class="group">
+    <text class="group-title">权限与提醒</text>
+    <view class="group-card">
+      <view class="row" bindtap="onBluetoothPermission">
+        <view class="row-main"><text class="row-label">蓝牙</text><text class="row-desc">用于附近设备连接与配网</text></view>
+        <view class="row-value-wrap"><text class="row-value">{{bluetoothStatus}}</text><text class="row-arrow">›</text></view>
+      </view>
+      <view class="row" bindtap="onWifiPermission">
+        <view class="row-main"><text class="row-label">WiFi</text><text class="row-desc">用于确认家庭网络和局域网发现</text></view>
+        <view class="row-value-wrap"><text class="row-value">{{wifiStatus}}</text><text class="row-arrow">›</text></view>
+      </view>
+      <view class="row" bindtap="onNotificationPermission">
+        <view class="row-main"><text class="row-label">账号与系统通知</text><text class="row-desc">接收账号异常、连接中断和系统问题提醒</text></view>
+        <view class="row-value-wrap"><text class="row-value">{{notificationStatus}}</text><text class="row-arrow">›</text></view>
+      </view>
+    </view>
+  </view>
+
+  <view class="group">
+    <text class="group-title">关于</text>
+    <view class="group-card">
+      <view class="row"><text class="row-label">应用</text><text class="row-value">NovaForge</text></view>
+      <view class="row"><text class="row-label">版本</text><text class="row-value">{{version}}</text></view>
+      <view class="row"><text class="row-label">家庭服务</text><text class="row-value">Home Assistant</text></view>
+    </view>
+  </view>
+
+  <view class="logout" bindtap="onLogout"><text>退出登录</text></view>
+</view>

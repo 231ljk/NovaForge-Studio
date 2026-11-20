@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { BOARDS } from '../../../shared/boards'
 import { buildFirmware } from '../../../shared/firmware'
+import { parseBuildErrors } from '../lib/serial'
 import type { BuildResult } from '../../../shared/types'
 import { BlocksEditor } from '../components/BlocksEditor'
 import { CodeEditor } from '../components/CodeEditor'
@@ -22,6 +23,22 @@ export function Firmware({ navigate }: { navigate: (r: RouteId) => void }): Reac
   const saveTimer = useRef<number | null>(null)
   const consoleRef = useRef<HTMLDivElement>(null)
 
+  // 日志节流缓冲区
+  const logBufRef = useRef<string[]>([])
+  const logFlushTimerRef = useRef<number | null>(null)
+  const pushLog = (line: string): void => {
+    logBufRef.current.push(line)
+    if (!logFlushTimerRef.current) {
+      logFlushTimerRef.current = window.setTimeout(() => {
+        logFlushTimerRef.current = null
+        const batch = logBufRef.current
+        logBufRef.current = []
+        if (batch.length === 0) return
+        setLogs((prev) => [...prev, ...batch].slice(-500))
+      }, 100)
+    }
+  }
+
   useEffect(() => {
     setDraft(project.code)
   }, [project.id, project.code])
@@ -29,7 +46,7 @@ export function Firmware({ navigate }: { navigate: (r: RouteId) => void }): Reac
   useEffect(() => {
     const off = window.api.onProgress((e) => {
       if (e.scope !== 'build') return
-      setLogs((prev) => [...prev.slice(-500), e.line.trimEnd()])
+      pushLog(e.line.trimEnd())
     })
     return off
   }, [])
@@ -37,6 +54,29 @@ export function Firmware({ navigate }: { navigate: (r: RouteId) => void }): Reac
   useEffect(() => {
     if (consoleRef.current) consoleRef.current.scrollTop = consoleRef.current.scrollHeight
   }, [logs])
+
+  // AI 代码应用监听：AiChat 通过 CustomEvent 发代码到这里
+  useEffect(() => {
+    const applyCode = (): void => {
+      try {
+        const raw = localStorage.getItem('nf.applyCode')
+        if (!raw) return
+        const { code, ts } = JSON.parse(raw) as { code: string; lang: string; ts: number }
+        // 只处理 30 秒内的新代码，避免重放旧事件
+        if (Date.now() - ts > 30_000) return
+        localStorage.removeItem('nf.applyCode')
+        if (code && code.length > 10) {
+          setDraft(code)
+          updateProject(project.id, { code })
+          notify('AI 代码已应用，点「编译固件」验证', 'success')
+        }
+      } catch { /* ignore */ }
+    }
+    applyCode()
+    const onApply = (): void => applyCode()
+    window.addEventListener('nf:applyCode', onApply)
+    return () => window.removeEventListener('nf:applyCode', onApply)
+  }, [project.id])
 
   const handleCodeChange = (value: string): void => {
     setDraft(value)
@@ -63,15 +103,21 @@ export function Firmware({ navigate }: { navigate: (r: RouteId) => void }): Reac
         coreIds: board.coreId ? [board.coreId] : [],
         code: source
       })
-      setResult(build)
-      setLastBuild(build)
+      // 注入结构化错误
+      const errors = parseBuildErrors(build.output)
+      const enriched: BuildResult = { ...build, errors }
+      setResult(enriched)
+      setLastBuild(enriched)
       setLogs((prev) => [...prev, ...build.output.split('\n').slice(-400)])
       if (build.success) {
         notify(`编译成功，用时 ${(build.durationMs / 1000).toFixed(1)} 秒`, 'success')
+        localStorage.setItem('nf.lastBuildErrors', '')
       } else {
-        notify('编译失败，请查看下方日志', 'error')
+        notify('编译失败，请查看下方日志或让 AI 修复', 'error')
+        // 暴露错误给 AI：写入 localStorage，AiChat 发送消息时自动读取
+        localStorage.setItem('nf.lastBuildErrors', JSON.stringify(errors.slice(0, 30)))
       }
-      return build
+      return enriched
     } catch (err) {
       notify(`编译调用失败: ${String(err)}`, 'error')
       return null

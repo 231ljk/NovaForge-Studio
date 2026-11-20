@@ -5,6 +5,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { randomBytes } from 'node:crypto'
 import { getBoard } from '../shared/boards'
+import { IS_FLASH, PRODUCT_NAME } from '../shared/product'
 import type { BuildRequest, ProgressEvent } from '../shared/types'
 import type { GatewayPairResult, GatewaySnapshots, GatewayStatus } from '../shared/gateway'
 import { aiService } from './ai'
@@ -223,7 +224,7 @@ export class GatewayService {
       if (url.pathname === '/api/info') {
         send(200, {
           ok: true,
-          app: 'NovaForge Studio',
+          app: PRODUCT_NAME,
           version: app.getVersion(),
           platform: process.platform,
           paired: this.store.tokens.length > 0,
@@ -422,6 +423,11 @@ export class GatewayService {
           sketchDir: cached.sketchPath,
         })
         send(200, { ok: up.ok, log: up.log.slice(-8000) })
+        return
+      }
+
+      if (IS_FLASH && url.pathname.startsWith('/api/ai/')) {
+        send(404, { ok: false, error: 'NovaForge Flash 不提供 AI 能力' })
         return
       }
 

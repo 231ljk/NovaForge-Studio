@@ -1,0 +1,26 @@
+{
+  "name": "NovaForge",
+  "appid": "__UNI__NOVAFORGE",
+  "description": "NovaForge 多端客户端",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "app-plus": {
+    "usingComponents": true,
+    "distribute": {
+      "android": {
+        "permissions": [
+          "<uses-permission android:name=\"android.permission.INTERNET\"/>",
+          "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>"
+        ]
+      }
+    }
+  },
+  "mp-weixin": {
+    "appid": "wx72cc2427babae32a",
+    "setting": {
+      "urlCheck": false
+    },
+    "usingComponents": true
+  }
+}

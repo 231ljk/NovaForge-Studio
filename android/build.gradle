@@ -20,6 +20,12 @@ buildscript {
 apply from: "variables.gradle"
 
 allprojects {
+    // 工程在 D 盘（剩余空间极小），允许通过 NF_BUILD_ROOT 环境变量
+    // 把构建中间产物整体重定向到其他磁盘，避免构建过程写满 D 盘
+    def nfBuildRoot = System.getenv('NF_BUILD_ROOT')
+    if (nfBuildRoot) {
+        layout.buildDirectory.set(new File(nfBuildRoot, project.name))
+    }
     repositories {
         maven { url 'https://maven.aliyun.com/repository/google' }
         maven { url 'https://maven.aliyun.com/repository/public' }

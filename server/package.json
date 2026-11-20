@@ -1,0 +1,14 @@
+{
+  "name": "novaforge-account-service",
+  "version": "0.1.0",
+  "private": true,
+  "description": "NovaForge 账号服务：微信多端应用身份管理登录凭证校验",
+  "main": "index.js",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env index.js",
+    "dev": "node --env-file-if-exists=.env --watch index.js"
+  },
+  "engines": {
+    "node": ">=20.6"
+  }
+}

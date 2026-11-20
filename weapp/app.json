@@ -1,0 +1,34 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/scenes/index",
+    "pages/me/index",
+    "pages/login/index",
+    "pages/add-device/index"
+  ],
+  "window": {
+    "backgroundTextStyle": "dark",
+    "backgroundColor": "#f5f6f7",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTitleText": "NovaForge",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#86909c",
+    "selectedColor": "#008a7f",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/home/index", "text": "设备" },
+      { "pagePath": "pages/scenes/index", "text": "场景" },
+      { "pagePath": "pages/me/index", "text": "我的" }
+    ]
+  },
+  "permission": {
+    "scope.userLocation": {
+      "desc": "用于发现同一局域网内的 NovaForge 设备"
+    }
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

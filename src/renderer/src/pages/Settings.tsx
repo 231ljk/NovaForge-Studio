@@ -4,6 +4,8 @@ import type { AuthState } from '../../../shared/auth'
 import type { AiConfig, AiProvider, AiStatus } from '../../../shared/ai'
 import type { AccountState } from '../../../shared/account'
 import { AI_PORT, CLOUD_PRESETS, LOCAL_MODELS } from '../../../shared/ai'
+import { IS_FLASH } from '../../../shared/product'
+import { PRIVACY_TEXT, TERMS_TEXT } from '../../../shared/agreement'
 import { useApp } from '../store'
 
 interface AppInfo {
@@ -26,6 +28,7 @@ export function Settings(): React.ReactElement {
   const [accMode, setAccMode] = useState<'login' | 'register'>('login')
   const [accKind, setAccKind] = useState<'password' | 'code'>('code')
   const [accEmail, setAccEmail] = useState('')
+  const [agreed, setAgreed] = useState(false)
   const [accPassword, setAccPassword] = useState('')
   const [accName, setAccName] = useState('')
   const [accCode, setAccCode] = useState('')
@@ -57,7 +60,7 @@ export function Settings(): React.ReactElement {
     void window.api.appInfo().then((v) => setInfo(v as AppInfo))
     void window.api.authStatus().then(setAuth)
     void window.api.accountStatus().then(setAccount).catch(() => {})
-    void window.api.aiStatus().then((s) => {
+    if (!IS_FLASH) void window.api.aiStatus().then((s) => {
       setAi(s)
       // 从主进程状态回填当前配置
       if (s.provider) setAiProvider(s.provider)
@@ -107,13 +110,21 @@ export function Settings(): React.ReactElement {
     return () => clearInterval(timer)
   }, [auth?.phase])
 
+  const requireAgree = (): boolean => {
+    if (agreed) return true
+    notify('请先勾选并同意《隐私政策》和《用户协议》', 'error')
+    return false
+  }
+
   const login = async (): Promise<void> => {
+    if (!requireAgree()) return
     const s = await window.api.authStart()
     setAuth(s)
     if (s.phase === 'error') notify(s.error ?? '发起登录失败', 'error')
   }
 
   const loginGitee = async (): Promise<void> => {
+    if (!requireAgree()) return
     const s = await window.api.authStartGitee()
     setAuth(s)
     if (s.phase === 'error') notify(s.error ?? '发起登录失败', 'error')
@@ -127,6 +138,7 @@ export function Settings(): React.ReactElement {
   // —— 邮箱主账号 ——
   const requestCode = async (): Promise<void> => {
     if (codeBusy) return
+    if (!requireAgree()) return
     if (!accEmail.trim()) {
       notify('请先填写邮箱', 'error')
       return
@@ -166,6 +178,7 @@ export function Settings(): React.ReactElement {
 
   const submitAccount = async (): Promise<void> => {
     if (accBusy) return
+    if (!requireAgree()) return
     setAccBusy(true)
     try {
       const res =
@@ -382,6 +395,21 @@ export function Settings(): React.ReactElement {
           </>
         ) : (
           <>
+            {/* —— 登录前必须勾选同意隐私政策与用户协议 —— */}
+            <label className="agree-line">
+              <input
+                type="checkbox"
+                checked={agreed}
+                onChange={(e) => setAgreed(e.target.checked)}
+              />
+              <span>已阅读并同意《隐私政策》和《用户协议》</span>
+            </label>
+            <details className="agreement-details">
+              <summary>查看协议全文</summary>
+              <pre>{PRIVACY_TEXT}</pre>
+              <pre>{TERMS_TEXT}</pre>
+            </details>
+
             {/* —— 第三方仓库一键登录（不依赖邮箱） —— */}
             <div className="muted small" style={{ marginBottom: 8 }}>
               也可以直接用代码仓库账号登录，首次使用后再绑定邮箱即可多端同步。
@@ -537,6 +565,7 @@ export function Settings(): React.ReactElement {
         )}
       </section>
 
+      {!IS_FLASH && (
       <section className="panel">
         <div className="section-head">
           <h3>AI 助手</h3>
@@ -779,6 +808,7 @@ export function Settings(): React.ReactElement {
           <div className="small" style={{ color: '#ff7b72', marginTop: 10 }}>{ai.error}</div>
         )}
       </section>
+      )}
 
       <section className="panel">
         <div className="section-head">
@@ -906,7 +936,9 @@ export function Settings(): React.ReactElement {
           <div className="platform-card active">
             <b>Android</b>
             <span className="muted small">已支持 · 完整客户端</span>
-            <span className="muted small">AI 助手、远程编译、HA 设备与 ESP 设备统一控制</span>
+            <span className="muted small">
+              {IS_FLASH ? '远程编译、HA 设备与 ESP 设备统一控制' : 'AI 助手、远程编译、HA 设备与 ESP 设备统一控制'}
+            </span>
           </div>
           <div className="platform-card">
             <b>HarmonyOS</b>

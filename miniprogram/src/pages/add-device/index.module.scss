@@ -1,0 +1,231 @@
+@use '@/styles/variables.scss' as *;
+
+.addPage {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: $spacing-lg $page-padding $spacing-xl;
+  background: $color-bg-page;
+}
+
+.scanHero {
+  padding: $spacing-lg;
+  border-radius: $radius-xl;
+  background: linear-gradient(145deg, $color-primary 0%, $color-primary-dark 100%);
+  text-align: center;
+  color: $color-text-white;
+  box-shadow: 0 10rpx 28rpx rgba(0, 138, 127, 0.16);
+}
+
+.radar {
+  width: 104rpx;
+  height: 104rpx;
+  margin: 0 auto $spacing-md;
+  border-radius: $radius-round;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1rpx solid rgba(255, 255, 255, 0.28);
+  font-size: 48rpx;
+  @include flex-center;
+}
+
+.radarScanning {
+  animation: radarPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes radarPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.08); opacity: 0.75; }
+}
+
+.scanTitle {
+  display: block;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $spacing-xs;
+}
+
+.scanSubtitle {
+  display: block;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: $font-size-sm;
+  line-height: $line-height-normal;
+}
+
+.card {
+  margin-top: $spacing-sm;
+  padding: $spacing-md;
+  border-radius: $radius-lg;
+  background: $color-bg-card;
+  box-shadow: $shadow-card;
+}
+
+.cardTitle {
+  display: block;
+  color: $color-text-primary;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $spacing-xs;
+}
+
+.cardDesc {
+  display: block;
+  color: $color-text-tertiary;
+  font-size: $font-size-xs;
+  line-height: $line-height-loose;
+  margin-bottom: $spacing-md;
+}
+
+.fieldLabel {
+  display: block;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  margin: $spacing-md 0 $spacing-xs;
+}
+
+.fieldInput {
+  box-sizing: border-box;
+  width: 100%;
+  height: 88rpx;
+  padding: 0 $spacing-md;
+  border-radius: $radius-md;
+  background: $color-bg-page;
+  border: 1rpx solid $color-border;
+  color: $color-text-primary;
+  font-size: $font-size-md;
+}
+
+.scanButton,
+.addButton {
+  height: 96rpx;
+  margin-top: $spacing-md;
+  border-radius: $radius-button;
+  background: $color-primary;
+  color: $color-text-white;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  @include flex-center;
+
+  &:active {
+    background: $color-primary-dark;
+  }
+}
+
+.buttonBusy {
+  opacity: 0.55;
+}
+
+.scanStatus {
+  display: block;
+  color: $color-text-tertiary;
+  font-size: $font-size-xs;
+  line-height: $line-height-normal;
+  text-align: center;
+  margin-top: $spacing-sm;
+}
+
+.resultList {
+  margin-top: $spacing-sm;
+}
+
+.resultRow {
+  min-height: 112rpx;
+  display: flex;
+  align-items: center;
+  padding: $spacing-sm 0;
+  box-sizing: border-box;
+
+  &:not(:last-child) {
+    border-bottom: 1rpx solid $color-divider;
+  }
+}
+
+.resultIcon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 18rpx;
+  background: rgba(0, 179, 164, 0.09);
+  margin-right: $spacing-sm;
+  @include flex-center;
+}
+
+.resultInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.resultName {
+  display: block;
+  color: $color-text-primary;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  margin-bottom: 4rpx;
+  @include text-ellipsis;
+}
+
+.resultHost {
+  color: $color-text-tertiary;
+  font-size: $font-size-xs;
+}
+
+.pickButton {
+  min-width: 112rpx;
+  height: 64rpx;
+  margin-left: $spacing-sm;
+  border-radius: $radius-round;
+  background: rgba(0, 179, 164, 0.09);
+  color: $color-primary-dark;
+  font-size: $font-size-sm;
+  @include flex-center;
+}
+
+.portRow {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.hostInput {
+  flex: 1;
+}
+
+.portInput {
+  width: 176rpx;
+  flex-shrink: 0;
+}
+
+.tokenTip {
+  display: block;
+  color: $color-text-tertiary;
+  font-size: $font-size-xs;
+  line-height: $line-height-normal;
+  margin-top: $spacing-xs;
+}
+
+.errorText {
+  display: block;
+  padding: $spacing-sm;
+  border-radius: $radius-md;
+  background: #fff2f0;
+  color: $color-error;
+  font-size: $font-size-sm;
+  line-height: $line-height-normal;
+  margin-top: $spacing-md;
+}
+
+.helpCard {
+  margin-top: $spacing-lg;
+  padding: 0 $spacing-sm;
+}
+
+.helpTitle {
+  display: block;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  margin-bottom: $spacing-xs;
+}
+
+.helpText {
+  color: $color-text-tertiary;
+  font-size: $font-size-xs;
+  line-height: $line-height-loose;
+}

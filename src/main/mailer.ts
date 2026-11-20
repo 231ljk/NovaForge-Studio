@@ -1,26 +1,51 @@
+import { app } from 'electron'
+import fs from 'node:fs'
 import net from 'node:net'
+import path from 'node:path'
 import tls from 'node:tls'
 
 /**
- * 内置发信邮箱（只用于发送注册/登录验证码）。
+ * 发信邮箱只用于发送注册/登录验证码。
  *
- * 配置写死在主进程里、不提供任何界面入口，普通用户无法把验证码通道改到自己的邮箱。
- * 注意：163 邮箱必须使用「客户端授权密码」，不是网页登录密码。
+ * 不在源码里写死任何个人邮箱和授权码，按以下顺序读取：
+ * 1. 环境变量 NF_SMTP_HOST / NF_SMTP_PORT / NF_SMTP_SECURE / NF_SMTP_USER / NF_SMTP_PASS / NF_SMTP_FROM
+ * 2. 用户数据目录下的 mail.json（同样字段，secure 为布尔值）
+ *
+ * 请使用业务专用邮箱（例如 no-reply@你的域名），不要使用他人的个人邮箱。
  */
-const BUILTIN: {
+interface MailConfig {
   host: string
   port: number
   secure: boolean
   user: string
   pass: string
   from: string
-} = {
-  host: 'smtp.163.com',
-  port: 465,
-  secure: true,
-  user: '15261164497@163.com',
-  pass: 'KYsNGKuUNgcpH4Uc',
-  from: '15261164497@163.com'
+}
+
+function readConfigFile(): Partial<MailConfig> {
+  try {
+    const file = path.join(app.getPath('userData'), 'mail.json')
+    if (!fs.existsSync(file)) return {}
+    return JSON.parse(fs.readFileSync(file, 'utf8')) as Partial<MailConfig>
+  } catch {
+    return {}
+  }
+}
+
+function loadConfig(): MailConfig | null {
+  const file = readConfigFile()
+  const env = process.env
+  const host = env.NF_SMTP_HOST || file.host || ''
+  const user = env.NF_SMTP_USER || file.user || ''
+  const pass = env.NF_SMTP_PASS || file.pass || ''
+  const port = Number(env.NF_SMTP_PORT || file.port || 465)
+  const secure =
+    env.NF_SMTP_SECURE !== undefined
+      ? env.NF_SMTP_SECURE === 'true' || env.NF_SMTP_SECURE === '1'
+      : file.secure ?? port === 465
+  const from = env.NF_SMTP_FROM || file.from || user
+  if (!host || !user || !pass || !from) return null
+  return { host, port, secure: Boolean(secure), user, pass, from }
 }
 
 /* ---------------- SMTP 会话 ---------------- */
@@ -106,7 +131,12 @@ function encodeHeader(value: string): string {
 }
 
 export async function sendMail(to: string, subject: string, body: string): Promise<void> {
-  const cfg = BUILTIN
+  const cfg = loadConfig()
+  if (!cfg) {
+    throw new Error(
+      '尚未配置发信邮箱。请在用户数据目录的 mail.json 中填写 host/port/user/pass/from，或设置 NF_SMTP_* 环境变量'
+    )
+  }
 
   const raw = cfg.secure
     ? tls.connect({ host: cfg.host, port: cfg.port, servername: cfg.host, rejectUnauthorized: true })

@@ -6,8 +6,12 @@ import { AuthService } from './auth'
 import { GatewayService } from './gateway'
 import { accountService } from './account'
 import { aiService } from './ai'
+import { IS_FLASH, PRODUCT_NAME } from '../shared/product'
 import type { BuildRequest, AvrdudeUploadRequest } from '../shared/types'
 import type { GatewaySnapshots } from '../shared/gateway'
+
+// 两个产品使用各自的 userData 目录，互不干扰
+app.setName(PRODUCT_NAME)
 
 // —— 启动期修复（必须在任何 Electron API 调用之前）——
 // 修 "FATAL ERROR: Zone Allocation failed" / "Committing semi space failed"
@@ -34,7 +38,7 @@ function createWindow(): void {
     show: false,
     backgroundColor: '#0b0f14',
     autoHideMenuBar: true,
-    title: 'NovaForge Studio',
+    title: PRODUCT_NAME,
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
       contextIsolation: true,
@@ -198,19 +202,22 @@ function registerIpc(): void {
   ipcMain.handle('account:unbind', (_e, provider: 'github' | 'gitee') =>
     accountService.unbindRepo(provider),
   )
-  ipcMain.handle('ai:status', () => aiService.status())
-  ipcMain.handle('ai:start', (_e, cfg?: import('../shared/ai').AiConfig) => {
-    persistAiCfg(cfg)
-    return aiService.start(cfg)
-  })
-  ipcMain.handle('ai:stop', () => aiService.stop())
-  ipcMain.handle(
-    'ai:chat',
-    (_e, messages: import('../shared/ai').AiMessage[], cfg?: import('../shared/ai').AiConfig) => {
+  // Flash 版不提供任何 AI 能力，IPC 也不注册
+  if (!IS_FLASH) {
+    ipcMain.handle('ai:status', () => aiService.status())
+    ipcMain.handle('ai:start', (_e, cfg?: import('../shared/ai').AiConfig) => {
       persistAiCfg(cfg)
-      return aiService.chat(messages, cfg)
-    },
-  )
+      return aiService.start(cfg)
+    })
+    ipcMain.handle('ai:stop', () => aiService.stop())
+    ipcMain.handle(
+      'ai:chat',
+      (_e, messages: import('../shared/ai').AiMessage[], cfg?: import('../shared/ai').AiConfig) => {
+        persistAiCfg(cfg)
+        return aiService.chat(messages, cfg)
+      },
+    )
+  }
   // —— 局域网网关（手机 APP）——
   ipcMain.handle('gateway:status', () => gateway?.status() ?? { running: false, port: 0, addresses: [], code: '', codeExpiresAt: 0, paired: 0 })
   ipcMain.handle('gateway:start', () => gateway!.start())

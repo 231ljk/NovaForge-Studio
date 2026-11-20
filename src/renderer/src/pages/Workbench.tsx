@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Modal } from '../components/Modal'
 import { BOARDS, getBoard } from '../../../shared/boards'
+import { IS_FLASH } from '../../../shared/product'
 import type { ToolchainStatus } from '../../../shared/types'
 import { useApp } from '../store'
 
@@ -29,7 +30,7 @@ export function Workbench({ navigate }: { navigate: (r: RouteId) => void }): Rea
     const project = createProject(name.trim(), boardId, mode)
     setShowCreate(false)
     notify(`已创建项目「${project.name}」`, 'success')
-    navigate('firmware')
+    navigate(IS_FLASH ? 'device' : 'firmware')
   }
 
   const toolchainLabel = !status
@@ -45,10 +46,11 @@ export function Workbench({ navigate }: { navigate: (r: RouteId) => void }): Rea
       <section className="hero panel">
         <div className="hero-copy">
           <span className="eyebrow">ESP32 · 树莓派 · 真实硬件</span>
-          <h2>把代码变成会动、会亮的设备</h2>
+          <h2>{IS_FLASH ? '把固件烧进真实设备' : '把代码变成会动、会亮的设备'}</h2>
           <p>
-            选择开发板，写代码或用图形化积木搭逻辑，一键编译固件并通过数据线烧录。联网后用 Wi-Fi
-            直接控制引脚，并可被 Home Assistant 自动发现。
+            {IS_FLASH
+              ? '选择开发板与项目，一键编译并通过数据线烧录固件，实时查看串口输出。联网后用 Wi-Fi 直接控制引脚，并可被 Home Assistant 自动发现。'
+              : '选择开发板，写代码或用图形化积木搭逻辑，一键编译固件并通过数据线烧录。联网后用 Wi-Fi 直接控制引脚，并可被 Home Assistant 自动发现。'}
           </p>
           <div className="hero-actions">
             <button className="btn primary" onClick={() => setShowCreate(true)}>
@@ -56,9 +58,9 @@ export function Workbench({ navigate }: { navigate: (r: RouteId) => void }): Rea
             </button>
             <button
               className="btn ghost"
-              onClick={() => (activeProject ? navigate('firmware') : setShowCreate(true))}
+              onClick={() => (activeProject ? navigate(IS_FLASH ? 'device' : 'firmware') : setShowCreate(true))}
             >
-              {activeProject ? '继续编写固件' : '开始编写'}
+              {activeProject ? (IS_FLASH ? '继续烧录' : '继续编写固件') : IS_FLASH ? '开始烧录' : '开始编写'}
             </button>
           </div>
         </div>
@@ -113,20 +115,22 @@ export function Workbench({ navigate }: { navigate: (r: RouteId) => void }): Rea
                       className="btn small primary"
                       onClick={() => {
                         setActiveId(p.id)
-                        navigate('firmware')
+                        navigate(IS_FLASH ? 'device' : 'firmware')
                       }}
                     >
-                      打开
+                      {IS_FLASH ? '烧录' : '打开'}
                     </button>
-                    <button
-                      className="btn small ghost"
-                      onClick={() => {
-                        setActiveId(p.id)
-                        navigate('device')
-                      }}
-                    >
-                      烧录
-                    </button>
+                    {!IS_FLASH && (
+                      <button
+                        className="btn small ghost"
+                        onClick={() => {
+                          setActiveId(p.id)
+                          navigate('device')
+                        }}
+                      >
+                        烧录
+                      </button>
+                    )}
                     <button
                       className="btn small danger"
                       onClick={() => {
