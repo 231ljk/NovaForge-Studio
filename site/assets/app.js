@@ -366,6 +366,8 @@
       if (state.mirror === 'cn' && state.cnSizes[name]) bytes = state.cnSizes[name];
       else if (state.ghSizes[name]) bytes = state.ghSizes[name];
       else if (state.cnSizes[name]) bytes = state.cnSizes[name];
+      /* 接口不可达时用页面预置的真实体积兜底，避免首屏空白 */
+      if (!bytes) bytes = Number(el.getAttribute('data-size')) || 0;
       el.textContent = formatSize(bytes);
     });
   }
