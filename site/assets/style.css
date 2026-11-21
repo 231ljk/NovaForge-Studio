@@ -739,8 +739,8 @@ svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width:
 }
 
 
-/* ============================ 下载线路切换 ============================ */
-.mirror-switch {
+/* ============================ 下载线路（只读自动状态） ============================ */
+.mirror-status {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -748,25 +748,47 @@ svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width:
   margin-bottom: 12px;
   font-size: 13px;
 }
-.mirror-switch .mirror-label { color: var(--text-muted, #86909c); }
-.mirror-switch button {
-  padding: 5px 13px;
+.mirror-status .mirror-label { color: var(--text-muted, #86909c); }
+.mirror-status .mirror-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--brand, #008a7f);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+.mirror-status .mirror-tip { color: var(--text-muted, #86909c); font-size: 12px; }
+
+
+/* ============================ 语言切换 ============================ */
+.lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  height: 32px;
+  padding: 0 10px;
   border-radius: 999px;
   border: 1px solid var(--line, #e5e6eb);
   background: transparent;
   color: inherit;
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 600;
   font-family: inherit;
+  letter-spacing: .04em;
   cursor: pointer;
-  transition: background .15s ease, border-color .15s ease, color .15s ease;
+  transition: border-color .15s ease, color .15s ease, background .15s ease;
 }
-.mirror-switch button:hover { border-color: var(--brand, #008a7f); color: var(--brand, #008a7f); }
-.mirror-switch button.is-active {
-  background: var(--brand, #008a7f);
+.lang-toggle:hover {
   border-color: var(--brand, #008a7f);
-  color: #fff;
+  color: var(--brand, #008a7f);
+  background: rgba(0, 138, 127, .06);
 }
-.mirror-switch .mirror-tip { color: var(--text-muted, #86909c); font-size: 12px; }
 
 
 /* ============================ 国内镜像分卷下载 ============================ */
