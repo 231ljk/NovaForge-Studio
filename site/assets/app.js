@@ -304,7 +304,10 @@
       var h = a.getAttribute('href') || '';
       var m = h.match(GH_RE) || h.match(CN_RE);
       if (!m) return;
-      var file = m[1];
+      /* 首次改写时把原始文件名固化到 data-file，避免二次渲染时把已改写的
+         part1 链接误判成普通文件而丢掉分卷标记 */
+      var file = a.getAttribute('data-file') || m[1];
+      a.setAttribute('data-file', file);
       a.setAttribute('href', urlFor(file));
       if (file === SPLIT_BASE && splitAvailable()) a.setAttribute('data-cn-split', '1');
       else a.removeAttribute('data-cn-split');
@@ -360,7 +363,7 @@
       var h = a.getAttribute('href') || '';
       var m = h.match(GH_RE) || h.match(CN_RE);
       if (!m) return;
-      var f = m[1];
+      var f = a.getAttribute('data-file') || m[1];
       if (seen[f]) return;
       seen[f] = 1;
       if (f === SPLIT_BASE) {
