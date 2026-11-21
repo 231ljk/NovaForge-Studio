@@ -42,6 +42,20 @@ cpSync(harmonyDir, BUILD_DIR, {
 })
 
 // 可选：从环境变量注入发布签名。只修改英文临时目录中的配置，避免密码进入仓库。
+/** 从 p7b（PKCS#7）中取出 profile 的 bundle-name */
+function readProfileBundleName(profilePath) {
+  try {
+    const buf = readFileSync(profilePath)
+    const start = buf.indexOf('{"')
+    const end = buf.lastIndexOf('}')
+    if (start < 0 || end <= start) return null
+    const json = JSON.parse(buf.subarray(start, end + 1).toString('utf8'))
+    return json['bundle-info']?.['bundle-name'] ?? null
+  } catch {
+    return null
+  }
+}
+
 const signingKeys = [
   'HARMONY_STORE_FILE',
   'HARMONY_CERT_PATH',
@@ -63,24 +77,20 @@ if (signingRequested) {
       process.exit(1)
     }
   }
-  const buildProfilePath = path.join(BUILD_DIR, 'build-profile.json5')
-  const buildProfile = JSON.parse(readFileSync(buildProfilePath, 'utf8'))
-  buildProfile.app.signingConfigs = [{
-    name: 'default',
-    type: 'HarmonyOS',
-    material: {
-      certpath: path.resolve(process.env.HARMONY_CERT_PATH),
-      storePassword: process.env.HARMONY_STORE_PASSWORD,
-      keyAlias: process.env.HARMONY_KEY_ALIAS,
-      keyPassword: process.env.HARMONY_KEY_PASSWORD,
-      profile: path.resolve(process.env.HARMONY_PROFILE),
-      signAlg: process.env.HARMONY_SIGN_ALG ?? 'SHA256withECDSA',
-      storeFile: path.resolve(process.env.HARMONY_STORE_FILE)
+  // hvigor 的 SignHap 只接受 DevEco 加密后的密码（长度 >= 32），明文密码会被直接拒绝，
+  // 因此这里不注入 signingConfigs，改为先构建 unsigned HAP，再用 hap-sign-tool 本地签名。
+  const appJson5 = readFileSync(path.join(harmonyDir, 'AppScope', 'app.json5'), 'utf8')
+  const bundleName = /"bundleName"\s*:\s*"([^"]+)"/.exec(appJson5)?.[1]
+  const profileBundleName = readProfileBundleName(process.env.HARMONY_PROFILE)
+  if (bundleName && profileBundleName && bundleName !== profileBundleName) {
+    const msg = `签名 profile 的 bundle-name（${profileBundleName}）与工程 bundleName（${bundleName}）不一致，安装会失败`
+    if (process.env.HARMONY_ALLOW_BUNDLE_MISMATCH === '1') {
+      console.warn(`警告：${msg}（已按 HARMONY_ALLOW_BUNDLE_MISMATCH=1 继续）`)
+    } else {
+      console.error(msg)
+      process.exit(1)
     }
-  }]
-  buildProfile.app.products[0].signingConfig = 'default'
-  writeFileSync(buildProfilePath, JSON.stringify(buildProfile, null, 2))
-  console.log('已注入鸿蒙发布签名（密码不会写入仓库）')
+  }
 }
 
 // 3. 调用 hvigor 构建
@@ -124,11 +134,41 @@ if (!hap) {
   console.error('未找到 HAP 产物')
   process.exit(1)
 }
-const target = path.join(
-  root,
-  'release',
-  `NovaForge-Studio-${version}-harmony${hap.includes('unsigned') ? '-unsigned' : ''}.hap`
-)
-mkdirSync(path.dirname(target), { recursive: true })
-copyFileSync(hap, target)
-console.log(`完成: ${target}`)
+
+// 5. 签名（可选）：用 SDK 自带的 hap-sign-tool 对 unsigned HAP 做本地签名
+const releaseDir = path.join(root, 'release')
+mkdirSync(releaseDir, { recursive: true })
+
+if (signingRequested) {
+  const java = path.join(DEVECO, 'jbr', 'bin', 'java.exe')
+  const signTool = path.join(DEVECO, 'sdk', 'default', 'openharmony', 'toolchains', 'lib', 'hap-sign-tool.jar')
+  if (!existsSync(java) || !existsSync(signTool)) {
+    console.error(`未找到签名工具：${java} / ${signTool}`)
+    process.exit(1)
+  }
+  const signed = path.join(releaseDir, `NovaForge-Studio-${version}-harmony-signed.hap`)
+  const signResult = spawnSync(
+    `"${java}" -jar "${signTool}" sign-app -mode localSign` +
+      ` -keyAlias "${process.env.HARMONY_KEY_ALIAS}"` +
+      ` -signAlg "${process.env.HARMONY_SIGN_ALG ?? 'SHA256withECDSA'}"` +
+      ` -appCertFile "${path.resolve(process.env.HARMONY_CERT_PATH)}"` +
+      ` -profileFile "${path.resolve(process.env.HARMONY_PROFILE)}"` +
+      ` -inFile "${hap}" -outFile "${signed}"` +
+      ` -keystoreFile "${path.resolve(process.env.HARMONY_STORE_FILE)}"` +
+      ` -keyPwd "${process.env.HARMONY_KEY_PASSWORD}"` +
+      ` -keystorePwd "${process.env.HARMONY_STORE_PASSWORD}"`,
+    { stdio: 'inherit', shell: true }
+  )
+  if (signResult.status !== 0) {
+    console.error('鸿蒙签名失败')
+    process.exit(signResult.status ?? 1)
+  }
+  console.log(`完成（已签名）: ${signed}`)
+} else {
+  const target = path.join(
+    releaseDir,
+    `NovaForge-Studio-${version}-harmony${hap.includes('unsigned') ? '-unsigned' : ''}.hap`
+  )
+  copyFileSync(hap, target)
+  console.log(`完成（未签名）: ${target}`)
+}

@@ -281,14 +281,20 @@
             </div>
           </div>
           <p class="pc-desc">
-            原生鸿蒙应用，与电脑同一账号互通，内置 AI 助手。正式发布前需在 DevEco Studio 中配置华为签名材料，未签名 HAP 仅供开发验证。
+            原生鸿蒙应用，与电脑同一账号互通，内置 AI 助手。当前提供调试签名包，需在华为 AGC 配置设备白名单后安装；正式发布版待发布证书与 profile。
           </p>
           <div class="pc-foot">
-            <a class="btn btn-soft" href="https://github.com/231ljk/NovaForge-Studio/actions/workflows/build-harmony.yml" rel="noopener">
-              查看构建
+            <a class="btn btn-primary" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-harmony-signed.hap" rel="noopener">
+              下载 HAP
             </a>
-            <span class="tag">待签名发布</span>
+            <a class="btn btn-ghost" href="https://github.com/231ljk/NovaForge-Studio/releases/latest" rel="noopener">
+              查看发布页
+            </a>
+            <span class="tag">调试签名</span>
           </div>
+          <p class="hash-line">
+            SHA-256 <code>75C8C1257E5CE2D83974321F6E196EC694991BFF88017FC1177228AF82FC532F</code>
+          </p>
         </article>
 
       </div>
@@ -355,7 +361,7 @@
             <tr><td>网页版</td><td>Chrome / Edge / Safari 最新版</td><td>—</td><td><span class="status ok">在线可用</span></td></tr>
             <tr><td>Android</td><td>7.0（API 24）</td><td>arm64-v8a / armeabi-v7a</td><td><span class="status ok">已发布 1.2.0</span></td></tr>
             <tr><td>iOS</td><td>iOS 13</td><td>iPhone / iPad</td><td><span class="status wait">待 Apple 签名</span></td></tr>
-            <tr><td>鸿蒙 HarmonyOS</td><td>HarmonyOS NEXT</td><td>手机 / 平板</td><td><span class="status wait">待华为签名</span></td></tr>
+            <tr><td>鸿蒙 HarmonyOS</td><td>HarmonyOS NEXT</td><td>手机 / 平板</td><td><span class="status ok">调试签名可用</span></td></tr>
             <tr><td>微信小程序</td><td>微信 8.0 及以上</td><td>—</td><td><span class="status wait">过审后开放</span></td></tr>
           </tbody>
         </table>

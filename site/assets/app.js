@@ -100,8 +100,9 @@
         primary.removeAttribute('download');
         primaryText.textContent = '下载 Linux 版';
       } else if (current === 'harmony') {
-        primary.href = '#download';
-        primaryText.textContent = '查看鸿蒙签名状态';
+        primary.href = RELEASES + 'NovaForge-Studio-0.1.0-harmony-signed.hap';
+        primary.removeAttribute('download');
+        primaryText.textContent = '下载鸿蒙 HAP';
       } else if (current === 'ios') {
         primary.href = '#download';
         primaryText.textContent = '查看 iOS 签名状态';
