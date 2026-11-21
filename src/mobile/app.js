@@ -7,9 +7,9 @@ window.NF = window.NF || {};
 (function (NF) {
   'use strict';
 
-  var TABS = ['home', 'scenes', 'me'];
-  var TITLES = { home: '设备', scenes: '场景', me: '我的', 'add-device': '添加设备' };
-  var MAIN_PAGES = ['home', 'scenes', 'me'];
+  var TABS = ['home', 'scenes', 'ai', 'me'];
+  var TITLES = { home: '设备', scenes: '场景', ai: 'AI 助手', me: '我的', 'add-device': '添加设备' };
+  var MAIN_PAGES = ['home', 'scenes', 'ai', 'me'];
 
   var current = 'home';
   var stack = [];

@@ -76,7 +76,7 @@
     if (card) card.classList.add('is-current');
 
     if (hint) {
-      var ready = current === 'android' || current === 'windows' || current === 'macos';
+      var ready = current === 'android' || current === 'windows' || current === 'macos' || current === 'linux';
       hint.innerHTML = ready
         ? '已识别到你的设备：<b>' + PLATFORM_LABEL[current] + '</b>，可直接下载安装包。'
         : '已识别到你的设备：<b>' + PLATFORM_LABEL[current] + '</b>，可先使用免安装网页版。';
@@ -95,6 +95,16 @@
         primary.href = STUDIO_DMG;
         primary.removeAttribute('download');
         primaryText.textContent = '下载 NovaForge Studio';
+      } else if (current === 'linux') {
+        primary.href = RELEASES + 'NovaForge-Studio-0.1.0-amd64.deb';
+        primary.removeAttribute('download');
+        primaryText.textContent = '下载 Linux 版';
+      } else if (current === 'harmony') {
+        primary.href = '#download';
+        primaryText.textContent = '查看鸿蒙签名状态';
+      } else if (current === 'ios') {
+        primary.href = '#download';
+        primaryText.textContent = '查看 iOS 签名状态';
       } else if (current === 'weapp') {
         primary.href = '#download';
         primaryText.textContent = '小程序即将开放';

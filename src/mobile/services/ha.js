@@ -76,6 +76,32 @@ window.NF = window.NF || {};
     }
   }
 
+  // 腾讯生态演示数据：结构与服务端 TENCENT_SERVICES 一致
+  function demoTencentServices() {
+    return {
+      knowledge_base: { label: '腾讯知识库', description: 'AI 问答时检索你的私有知识库', configured: true, planned: false },
+      docs: { label: '腾讯文档', description: '读取在线文档/表格/幻灯片，交给 AI 总结分析', configured: true, planned: false },
+      meeting: { label: '腾讯会议', description: '创建会议、查询会议列表、获取入会链接', configured: true, planned: false },
+      ocr: { label: '腾讯云 OCR', description: '图片文字识别', configured: false, planned: true },
+      translate: { label: '腾讯翻译君', description: '多语言文本翻译', configured: false, planned: true },
+      map: { label: '腾讯位置服务', description: '定位与到家/离家自动化', configured: false, planned: true },
+      cos: { label: '腾讯云 COS', description: '附件与固件包分发', configured: false, planned: true },
+      wecom: { label: '企业微信', description: '设备告警推送到企业微信', configured: false, planned: true }
+    };
+  }
+
+  var demoMeetings = [
+    {
+      id: 'demo-seed',
+      code: '123 456 789',
+      subject: 'NovaForge 固件评审（演示）',
+      start_time: Math.floor(Date.now() / 1000) + 3600,
+      end_time: Math.floor(Date.now() / 1000) + 7200,
+      join_url: 'https://meeting.tencent.com/dm/demo',
+      status: 'scheduled'
+    }
+  ];
+
   function demoApi(path, data) {
     return new Promise(function (resolve) {
       console.log('[HA][demo]', path);
@@ -89,6 +115,77 @@ window.NF = window.NF || {};
           demoService(data);
           resolve({ ok: true });
           break;
+
+        case '/api/novaforge/mobile/chat': {
+          var attachments = (data && data.attachments) || [];
+          var suffix = attachments.length ? '\n\n已模拟分析 ' + attachments.length + ' 个附件。' : '';
+          resolve({ ok: true, reply: NF.demo.chat(String((data && data.text) || '')) + suffix });
+          break;
+        }
+
+        case '/api/novaforge/mobile/capabilities':
+          resolve({
+            ok: true,
+            models: { qwen: true, mimo: true, deepseek: true, glm: true, doubao: true, kimi: true, hunyuan: true },
+            knowledgeBase: true,
+            tencent: demoTencentServices()
+          });
+          break;
+
+        case '/api/novaforge/mobile/tencent':
+          resolve({ ok: true, services: demoTencentServices() });
+          break;
+
+        case '/api/novaforge/mobile/tencent-doc': {
+          var source = String((data && (data.url || data.file_id)) || '');
+          if (!/docs\.qq\.com|^[A-Za-z0-9_-]{8,}$/.test(source.trim())) {
+            resolve({ ok: false, error: '没有识别到腾讯文档链接或文件 ID' });
+            break;
+          }
+          resolve({
+            ok: true,
+            doc: {
+              id: 'demo-doc',
+              title: 'NovaForge 产品需求（演示文档）',
+              type: 'doc',
+              content: '这是一份演示用腾讯文档正文。\n\n一、固件：刷入第三方开发板后原生接入 Home Assistant。\n二、扩展：把全品牌家电映射到手机端。\n三、AI：端侧千问 + 云端七家国内模型，支持知识库、文档与会议。',
+              truncated: false
+            }
+          });
+          break;
+        }
+
+        case '/api/novaforge/mobile/tencent-doc-auth':
+          resolve({ ok: true, authorizeUrl: 'https://docs.qq.com/oauth/v2/authorize?demo=1' });
+          break;
+
+        case '/api/novaforge/mobile/tencent-meeting': {
+          var subject = String((data && data.subject) || 'NovaForge 会议');
+          var now = Math.floor(Date.now() / 1000);
+          demoMeetings.unshift({
+            id: 'demo-' + now,
+            code: '888 666 123',
+            subject: subject,
+            start_time: now + 600,
+            end_time: now + 4200,
+            join_url: 'https://meeting.tencent.com/dm/demo',
+            status: 'scheduled'
+          });
+          resolve({ ok: true, meeting: demoMeetings[0] });
+          break;
+        }
+
+        case '/api/novaforge/mobile/tencent-meetings':
+          resolve({ ok: true, meetings: demoMeetings.slice(), total: demoMeetings.length });
+          break;
+
+        case '/api/novaforge/mobile/tencent-meeting-cancel': {
+          var id = String((data && data.meeting_id) || '');
+          var index = demoMeetings.findIndex(function (item) { return item.id === id; });
+          if (index >= 0) demoMeetings.splice(index, 1);
+          resolve({ ok: true });
+          break;
+        }
 
         case '/api/novaforge/mobile/scan':
           resolve({
@@ -132,6 +229,48 @@ window.NF = window.NF || {};
     return api('/api/novaforge/mobile/service', { method: 'POST', data: { domain: domain, service: service, data: data } });
   };
 
+  var chat = function (text, options) {
+    var opts = options || {};
+    return api('/api/novaforge/mobile/chat', {
+      method: 'POST',
+      data: {
+        text: text,
+        model: opts.model || 'qwen',
+        attachments: opts.attachments || [],
+        history: opts.history || [],
+        knowledge_base: !!opts.knowledgeBase
+      },
+      timeout: 120000
+    });
+  };
+
+  var capabilities = function () { return api('/api/novaforge/mobile/capabilities'); };
+
+  /** 附件上传：file 为浏览器 File；返回 { ok, attachment } */
+  var uploadAttachment = function (file) {
+    if (config.demo) {
+      return Promise.resolve({
+        ok: true,
+        attachment: {
+          id: 'demo-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+          name: file.name,
+          type: file.kind || 'file',
+          mime: file.mime || 'application/octet-stream'
+        }
+      });
+    }
+
+    var headers = config.token ? { Authorization: 'Bearer ' + config.token } : {};
+    return NF.upload(config.haUrl + '/api/novaforge/mobile/attachment', { file: file, name: 'file' }, headers, 60000)
+      .then(function (res) {
+        var body = res.data;
+        if (res.status < 200 || res.status >= 300 || !body || !body.ok) {
+          throw new Error((body && body.error) || '附件上传失败');
+        }
+        return body;
+      });
+  };
+
   var logoutRemote = function () {
     return api('/api/novaforge/mobile/logout', { method: 'POST', data: {} }).catch(function () { return { ok: false }; });
   };
@@ -142,6 +281,41 @@ window.NF = window.NF || {};
 
   var addDevice = function (host, port, token) {
     return api('/api/novaforge/mobile/add-device', { method: 'POST', data: { host: host, port: port, token: token } });
+  };
+
+  // ---------------- 腾讯生态（文档 / 会议 / 服务目录） ----------------
+
+  var tencentServices = function () { return api('/api/novaforge/mobile/tencent'); };
+
+  /** 读取腾讯文档正文，返回 { ok, doc: { title, content, ... } } */
+  var readTencentDoc = function (urlOrId) {
+    return api('/api/novaforge/mobile/tencent-doc', { method: 'POST', data: { url: urlOrId }, timeout: 40000 });
+  };
+
+  /** 腾讯文档授权：不传 code 返回授权链接，传 code 完成换令牌 */
+  var tencentDocAuth = function (code) {
+    return api('/api/novaforge/mobile/tencent-doc-auth', { method: 'POST', data: { code: code || '' } });
+  };
+
+  var createTencentMeeting = function (data) {
+    return api('/api/novaforge/mobile/tencent-meeting', {
+      method: 'POST',
+      data: {
+        subject: (data && data.subject) || 'NovaForge 会议',
+        start_time: (data && data.start_time) || 0,
+        end_time: (data && data.end_time) || 0,
+        invitees: (data && data.invitees) || []
+      },
+      timeout: 40000
+    });
+  };
+
+  var listTencentMeetings = function (page) {
+    return api('/api/novaforge/mobile/tencent-meetings', { method: 'POST', data: { page: page || 1, size: 10 } });
+  };
+
+  var cancelTencentMeeting = function (meetingId) {
+    return api('/api/novaforge/mobile/tencent-meeting-cancel', { method: 'POST', data: { meeting_id: meetingId } });
   };
 
   // ---------------- 账号（GitHub / Gitee / 邮箱 → HA 会话） ----------------
@@ -313,9 +487,18 @@ window.NF = window.NF || {};
     configure: configure,
     bootstrap: bootstrap,
     callService: callService,
+    chat: chat,
+    capabilities: capabilities,
+    uploadAttachment: uploadAttachment,
     logoutRemote: logoutRemote,
     scanDevices: scanDevices,
     addDevice: addDevice,
+    tencentServices: tencentServices,
+    readTencentDoc: readTencentDoc,
+    tencentDocAuth: tencentDocAuth,
+    createTencentMeeting: createTencentMeeting,
+    listTencentMeetings: listTencentMeetings,
+    cancelTencentMeeting: cancelTencentMeeting,
     pingHa: pingHa,
     tokenLogin: tokenLogin,
     requestCode: requestCode,

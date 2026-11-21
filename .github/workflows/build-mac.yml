@@ -5,6 +5,9 @@ on:
   push:
     tags: ['v*']
 
+permissions:
+  contents: write
+
 jobs:
   build-mac:
     runs-on: macos-latest
@@ -25,6 +28,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
@@ -39,7 +43,6 @@ jobs:
             sips -z $((s*2)) $((s*2)) /tmp/icon-square.png --out /tmp/icon.iconset/icon_${s}x${s}@2x.png > /dev/null
           done
           iconutil -c icns /tmp/icon.iconset -o build/icon.icns
-          ls -l build/icon.icns
 
       - name: Import signing certificate (if provided)
         run: |
@@ -65,9 +68,9 @@ jobs:
           echo "$NOTARY_KEY" | base64 --decode > "$RUNNER_TEMP/notary.p8"
           echo "APPLE_KEY_PATH=$RUNNER_TEMP/notary.p8" >> "$GITHUB_ENV"
 
-      - name: Build + Pack
+      - name: Build NovaForge Studio
         run: |
-          # 空字符串会被 electron-builder 当成路径解析（报 "not a file"），必须彻底 unset
+          # 空字符串会被 electron-builder 当成路径解析，必须彻底 unset
           if [ -z "$CSC_LINK" ]; then
             echo "无签名证书，产出未签名的 dmg/zip"
             unset CSC_LINK
@@ -82,6 +85,28 @@ jobs:
           npm run pack:mac
         timeout-minutes: 25
 
+      - name: Build NovaForge Flash
+        run: |
+          if [ -z "$CSC_LINK" ]; then
+            unset CSC_LINK
+            unset CSC_KEY_PASSWORD
+            unset CSC_NAME
+            export CSC_IDENTITY_AUTO_DISCOVERY=false
+          fi
+          if [ -z "$APPLE_API_KEY" ]; then
+            unset APPLE_API_KEY
+            unset APPLE_API_ISSUER
+          fi
+          npx electron-vite build --mode flash
+          npx electron-builder --mac --x64 --arm64 \
+            -c.productName="NovaForge Flash" \
+            -c.appId=com.novaforge.flash \
+            -c.extraMetadata.name=novaforge-flash \
+            -c.mac.artifactName='NovaForge-Flash-${version}-${arch}.${ext}' \
+            -c.directories.output=release \
+            --publish never
+        timeout-minutes: 25
+
       - name: Verify signature and notarization
         if: always()
         run: |
@@ -92,14 +117,7 @@ jobs:
             spctl --assess --type execute --verbose=2 "$app" || echo "（Gatekeeper 未通过）"
             xcrun stapler validate "$app" || echo "（无公证票据）"
           done
-          for dmg in release/*.dmg; do
-            echo "== $dmg =="
-            ls -lh "$dmg"
-          done
-
-      - name: List outputs
-        if: always()
-        run: ls -lh release/ || true
+          ls -lh release/*.dmg release/*.zip
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -109,3 +127,12 @@ jobs:
             release/*.dmg
             release/*.zip
           if-no-files-found: error
+
+      - name: Publish to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view "${{ github.ref_name }}" >/dev/null 2>&1 || \
+            gh release create "${{ github.ref_name }}" --title "NovaForge ${{ github.ref_name }}" --notes "NovaForge 全平台发布" || true
+          gh release upload "${{ github.ref_name }}" release/*.dmg release/*.zip --clobber

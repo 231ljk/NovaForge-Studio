@@ -37,7 +37,39 @@ window.NF = window.NF || {};
     ]
   };
 
+  var REPLIES = [
+    '收到。演示模式下我只能在本地回应，接入家庭后就能真实控制设备了。',
+    '这件事可以交给我：先看设备状态，再按你的习惯执行。演示模式里我先给个示意答复。',
+    '已记录。接入 Home Assistant 之后，我能直接读取实体状态并调用服务，不需要你手动点。',
+    '演示环境没有联网，所以我只能给出占位回答。连接家庭后的回答会基于真实设备数据。'
+  ];
+
+  var chatIndex = 0;
+
+  function demoChat(text) {
+    var q = String(text || '');
+    var reply;
+
+    if (/灯|light/i.test(q)) {
+      reply = '客厅主灯现在是开着的，卧室吸顶灯是关的。要我帮你把卧室也打开吗？';
+    } else if (/温度|空调|climate|热/i.test(q)) {
+      reply = '客厅温度 26.4°C、湿度 48%，空调正在制冷。要不要把目标温度调低一度？';
+    } else if (/扫地|vacuum/i.test(q)) {
+      reply = '扫地机器人当前待机中。我可以立刻让它开始全屋清扫。';
+    } else if (/门|锁|lock/i.test(q)) {
+      reply = '入户门锁处于已锁状态，最近没有异常开关记录。';
+    } else if (/场景|回家|离家|晚安/i.test(q)) {
+      reply = '现在有 4 个场景可用：观影模式、晚安、离家布防、起床唤醒。说要哪一个我就执行。';
+    } else {
+      reply = REPLIES[chatIndex % REPLIES.length];
+      chatIndex += 1;
+    }
+
+    return reply;
+  }
+
   NF.demo = {
-    bootstrap: demoBootstrap
+    bootstrap: demoBootstrap,
+    chat: demoChat
   };
 }(window.NF));

@@ -1,0 +1,82 @@
+name: Build Linux
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    env:
+      NODE_OPTIONS: --max-old-space-size=4096
+      RAYON_NUM_THREADS: 4
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libnotify-dev libnss3 libxss1 libxtst6 libatspi2.0-0 libsecret-1-dev libgbm-dev libasound2-dev ruby ruby-dev rubygems build-essential
+          sudo gem install --no-document fpm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build NovaForge Studio (AppImage + deb)
+        run: |
+          npx electron-vite build --mode studio
+          npx electron-builder --linux AppImage deb --x64 -c.directories.output=release/studio --publish never
+        timeout-minutes: 25
+
+      - name: Build NovaForge Flash (AppImage + deb)
+        run: |
+          npx electron-vite build --mode flash
+          npx electron-builder --linux AppImage deb --x64 \
+            -c.productName="NovaForge Flash" \
+            -c.appId=com.novaforge.flash \
+            -c.extraMetadata.name=novaforge-flash \
+            -c.appImage.artifactName='NovaForge-Flash-${version}-x86_64.${ext}' \
+            -c.deb.artifactName='NovaForge-Flash-${version}-amd64.${ext}' \
+            -c.directories.output=release/flash \
+            --publish never
+        timeout-minutes: 25
+
+      - name: List outputs
+        run: |
+          ls -lh release/studio/
+          ls -lh release/flash/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-builds
+          path: |
+            release/studio/*.AppImage
+            release/studio/*.deb
+            release/flash/*.AppImage
+            release/flash/*.deb
+          if-no-files-found: error
+
+      - name: Publish to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view "${{ github.ref_name }}" >/dev/null 2>&1 || \
+            gh release create "${{ github.ref_name }}" --title "NovaForge ${{ github.ref_name }}" --notes "NovaForge 全平台发布" || true
+          gh release upload "${{ github.ref_name }}" \
+            release/studio/*.AppImage release/studio/*.deb \
+            release/flash/*.AppImage release/flash/*.deb --clobber

@@ -82,6 +82,12 @@
       "synopsis": "ESP32 / Raspberry Pi firmware IDE, flashing and device control",
       "artifactName": "NovaForge-Studio-${version}-${arch}.${ext}"
     },
+    "appImage": {
+      "artifactName": "NovaForge-Studio-${version}-x86_64.${ext}"
+    },
+    "deb": {
+      "artifactName": "NovaForge-Studio-${version}-amd64.${ext}"
+    },
     "mac": {
       "target": [
         {

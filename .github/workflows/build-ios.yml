@@ -5,16 +5,15 @@ on:
   push:
     tags: ['v*']
 
+permissions:
+  contents: write
+
 jobs:
   build-ios:
     runs-on: macos-latest
 
     env:
-      # 付费 Apple Developer Program 账号才能有这些：
-      # DEVELOPMENT_CERT_BASE64 + DEVELOPMENT_CERT_PASSWORD → .p12 开发证书
-      # PROVISIONING_PROFILE_BASE64                         → .mobileprovision
-      # APPLE_TEAM_ID                                       → 团队 ID（10 位字母）
-      # APPLE_BUNDLE_ID                                     → com.novaforge.studio（或你自己的）
+      # 付费 Apple Developer Program 账号才能提供这些签名材料
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID || '' }}
       APPLE_BUNDLE_ID: ${{ secrets.APPLE_BUNDLE_ID || 'com.novaforge.studio' }}
       DEVELOPMENT_CERT_BASE64: ${{ secrets.DEVELOPMENT_CERT_BASE64 || '' }}
@@ -29,15 +28,25 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      # —— 签名部分（付费账号才配）——
-      - name: Import signing cert + provisioning profile (if provided)
-        if: ${{ env.DEVELOPMENT_CERT_BASE64 != '' }}
+      - name: Check signing configuration
+        id: signing
         run: |
-          # 导入 .p12 到临时钥匙串
+          if [ -n "$APPLE_TEAM_ID" ] && [ -n "$DEVELOPMENT_CERT_BASE64" ] && \
+             [ -n "$DEVELOPMENT_CERT_PASSWORD" ] && [ -n "$PROVISIONING_PROFILE_BASE64" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::签名 Secrets 不完整，只构建 unsigned xcarchive，不发布 IPA"
+          fi
+
+      - name: Import signing cert + provisioning profile
+        if: ${{ steps.signing.outputs.enabled == 'true' }}
+        run: |
           KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain-db"
           security create-keychain -p "$DEVELOPMENT_CERT_PASSWORD" "$KEYCHAIN_PATH"
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
@@ -51,7 +60,6 @@ jobs:
             -S apple-tool:,apple:,codesign: \
             -s -k "$DEVELOPMENT_CERT_PASSWORD" "$KEYCHAIN_PATH"
           security list-keychains -d user -s "$KEYCHAIN_PATH" $(security list-keychains -d user | sed 's/"//g')
-          # Provisioning profile
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles/
           echo "$PROVISIONING_PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/build.mobileprovision
 
@@ -60,9 +68,8 @@ jobs:
 
       - name: Build iOS archive
         run: |
-          if [ -z "$APPLE_TEAM_ID" ]; then
-            echo "⚠️  无 Apple Team ID（付费开发者账号的 Team ID），走 unsigned archive"
-            echo "  → 要出 .ipa 需要在 GitHub Secrets 配 APPLE_TEAM_ID、DEVELOPMENT_CERT_BASE64、DEVELOPMENT_CERT_PASSWORD、PROVISIONING_PROFILE_BASE64"
+          set -o pipefail
+          if [ "${{ steps.signing.outputs.enabled }}" != "true" ]; then
             xcodebuild \
               -project ios/App/App.xcodeproj \
               -scheme App \
@@ -72,10 +79,8 @@ jobs:
               CODE_SIGNING_ALLOWED=NO \
               CODE_SIGNING_REQUIRED=NO \
               CODE_SIGNING_IDENTITY="" \
-              archive \
-              2>&1 | tail -30
+              archive 2>&1 | tail -30
           else
-            # 有签名 → 自动匹配证书 + provisioning profile
             xcodebuild \
               -project ios/App/App.xcodeproj \
               -scheme App \
@@ -86,15 +91,15 @@ jobs:
               CODE_SIGN_STYLE=Automatic \
               CODE_SIGN_IDENTITY="Apple Development" \
               PROVISIONING_PROFILE_SPECIFIER="" \
-              archive \
-              2>&1 | tail -30
+              archive 2>&1 | tail -30
           fi
-        timeout-minutes: 15
+        timeout-minutes: 20
 
-      - name: Export .ipa (if signed)
-        if: ${{ env.APPLE_TEAM_ID != '' }}
+      - name: Export signed IPA
+        if: ${{ steps.signing.outputs.enabled == 'true' }}
         run: |
-          cat > /tmp/exportOptions.plist << 'PLIST'
+          set -o pipefail
+          cat > /tmp/exportOptions.plist <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
@@ -114,15 +119,21 @@ jobs:
             </dict>
           </plist>
           PLIST
-          sed -i "s/\$APPLE_TEAM_ID/$APPLE_TEAM_ID/" /tmp/exportOptions.plist
 
           xcodebuild \
             -archivePath build/App.xcarchive \
             -exportPath build \
             -exportOptionsPlist /tmp/exportOptions.plist \
             -allowProvisioningUpdates \
-            export \
-            2>&1 | tail -20
+            export 2>&1 | tail -20
+
+          IPA_PATH=$(find build -maxdepth 1 -name '*.ipa' -print -quit)
+          if [ -z "$IPA_PATH" ]; then
+            echo "未生成 IPA" >&2
+            exit 1
+          fi
+          VERSION=$(node -p "require('./package.json').version")
+          mv "$IPA_PATH" "build/NovaForge-Studio-${VERSION}-ios.ipa"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -131,4 +142,13 @@ jobs:
           path: |
             build/*.ipa
             build/App.xcarchive
-          if-no-files-found: warn
+          if-no-files-found: error
+
+      - name: Publish signed IPA to GitHub Release
+        if: ${{ startsWith(github.ref, 'refs/tags/v') && steps.signing.outputs.enabled == 'true' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release view "${{ github.ref_name }}" >/dev/null 2>&1 || \
+            gh release create "${{ github.ref_name }}" --title "NovaForge ${{ github.ref_name }}" --notes "NovaForge 全平台发布" || true
+          gh release upload "${{ github.ref_name }}" build/*.ipa --clobber

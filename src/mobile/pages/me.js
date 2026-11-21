@@ -15,7 +15,13 @@ window.NF = window.NF || {};
     haUrl: '',
     connecting: false,
     connectStatus: '',
-    themeMode: 'auto'
+    themeMode: 'auto',
+    tencentList: [],
+    tencentLoaded: false,
+    meetingSubject: '',
+    meetingCreating: false,
+    meetings: [],
+    meetingsLoaded: false
   };
 
   function providerText(session) {
@@ -51,6 +57,42 @@ window.NF = window.NF || {};
     return modes.map(function (item) {
       var active = ui.themeMode === item.key ? ' theme-option-active' : '';
       return '<div class="theme-option' + active + '" data-theme="' + item.key + '">' + item.label + '</div>';
+    }).join('');
+  }
+
+  function renderTencent() {
+    if (!ui.tencentLoaded) {
+      return '<div class="row"><div class="row-main"><span class="row-label">腾讯生态</span>' +
+        '<span class="row-desc">连接家庭后自动读取</span></div></div>';
+    }
+    if (!ui.tencentList.length) {
+      return '<div class="row"><div class="row-main"><span class="row-label">腾讯生态</span>' +
+        '<span class="row-desc">HA 扩展没有返回服务清单</span></div></div>';
+    }
+    return ui.tencentList.map(function (item) {
+      var value = item.configured ? '已配置' : (item.planned ? '待开放' : '未配置');
+      return '' +
+        '<div class="row">' +
+          '<div class="row-main">' +
+            '<span class="row-label">' + NF.esc(item.label || item.key) + '</span>' +
+            '<span class="row-desc">' + NF.esc(item.description || '') + '</span>' +
+          '</div>' +
+          '<div class="row-value-wrap">' +
+            '<span class="row-value' + (item.configured ? ' tencent-ok' : '') + '">' + value + '</span>' +
+          '</div>' +
+        '</div>';
+    }).join('');
+  }
+
+  function renderMeetings() {
+    if (!ui.meetingsLoaded) return '';
+    if (!ui.meetings.length) return '<div class="meeting-empty">还没有会议</div>';
+    return ui.meetings.slice(0, 5).map(function (item) {
+      return '' +
+        '<div class="meeting-item" data-meeting="' + NF.esc(item.join_url || '') + '">' +
+          '<span class="row-label">' + NF.esc(item.subject || '未命名会议') + '</span>' +
+          '<span class="row-desc">' + NF.esc(fmt.timeText(item.start_time)) + (item.code ? ' · ' + NF.esc(item.code) : '') + '</span>' +
+        '</div>';
     }).join('');
   }
 
@@ -126,6 +168,23 @@ window.NF = window.NF || {};
         '</div>' +
 
         '<div class="group">' +
+          '<span class="group-title">腾讯生态</span>' +
+          '<div class="group-card">' + renderTencent() + '</div>' +
+        '</div>' +
+
+        (connected && !demo ? '' +
+          '<div class="group">' +
+            '<span class="group-title">腾讯会议</span>' +
+            '<div class="group-card meeting-card">' +
+              '<div class="meeting-form">' +
+                '<input class="meeting-input" id="meeting-subject" placeholder="会议主题" value="' + NF.esc(ui.meetingSubject) + '" />' +
+                '<div class="meeting-btn" id="meeting-create">' + (ui.meetingCreating ? '创建中…' : '创建') + '</div>' +
+              '</div>' +
+              renderMeetings() +
+            '</div>' +
+          '</div>' : '') +
+
+        '<div class="group">' +
           '<span class="group-title">关于</span>' +
           '<div class="group-card">' +
             '<div class="row"><div class="row-main"><span class="row-label">版本</span>' +
@@ -146,6 +205,35 @@ window.NF = window.NF || {};
     if (!host || NF.app.currentPage() !== 'me') return;
     host.innerHTML = render();
     bind();
+  }
+
+  async function loadTencent() {
+    if (!NF.store.isConnected()) return;
+    try {
+      var res = await NF.ha.tencentServices();
+      var services = (res && res.services) || {};
+      ui.tencentList = Object.keys(services).map(function (key) {
+        return Object.assign({ key: key }, services[key]);
+      });
+      ui.tencentLoaded = true;
+    } catch (err) {
+      console.error('[Me] load tencent failed', err);
+      ui.tencentLoaded = true;
+    }
+    refreshDom();
+  }
+
+  async function loadMeetings() {
+    if (!NF.store.isConnected()) return;
+    try {
+      var res = await NF.ha.listTencentMeetings(1);
+      ui.meetings = (res && res.meetings) || [];
+      ui.meetingsLoaded = true;
+    } catch (err) {
+      console.error('[Me] load meetings failed', err);
+      ui.meetingsLoaded = true;
+    }
+    refreshDom();
   }
 
   async function connect() {
@@ -191,6 +279,8 @@ window.NF = window.NF || {};
       ui.connectStatus = '家庭已连接';
       refreshDom();
       NF.toast('家庭已连接');
+      loadTencent();
+      loadMeetings();
     } catch (err) {
       console.error('[Me] connect failed', err);
       ui.connecting = false;
@@ -208,6 +298,35 @@ window.NF = window.NF || {};
     ui.connectStatus = '已断开，可随时重新连接';
     refreshDom();
     NF.toast('已断开家庭');
+  }
+
+  async function createMeeting() {
+    var subject = String(ui.meetingSubject || '').trim();
+    if (!subject) {
+      NF.toast('请先填写会议主题');
+      return;
+    }
+    if (ui.meetingCreating) return;
+
+    ui.meetingCreating = true;
+    refreshDom();
+    try {
+      var res = await NF.ha.createTencentMeeting({ subject: subject });
+      ui.meetingCreating = false;
+      ui.meetingSubject = '';
+      if (res && res.ok) {
+        NF.toast('会议已创建');
+        if (res.meeting && res.meeting.join_url) NF.copy(res.meeting.join_url);
+        loadMeetings();
+      } else {
+        NF.toast((res && res.error) || '创建失败', 2600);
+        refreshDom();
+      }
+    } catch (err) {
+      ui.meetingCreating = false;
+      NF.toast((err && err.message) || '创建失败', 2600);
+      refreshDom();
+    }
   }
 
   function bind() {
@@ -250,6 +369,22 @@ window.NF = window.NF || {};
       });
     });
 
+    var meetingCreate = NF.$('meeting-create');
+    if (meetingCreate) meetingCreate.addEventListener('click', createMeeting);
+
+    var meetingInput = NF.$('meeting-subject');
+    if (meetingInput) {
+      meetingInput.addEventListener('input', function () { ui.meetingSubject = meetingInput.value; });
+    }
+
+    host.querySelectorAll('[data-meeting]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        var url = el.dataset.meeting;
+        if (!url) return;
+        NF.copy(url).then(function () { NF.toast('入会链接已复制'); });
+      });
+    });
+
     var refreshRow = host.querySelector('[data-action="refresh"]');
     if (refreshRow) {
       refreshRow.addEventListener('click', async function () {
@@ -285,6 +420,11 @@ window.NF = window.NF || {};
       var session = state.session || {};
       ui.haUrl = state.haUrl && state.haUrl.indexOf('demo://') !== 0 ? state.haUrl : '';
       ui.themeMode = NF.theme.currentMode();
+      var connected = NF.store.isConnected();
+      if (connected && !session.demo) {
+        loadTencent();
+        loadMeetings();
+      }
       refreshDom();
     },
     refreshDom: refreshDom

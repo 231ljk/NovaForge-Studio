@@ -1,0 +1,81 @@
+name: Build HarmonyOS
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: '可选：上传已签名 HAP 到指定 Release（例如 v0.1.0）'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-harmony:
+    # GitHub-hosted runner 没有鸿蒙 SDK；使用已安装 DevEco Studio 的自托管 Windows 机器
+    runs-on: [self-hosted, windows]
+
+    env:
+      NODE_OPTIONS: --max-old-space-size=2048
+      DEVECO_HOME: C:\Program Files\Huawei\DevEco Studio
+      HVIGOR_BUILD_DIR: C:\hfbuild\novaforge-harmony
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check DevEco Studio
+        run: |
+          $hvigor = "$env:DEVECO_HOME\tools\hvigor\bin\hvigorw.bat"
+          if (-not (Test-Path $hvigor)) {
+            Write-Error "未找到 DevEco Studio：$env:DEVECO_HOME。请在自托管 runner 安装后设置 DEVECO_HOME。"
+            exit 1
+          }
+
+      - name: Build HAP
+        run: npm run pack:harmony
+        timeout-minutes: 25
+
+      - name: Check signing state
+        run: |
+          $haps = Get-ChildItem release/ -Filter *.hap
+          if (-not $haps) {
+            Write-Error "未找到 HAP 产物"
+            exit 1
+          }
+          $haps | Select-Object FullName, Length
+          if ($haps.Name -match 'unsigned') {
+            Write-Host "::warning::当前包含未签名 HAP，只保留构建 artifact，不作为正式安装包上传 Release"
+          }
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: harmony-builds
+          path: release/*.hap
+          if-no-files-found: error
+
+      - name: Publish signed HAP to GitHub Release
+        if: ${{ inputs.release_tag != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          $signed = Get-ChildItem release/ -Filter *.hap | Where-Object { $_.Name -notmatch 'unsigned' }
+          if (-not $signed) {
+            Write-Host "::notice::没有已签名 HAP，跳过 Release 上传"
+            exit 0
+          }
+          gh release view $env:RELEASE_TAG 2>$null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $env:RELEASE_TAG --target main --title "NovaForge $env:RELEASE_TAG" --notes "NovaForge 全平台发布"
+          }
+          $signed | ForEach-Object {
+            gh release upload $env:RELEASE_TAG $_.FullName --clobber
+          }

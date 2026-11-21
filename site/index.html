@@ -109,7 +109,7 @@
             </span>
             <div>
               <h3>NovaForge Flash</h3>
-              <p class="meta">Windows 10 / 11 · x64</p>
+              <p class="meta">Windows 10 / 11 · macOS 12+ · x64 / Apple Silicon</p>
             </div>
           </div>
           <p class="pc-desc">
@@ -117,9 +117,14 @@
           </p>
           <div class="pc-foot">
             <a class="btn btn-primary" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Flash-Setup-0.1.0.exe">
-              下载 Flash
+              Windows 版
             </a>
-            <a class="btn btn-ghost" href="https://github.com/231ljk/NovaForge-Studio/releases/latest" rel="noopener">全部版本</a>
+            <a class="btn btn-ghost" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Flash-0.1.0-arm64.dmg">
+              macOS Apple 芯片
+            </a>
+            <a class="btn btn-ghost" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Flash-0.1.0-x64.dmg">
+              macOS Intel
+            </a>
           </div>
         </article>
 
@@ -142,7 +147,10 @@
               Windows 版
             </a>
             <a class="btn btn-ghost" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-arm64.dmg" rel="noopener">
-              macOS 版
+              macOS Apple 芯片
+            </a>
+            <a class="btn btn-ghost" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-x64.dmg" rel="noopener">
+              macOS Intel
             </a>
           </div>
         </article>
@@ -207,6 +215,82 @@
           </div>
         </article>
 
+        <!-- Linux -->
+        <article class="platform-card is-ready" data-platform="linux">
+          <div class="pc-head">
+            <span class="ico">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M8 12h8M12 8v8"/><circle cx="12" cy="12" r="3"/></svg>
+            </span>
+            <div>
+              <h3>Linux</h3>
+              <p class="meta">AppImage / deb · x64</p>
+            </div>
+          </div>
+          <p class="pc-desc">
+            Flash 与 Studio 双版本均支持 Linux。AppImage 免安装直接运行，deb 包适用于 Debian / Ubuntu 系发行版。Studio 内置 AI，Flash 不含 AI。
+          </p>
+          <div class="pc-foot">
+            <a class="btn btn-primary" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-amd64.deb">
+              下载 deb
+            </a>
+            <a class="btn btn-ghost" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-x86_64.AppImage">
+              AppImage
+            </a>
+          </div>
+          <div class="pc-foot" style="margin-top:6px">
+            <a class="btn btn-ghost btn-sm" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Flash-0.1.0-amd64.deb">
+              Flash deb
+            </a>
+            <a class="btn btn-ghost btn-sm" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Flash-0.1.0-x86_64.AppImage">
+              Flash AppImage
+            </a>
+          </div>
+        </article>
+
+        <!-- iOS -->
+        <article class="platform-card" data-platform="ios">
+          <div class="pc-head">
+            <span class="ico">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M12 18h.01"/><rect x="10" y="5" width="4" height="1" rx="0.5"/></svg>
+            </span>
+            <div>
+              <h3>iOS</h3>
+              <p class="meta">iOS 13 及以上 · iPhone / iPad</p>
+            </div>
+          </div>
+          <p class="pc-desc">
+            与电脑同一账号互通，蓝牙直连与局域网发现，内置 AI 助手。正式 IPA 需要 Apple Developer 证书与描述文件；未签名构建仅供开发归档。
+          </p>
+          <div class="pc-foot">
+            <a class="btn btn-soft" href="https://github.com/231ljk/NovaForge-Studio/releases/latest" rel="noopener">
+              查看发布页
+            </a>
+            <span class="tag">待签名发布</span>
+          </div>
+        </article>
+
+        <!-- 鸿蒙 HarmonyOS -->
+        <article class="platform-card" data-platform="harmony">
+          <div class="pc-head">
+            <span class="ico">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16M7 7l10 10M7 17l10-10"/></svg>
+            </span>
+            <div>
+              <h3>鸿蒙 HarmonyOS</h3>
+              <p class="meta">HarmonyOS NEXT · 手机 / 平板</p>
+            </div>
+          </div>
+          <p class="pc-desc">
+            原生鸿蒙应用，与电脑同一账号互通，内置 AI 助手。正式发布前需在 DevEco Studio 中配置华为签名材料，未签名 HAP 仅供开发验证。
+          </p>
+          <div class="pc-foot">
+            <a class="btn btn-soft" href="https://github.com/231ljk/NovaForge-Studio/actions/workflows/build-harmony.yml" rel="noopener">
+              查看构建
+            </a>
+            <span class="tag">待签名发布</span>
+          </div>
+        </article>
+
       </div>
     </div>
   </section>
@@ -266,9 +350,12 @@
           <tbody>
             <tr><td>NovaForge Flash</td><td>Windows 10 22H2</td><td>x64</td><td><span class="status ok">已发布 0.1.0</span></td></tr>
             <tr><td>NovaForge Studio</td><td>Windows 10 22H2</td><td>x64</td><td><span class="status ok">已发布 0.1.0</span></td></tr>
-            <tr><td>NovaForge Studio</td><td>macOS 12 Monterey</td><td>Apple Silicon / Intel</td><td><span class="status ok">已发布 0.1.0</span></td></tr>
+            <tr><td>NovaForge Flash / Studio</td><td>macOS 12 Monterey</td><td>Apple Silicon / Intel</td><td><span class="status wait">构建中</span></td></tr>
+            <tr><td>NovaForge Flash / Studio</td><td>Ubuntu 22.04 / Debian 12</td><td>x64</td><td><span class="status wait">构建中</span></td></tr>
             <tr><td>网页版</td><td>Chrome / Edge / Safari 最新版</td><td>—</td><td><span class="status ok">在线可用</span></td></tr>
             <tr><td>Android</td><td>7.0（API 24）</td><td>arm64-v8a / armeabi-v7a</td><td><span class="status ok">已发布 1.2.0</span></td></tr>
+            <tr><td>iOS</td><td>iOS 13</td><td>iPhone / iPad</td><td><span class="status wait">待 Apple 签名</span></td></tr>
+            <tr><td>鸿蒙 HarmonyOS</td><td>HarmonyOS NEXT</td><td>手机 / 平板</td><td><span class="status wait">待华为签名</span></td></tr>
             <tr><td>微信小程序</td><td>微信 8.0 及以上</td><td>—</td><td><span class="status wait">过审后开放</span></td></tr>
           </tbody>
         </table>
