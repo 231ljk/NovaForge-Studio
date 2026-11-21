@@ -8,7 +8,7 @@
  *
  * 用法：npm run pack:harmony
  */
-import { cpSync, existsSync, mkdirSync, copyFileSync, readFileSync, readdirSync } from 'node:fs'
+import { cpSync, existsSync, mkdirSync, copyFileSync, readFileSync, writeFileSync, readdirSync, statSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -40,6 +40,48 @@ cpSync(harmonyDir, BUILD_DIR, {
     return !/(^|[\\/])(\.hvigor|node_modules|oh_modules|build)([\\/]|$)/.test(rel)
   }
 })
+
+// 可选：从环境变量注入发布签名。只修改英文临时目录中的配置，避免密码进入仓库。
+const signingKeys = [
+  'HARMONY_STORE_FILE',
+  'HARMONY_CERT_PATH',
+  'HARMONY_PROFILE',
+  'HARMONY_STORE_PASSWORD',
+  'HARMONY_KEY_ALIAS',
+  'HARMONY_KEY_PASSWORD'
+]
+const signingRequested = signingKeys.some((key) => Boolean(process.env[key]))
+if (signingRequested) {
+  const missing = signingKeys.filter((key) => !process.env[key])
+  if (missing.length) {
+    console.error(`鸿蒙签名配置不完整，缺少：${missing.join(', ')}`)
+    process.exit(1)
+  }
+  for (const key of ['HARMONY_STORE_FILE', 'HARMONY_CERT_PATH', 'HARMONY_PROFILE']) {
+    if (!existsSync(process.env[key])) {
+      console.error(`签名文件不存在：${process.env[key]}`)
+      process.exit(1)
+    }
+  }
+  const buildProfilePath = path.join(BUILD_DIR, 'build-profile.json5')
+  const buildProfile = JSON.parse(readFileSync(buildProfilePath, 'utf8'))
+  buildProfile.app.signingConfigs = [{
+    name: 'default',
+    type: 'HarmonyOS',
+    material: {
+      certpath: path.resolve(process.env.HARMONY_CERT_PATH),
+      storePassword: process.env.HARMONY_STORE_PASSWORD,
+      keyAlias: process.env.HARMONY_KEY_ALIAS,
+      keyPassword: process.env.HARMONY_KEY_PASSWORD,
+      profile: path.resolve(process.env.HARMONY_PROFILE),
+      signAlg: process.env.HARMONY_SIGN_ALG ?? 'SHA256withECDSA',
+      storeFile: path.resolve(process.env.HARMONY_STORE_FILE)
+    }
+  }]
+  buildProfile.app.products[0].signingConfig = 'default'
+  writeFileSync(buildProfilePath, JSON.stringify(buildProfile, null, 2))
+  console.log('已注入鸿蒙发布签名（密码不会写入仓库）')
+}
 
 // 3. 调用 hvigor 构建
 const result = spawnSync(

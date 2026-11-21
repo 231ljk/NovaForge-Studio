@@ -36,6 +36,7 @@ build/*
 !build/icon.png
 !build/icon.ico
 !build/entitlements.mac.plist
+!build/license.txt
 !build/mimo/
 !build/mimo/**
 *.gguf

@@ -1,0 +1,64 @@
+﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿﻿NovaForge Studio — 隐私安全声明与许可协议
+NovaForge Studio — Privacy & Security Statement and License Agreement
+========================================================================
+
+【第一步：隐私安全 / Privacy & Security】
+------------------------------------------------------------------------
+
+1. 本软件不收集、不上传任何个人身份信息、设备标识或使用统计数据。
+   This software collects and uploads no personal data, device identifiers
+   or usage statistics.
+
+2. 所有工程文件、代码、Blockly 图形化配置、固件与设备状态均保存在本机
+   用户数据目录中，不会离开这台电脑（仅当你主动导出、推送时除外）。
+   All projects, source code, blocks, firmware and device state stay in the
+   local user data directory on this machine.
+
+3. 网络访问仅限于你主动触发的操作：
+   - 下载 ESP32 / 树莓派编译工具链（来自 Espressif、Raspberry Pi 官方源）
+   - 访问你在局域网中指定的设备（HTTP API、mDNS / zeroconf 发现）
+   - 你手动配置的 GitHub、Home Assistant 连接
+   Network access happens only when you initiate the operations listed above.
+
+4. 串口 / USB 仅在本地与开发板通信，用于烧录与查看日志，不会转发到任何
+   远程服务器。
+   Serial / USB communication is local only (flashing and logs).
+
+5. 本软件不包含广告、遥测 SDK、崩溃上报 SDK，也不使用任何第三方追踪。
+   No ads, no telemetry, no crash reporting, no third-party trackers.
+
+6. 由本软件生成的固件不含回传或远程控制后门；附带的 Home Assistant 集成
+   仅通过局域网 HTTP 轮询设备状态。
+   Generated firmware contains no backdoor; the Home Assistant integration
+   polls device state over LAN HTTP only.
+
+安装本软件即表示你已阅读并理解上述隐私安全说明。
+By installing, you acknowledge that you have read this statement.
+
+【第二步起：许可协议 / MIT License】
+------------------------------------------------------------------------
+
+Copyright (c) 2026 NovaForge
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+注意：烧录固件会改写开发板 Flash，请先确认引脚配置与供电安全。
+Note: flashing rewrites the board's Flash — verify pin config and power
+safety first. Hardware damage caused by misconfiguration is outside the
+licensor's responsibility.
