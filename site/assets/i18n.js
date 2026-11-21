@@ -19,6 +19,7 @@
       'nav.faq': '常见问题',
       'nav.webapp': '打开网页版',
       'nav.menu': '展开菜单',
+      'nav.support': '客服',
       'lang.toggle': 'EN',
       'lang.aria': '切换到英文',
 
@@ -164,6 +165,24 @@
       'split.tip': '5 卷全部下载到同一目录后，在该目录打开命令提示符执行：',
 
       /* ---- 提示 ---- */
+      /* ---- 客服 ---- */
+      'cs.fab': '客服',
+      'cs.title': '在线客服',
+      'cs.sub': '常见问题即时解答 · 人工渠道见底部',
+      'cs.greet': '你好，我是 NovaForge 客服助手。输入关键词，或直接点下面的常见问题。',
+      'cs.placeholder': '输入问题，如：烧录失败',
+      'cs.send': '发送',
+      'cs.close': '关闭客服',
+      'cs.issue': 'GitHub 提交问题',
+      'cs.issueCn': 'Gitee 提交问题',
+      'cs.faq': '全部常见问题',
+      'cs.you': '你',
+      'cs.bot': '客服助手',
+      'cs.noMatch': '没有找到匹配的答案。可以换个关键词，或通过下方 GitHub / Gitee 提交问题，我们会跟进。',
+      'cs.related': '相关问题',
+      'cs.more': '还有 {n} 条相关，换个更具体的关键词试试。',
+      'cs.enOnly': '该条答案暂无英文版，以下为中文原文。',
+
       'toast.copied': '校验值已复制',
       'toast.copyFail': '复制失败，请手动选中复制',
       'toast.weapp': '微信小程序正式版过审后会在此开放入口',
@@ -329,6 +348,24 @@
       'split.tip': 'After downloading all 5 volumes into one folder, open a command prompt there and run:',
 
       /* ---- toasts ---- */
+      /* ---- support ---- */
+      'cs.fab': 'Support',
+      'cs.title': 'Live support',
+      'cs.sub': 'Instant answers from the FAQ · human channels at the bottom',
+      'cs.greet': 'Hi, I am the NovaForge support assistant. Type a keyword, or pick a question below.',
+      'cs.placeholder': 'Ask something, e.g. flashing failed',
+      'cs.send': 'Send',
+      'cs.close': 'Close support',
+      'cs.issue': 'Open a GitHub issue',
+      'cs.issueCn': 'Open a Gitee issue',
+      'cs.faq': 'All FAQs',
+      'cs.you': 'You',
+      'cs.bot': 'Support',
+      'cs.noMatch': 'No matching answer found. Try another keyword, or open an issue on GitHub / Gitee and we will follow up.',
+      'cs.related': 'Related questions',
+      'cs.more': '{n} more matches — try a more specific keyword.',
+      'cs.enOnly': 'This answer is only available in Chinese for now.',
+
       'toast.copied': 'Checksum copied',
       'toast.copyFail': 'Copy failed — please select and copy manually',
       'toast.weapp': 'The WeChat Mini Program will open here once approved',

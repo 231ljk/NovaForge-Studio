@@ -653,6 +653,197 @@
   }
 
   /* ======================================================================
+     客服：本地知识库检索（纯前端，无后端）
+     ====================================================================== */
+  var SUPPORT = window.NF_SUPPORT || { cats: [], items: [] };
+  var CS_QUICK = ['FAQ-010', 'FAQ-011', 'FAQ-034', 'FAQ-052', 'FAQ-059', 'FAQ-002'];
+
+  var csRoot = $('#cs'), csFab = $('#csFab'), csPanel = $('#csPanel'), csClose = $('#csClose');
+  var csBody = $('#csBody'), csChips = $('#csChips'), csThread = $('#csThread');
+  var csForm = $('#csForm'), csInput = $('#csInput'), csTopBtn = $('#csTopBtn'), csToFaq = $('#csToFaq');
+
+  var csById = {};
+  SUPPORT.items.forEach(function (it) { csById[it.id] = it; });
+
+  function csHasEn(it) { return !!(it.q_en && it.a_en); }
+  function csQ(it) { return (state.lang === 'en' && it.q_en) ? it.q_en : it.q; }
+  function csA(it) { return (state.lang === 'en' && it.a_en) ? it.a_en : it.a; }
+
+  function csEsc(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+  function csLinkify(s) {
+    return csEsc(s).replace(/(https?:\/\/[^\s，。；、）)]+)/g, function (u) {
+      return '<a href="' + u + '" target="_blank" rel="noopener">' + u + '</a>';
+    });
+  }
+
+  /* 关键词打分：问题 > 关键词 > 正文，中文补 2-gram */
+  function csScore(it, q) {
+    var s = 0;
+    var qq = q.toLowerCase();
+    var title = it.q.toLowerCase();
+    var kws = it.kw.join(' ').toLowerCase();
+    var body = it.a.toLowerCase();
+
+    if (title.indexOf(qq) >= 0) s += 12;
+    if (kws.indexOf(qq) >= 0) s += 8;
+    if (body.indexOf(qq) >= 0) s += 4;
+
+    qq.split(/[\s,，。、?？!！;；:：/]+/).forEach(function (tk) {
+      if (tk.length < 2) return;
+      if (title.indexOf(tk) >= 0) s += 6;
+      if (kws.indexOf(tk) >= 0) s += 4;
+      if (body.indexOf(tk) >= 0) s += 1;
+    });
+
+    if (/[\u4e00-\u9fa5]/.test(qq) && qq.length >= 2) {
+      for (var i = 0; i < qq.length - 1; i++) {
+        var bg = qq.substr(i, 2);
+        if (title.indexOf(bg) >= 0) s += 3;
+        else if (kws.indexOf(bg) >= 0) s += 2;
+      }
+    }
+    return s;
+  }
+
+  function csScroll() {
+    if (csBody) csBody.scrollTop = csBody.scrollHeight;
+  }
+
+  function csPush(role, html, tag) {
+    if (!csThread) return;
+    var msg = document.createElement('div');
+    msg.className = 'cs-msg ' + (role === 'user' ? 'cs-msg-user' : 'cs-msg-bot');
+    if (tag) {
+      var tg = document.createElement('span');
+      tg.className = 'cs-msg-tag';
+      tg.textContent = tag;
+      msg.appendChild(tg);
+    }
+    var body = document.createElement('div');
+    body.innerHTML = html;
+    msg.appendChild(body);
+    csThread.appendChild(msg);
+    csScroll();
+  }
+
+  function csChipRow(list) {
+    var box = document.createElement('div');
+    box.className = 'cs-chips';
+    list.forEach(function (it) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'cs-chip';
+      b.textContent = csQ(it);
+      b.addEventListener('click', function () { csAsk(csQ(it)); });
+      box.appendChild(b);
+    });
+    return box;
+  }
+
+  function csRenderChips() {
+    if (!csChips) return;
+    csChips.innerHTML = '';
+    var list = CS_QUICK.map(function (id) { return csById[id]; }).filter(Boolean);
+    if (!list.length) return;
+    list.forEach(function (it) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'cs-chip';
+      b.textContent = csQ(it);
+      b.addEventListener('click', function () { csAsk(csQ(it)); });
+      csChips.appendChild(b);
+    });
+  }
+
+  function csAsk(q) {
+    q = String(q || '').trim();
+    if (!q || !csThread) return;
+    csPush('user', csEsc(q));
+
+    var scored = SUPPORT.items.map(function (it) { return { it: it, s: csScore(it, q) }; })
+      .filter(function (x) { return x.s > 0; })
+      .sort(function (a, b) { return b.s - a.s; });
+
+    if (!scored.length) {
+      csPush('bot', csEsc(t('cs.noMatch')));
+      return;
+    }
+
+    var top = scored[0].it;
+    var html = csLinkify(csA(top));
+    if (state.lang === 'en' && !csHasEn(top)) {
+      html = '<span class="cs-msg-note">' + csEsc(t('cs.enOnly')) + '</span>' + html;
+    }
+    csPush('bot', html, csQ(top));
+
+    var rel = scored.slice(1, 4).map(function (x) { return x.it; });
+    if (rel.length) csThread.appendChild(csChipRow(rel));
+
+    if (scored.length > 4) {
+      var more = document.createElement('div');
+      more.className = 'cs-msg-note';
+      more.textContent = t('cs.more').replace('{n}', scored.length - 4);
+      csThread.appendChild(more);
+    }
+    csScroll();
+  }
+
+  function csOpen(open) {
+    if (!csPanel) return;
+    csPanel.hidden = !open;
+    if (csRoot) csRoot.classList.toggle('is-open', open);
+    [csFab, csTopBtn].forEach(function (b) {
+      if (b) b.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    if (open) {
+      csRenderChips();
+      setTimeout(function () { if (csInput) csInput.focus(); }, 80);
+    }
+  }
+
+  if (csFab) csFab.addEventListener('click', function () { csOpen(true); });
+  if (csTopBtn) csTopBtn.addEventListener('click', function () { csOpen(true); });
+  if (csClose) csClose.addEventListener('click', function () { csOpen(false); });
+  if (csToFaq) csToFaq.addEventListener('click', function () { csOpen(false); });
+
+  if (csForm) {
+    csForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var v = csInput ? csInput.value : '';
+      if (csInput) csInput.value = '';
+      csAsk(v);
+    });
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && csPanel && !csPanel.hidden) csOpen(false);
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!csPanel || csPanel.hidden) return;
+    if (csRoot && csRoot.contains(e.target)) return;
+    csOpen(false);
+  });
+
+  /* 语言切换后重建快捷问题与已有对话 */
+  if (langToggle) {
+    langToggle.addEventListener('click', function () {
+      if (csThread) csThread.innerHTML = '';
+      csRenderChips();
+    });
+  }
+
+  csRenderChips();
+
+  /* 支持 ?cs=1 或 #support 直接展开客服面板，便于分享 */
+  try {
+    var csQs = new URLSearchParams(location.search);
+    if (csQs.get('cs') === '1' || location.hash === '#support') csOpen(true);
+  } catch (e) {}
+
+  /* ======================================================================
      入场动画
      ====================================================================== */
   var reveals = $$('.dl-card, .feature, .table-wrap, .faq, .section-head');
@@ -683,6 +874,7 @@
      ====================================================================== */
   state.lang = detectLang();
   applyI18n();
+  csRenderChips();
 
   /* 首屏：先用兜底清单 + 时区猜测渲染，避免白屏等待 */
   applyAssets(GH_FALLBACK, CN_FALLBACK, 'v0.1.0', 'v0.1.0', {}, {});
