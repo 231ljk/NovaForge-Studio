@@ -188,12 +188,12 @@
           </div>
           <p class="pc-desc">与电脑同一账号互通，蓝牙直连与局域网发现，内置 AI 助手。</p>
           <div class="pc-foot">
-            <a class="btn btn-primary" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-1.2.0-android-release.apk" rel="noopener" id="androidDownload">下载 APK</a>
+            <a class="btn btn-primary" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-android-release.apk" rel="noopener" id="androidDownload">下载 APK</a>
             <a class="btn btn-ghost" href="https://github.com/231ljk/NovaForge-Studio/releases/latest" rel="noopener">查看发布页</a>
-            <span class="tag tag-ok">v1.2.0</span>
+            <span class="tag tag-ok">v0.1.0</span>
           </div>
           <p class="hash-line">
-            SHA-256 <code id="apkHash">E40C2EAF7C356A7CF4B1E1274AA38D0D55C2158C17D46A4ACD522660F18E288C</code>
+            SHA-256 <code id="apkHash">527C07F067BE8CA5ABA0CF2004F9C05807B08F0F0ED8B2257669B6823EC48DB5</code>
             <button class="copy-btn" id="copyHash" type="button">复制</button>
           </p>
         </article>
@@ -249,7 +249,7 @@
         </article>
 
         <!-- iOS -->
-        <article class="platform-card" data-platform="ios">
+        <article class="platform-card is-ready" data-platform="ios">
           <div class="pc-head">
             <span class="ico">
               <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M12 18h.01"/><rect x="10" y="5" width="4" height="1" rx="0.5"/></svg>
@@ -260,14 +260,17 @@
             </div>
           </div>
           <p class="pc-desc">
-            与电脑同一账号互通，蓝牙直连与局域网发现，内置 AI 助手。正式 IPA 需要 Apple Developer 证书与描述文件；未签名构建仅供开发归档。
+            与电脑同一账号互通，蓝牙直连与局域网发现，内置 AI 助手。当前提供未签名 IPA，需用 AltStore / Sideloadly / Xcode 以你自己的 Apple ID 重签后安装；App Store 正式版需 Apple Developer 付费账号签名。
           </p>
           <div class="pc-foot">
-            <a class="btn btn-soft" href="https://github.com/231ljk/NovaForge-Studio/releases/latest" rel="noopener">
-              查看发布页
-            </a>
-            <span class="tag">待签名发布</span>
+            <a class="btn btn-primary" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-ios-unsigned.ipa" rel="noopener" id="iosDownload">下载 IPA</a>
+            <a class="btn btn-ghost" href="https://github.com/231ljk/NovaForge-Studio/releases/latest" rel="noopener">查看发布页</a>
+            <span class="tag tag-ok">v0.1.0</span>
           </div>
+          <p class="hash-line">
+            SHA-256 <code id="ipaHash">2E58BDCC8F739EF068411785230CA7407F33CFF7D60A6DC9B57AF8921A62F808</code>
+            <button class="copy-btn" id="copyIpaHash" type="button">复制</button>
+          </p>
         </article>
 
         <!-- 鸿蒙 HarmonyOS -->
@@ -360,8 +363,8 @@
             <tr><td>NovaForge Flash / Studio</td><td>macOS 12 Monterey</td><td>Apple Silicon / Intel</td><td><span class="status ok">已发布 0.1.0</span></td></tr>
             <tr><td>NovaForge Flash / Studio</td><td>Ubuntu 22.04 / Debian 12</td><td>x64</td><td><span class="status ok">已发布 0.1.0</span></td></tr>
             <tr><td>网页版</td><td>Chrome / Edge / Safari 最新版</td><td>—</td><td><span class="status ok">在线可用</span></td></tr>
-            <tr><td>Android</td><td>7.0（API 24）</td><td>arm64-v8a / armeabi-v7a</td><td><span class="status ok">已发布 1.2.0</span></td></tr>
-            <tr><td>iOS</td><td>iOS 13</td><td>iPhone / iPad</td><td><span class="status wait">待 Apple 签名</span></td></tr>
+            <tr><td>Android</td><td>7.0（API 24）</td><td>arm64-v8a / armeabi-v7a</td><td><span class="status ok">已发布 0.1.0</span></td></tr>
+            <tr><td>iOS</td><td>iOS 13</td><td>iPhone / iPad</td><td><span class="status ok">未签名 IPA 已发布 0.1.0</span></td></tr>
             <tr><td>鸿蒙 HarmonyOS</td><td>HarmonyOS NEXT</td><td>手机 / 平板</td><td><span class="status ok">调试签名可用</span></td></tr>
             <tr><td>微信小程序</td><td>微信 8.0 及以上</td><td>—</td><td><span class="status wait">过审后开放</span></td></tr>
           </tbody>

@@ -63,7 +63,7 @@
   var RELEASES = 'https://github.com/231ljk/NovaForge-Studio/releases/latest/download/';
   var FLASH_EXE = RELEASES + 'NovaForge-Flash-Setup-0.1.0.exe';
   var STUDIO_DMG = RELEASES + 'NovaForge-Studio-0.1.0-arm64.dmg';
-  var ANDROID_APK = RELEASES + 'NovaForge-Studio-1.2.0-android-release.apk';
+  var ANDROID_APK = RELEASES + 'NovaForge-Studio-0.1.0-android-release.apk';
 
   var current = detectPlatform();
   var hint = $('#uaHint');
@@ -90,7 +90,7 @@
       } else if (current === 'android') {
         primary.href = ANDROID_APK;
         primary.setAttribute('download', '');
-        primaryText.textContent = '下载 Android 版 v1.2.0';
+        primaryText.textContent = '下载 Android 版 v0.1.0';
       } else if (current === 'macos') {
         primary.href = STUDIO_DMG;
         primary.removeAttribute('download');
@@ -104,8 +104,9 @@
         primary.removeAttribute('download');
         primaryText.textContent = '下载鸿蒙 HAP';
       } else if (current === 'ios') {
-        primary.href = '#download';
-        primaryText.textContent = '查看 iOS 签名状态';
+        primary.href = RELEASES + 'NovaForge-Studio-0.1.0-ios-unsigned.ipa';
+        primary.removeAttribute('download');
+        primaryText.textContent = '下载 iOS 版 v0.1.0（未签名）';
       } else if (current === 'weapp') {
         primary.href = '#download';
         primaryText.textContent = '小程序即将开放';
@@ -158,6 +159,20 @@
         copyBtn.textContent = '已复制';
         toast('校验值已复制');
         setTimeout(function () { copyBtn.textContent = '复制'; }, 1800);
+      }).catch(function () {
+        toast('复制失败，请手动选中复制');
+      });
+    });
+  }
+
+  var copyIpaBtn = $('#copyIpaHash');
+  var ipaHashEl = $('#ipaHash');
+  if (copyIpaBtn && ipaHashEl) {
+    copyIpaBtn.addEventListener('click', function () {
+      copyText(ipaHashEl.textContent.trim()).then(function () {
+        copyIpaBtn.textContent = '已复制';
+        toast('校验值已复制');
+        setTimeout(function () { copyIpaBtn.textContent = '复制'; }, 1800);
       }).catch(function () {
         toast('复制失败，请手动选中复制');
       });

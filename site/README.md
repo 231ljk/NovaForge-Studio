@@ -23,7 +23,7 @@ site/
 │   ├── app.js                       交互（设备识别、复制校验值、移动菜单、入场动画）
 │   └── favicon.svg                  站点图标
 ├── downloads/
-│   └── NovaForge-Studio-1.2.0-android-release.apk   3,309,985 B
+│   └── NovaForge-Studio-0.1.0-android-release.apk   3,309,985 B
 ├── deploy.ps1                       Git 推送脚本（GitHub / Gitee / GitCode）
 ├── netlify_deploy.ps1               Netlify 一键部署脚本（纯 API）
 ├── .github/workflows/pages.yml      GitHub Pages 自动发布
@@ -67,7 +67,7 @@ python -m http.server 8899 --bind 127.0.0.1 --directory "D:\桌面\ESP32软件�
 
 | 平台 | 入口 | 状态 |
 |---|---|---|
-| Android | `downloads/*.apk` 直接下载 | 已开放 v1.2.0（3.16 MB，SHA-256 已核对） |
+| Android | `downloads/*.apk` 直接下载 | 已开放 v0.1.0（3.16 MB，SHA-256 已核对） |
 | Windows / macOS / Linux | Release 资产直链 | 已发布 0.1.0 |
 | HarmonyOS | Release 资产直链 `NovaForge-Studio-0.1.0-harmony-signed.hap` | 调试签名可用（需 AGC 设备白名单；正式版待发布证书） |
 | iOS | 按钮置灰 | 待 Apple 签名 |
@@ -141,8 +141,8 @@ vercel --prod
 | 静态资源可访问性 | `style.css` / `app.js` / `favicon.svg` / `apk` 均 200，Content-Type 正确 |
 | 桌面 1440×900 | 渲染正常，无溢出、无重叠 |
 | iPhone UA 390×844 | 单列布局，UA 识别为 iOS，主按钮降级为「查看全部平台」 |
-| Android UA 412×915 | UA 识别为 Android，主按钮切为「下载 Android 版 v1.2.0」 |
+| Android UA 412×915 | UA 识别为 Android，主按钮切为「下载 Android 版 v0.1.0」 |
 | 7 张平台卡片 | Windows / macOS / iOS / Linux / Android / HarmonyOS / 微信小程序 全部到位 |
 | 系统要求表格 | 列未被裁切 |
-| APK 副本哈希 | `E40C2EAF…E288C`，与页面声明值、releases 原始包一致 |
+| APK 副本哈希 | `527C07F0…48DB5`，与页面声明值、releases 原始包一致 |
 *（内容由AI生成，仅供参考）*
