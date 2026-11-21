@@ -33,6 +33,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Prepare local AI runtime
+        run: |
+          # build/mimo 不再入库，占位目录避免 electron-builder extraResources 报错
+          mkdir -p build/mimo/llama-server
+          touch build/mimo/llama-server/.keep
+
       - name: Prepare macOS icon
         run: |
           # 源图非正方形，先补齐为 1024x1024 再用系统工具生成 icns

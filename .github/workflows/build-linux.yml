@@ -35,6 +35,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Prepare local AI runtime
+        run: |
+          # build/mimo 不再入库，占位目录避免 electron-builder extraResources 报错
+          mkdir -p build/mimo/llama-server
+          touch build/mimo/llama-server/.keep
+
       - name: Build NovaForge Studio (AppImage + deb)
         run: |
           npx electron-vite build --mode studio

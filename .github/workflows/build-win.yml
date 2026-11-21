@@ -29,6 +29,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Prepare local AI runtime
+        run: |
+          # llama-server.exe 不再入库（5.4MB 二进制），构建时从 Release 拉取
+          New-Item -ItemType Directory -Force -Path build/mimo/llama-server | Out-Null
+          Invoke-WebRequest -Uri "https://github.com/231ljk/NovaForge-Studio/releases/download/v0.1.0/llama-server-win-x64.exe" -OutFile "build/mimo/llama-server/llama-server.exe"
+          Get-Item build/mimo/llama-server/llama-server.exe | Select-Object Name, Length
+
       - name: Build NovaForge Flash installer
         run: npm run pack:flash:win
         timeout-minutes: 25
