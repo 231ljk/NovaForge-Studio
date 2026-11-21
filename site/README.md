@@ -68,7 +68,9 @@ python -m http.server 8899 --bind 127.0.0.1 --directory "D:\桌面\ESP32软件�
 | 平台 | 入口 | 状态 |
 |---|---|---|
 | Android | `downloads/*.apk` 直接下载 | 已开放 v1.2.0（3.16 MB，SHA-256 已核对） |
-| Windows / macOS / iOS / Linux / HarmonyOS | 按钮置灰 | 待签名 / 公证 / 打包 |
+| Windows / macOS / Linux | Release 资产直链 | 已发布 0.1.0 |
+| HarmonyOS | Release 资产直链 `NovaForge-Studio-0.1.0-harmony-signed.hap` | 调试签名可用（需 AGC 设备白名单；正式版待发布证书） |
+| iOS | 按钮置灰 | 待 Apple 签名 |
 | 微信小程序 | `#weappBtn` 占位按钮 | 正式版过审后改为跳转 |
 
 小程序上线后，把 `#weappBtn` 换成以下任一形式：
