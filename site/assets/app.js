@@ -63,7 +63,7 @@
   var RELEASES = 'https://github.com/231ljk/NovaForge-Studio/releases/latest/download/';
   var FLASH_EXE = RELEASES + 'NovaForge-Flash-Setup-0.1.0.exe';
   var STUDIO_DMG = RELEASES + 'NovaForge-Studio-0.1.0-arm64.dmg';
-  var ANDROID_APK = 'downloads/NovaForge-Studio-1.2.0-android-release.apk';
+  var ANDROID_APK = RELEASES + 'NovaForge-Studio-1.2.0-android-release.apk';
 
   var current = detectPlatform();
   var hint = $('#uaHint');
