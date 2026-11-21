@@ -2204,3 +2204,141 @@ body.theme-dark .provider-icon-github {
 .mini-button:active { opacity: .85; }
 .mini-button-ghost { background: var(--field-bg); border-color: var(--line-color); color: var(--text-secondary); }
 .oauth-card .link-button { margin-top: 15px; font-size: 14px; color: var(--text-muted); }
+
+
+/* ============================================================
+ * 多端自适应层（v3）：平板 / 桌面 / 超宽屏
+ * 手机竖屏保持原样；平板加宽居中；桌面切换为侧边导航 + 多列内容
+ * ============================================================ */
+
+/* ---------- 平板（>=768px）---------- */
+@media (min-width: 768px) {
+  #app { max-width: 760px; }
+  body { font-size: 15px; }
+  .content { padding: 16px 20px 0; }
+  .hero { padding: 18px 20px; }
+  .scenes { padding: 18px 20px calc(28px + var(--safe-bottom)); }
+  .login-card { max-width: 420px; }
+  .grid-item { width: 32%; }
+  .scene-item { width: 32%; }
+}
+
+/* ---------- 桌面（>=1024px）：侧边导航 + 多列 ---------- */
+@media (min-width: 1024px) {
+  #app { max-width: none; }
+
+  .view-app {
+    display: grid;
+    grid-template-columns: 236px minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .view-app .topbar {
+    grid-column: 2;
+    grid-row: 1;
+    padding-left: 32px;
+    padding-right: 32px;
+    min-height: 56px;
+  }
+  .view-app .nav-title { text-align: left; font-size: 17px; }
+
+  .view-app .page-host { grid-column: 2; grid-row: 2; }
+
+  .view-app .tabbar {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 6px;
+    padding: 20px 14px;
+    border-top: none;
+    border-right: 1px solid var(--line-color);
+  }
+  .view-app .tab-item {
+    flex: none;
+    height: 46px;
+    justify-content: flex-start;
+    padding: 0 16px;
+    border-radius: 10px;
+    font-size: 14.5px;
+    transition: background .15s ease;
+  }
+  .view-app .tab-item:hover { background: var(--field-bg); }
+  .view-app .tab-item-active {
+    background: rgba(0, 138, 127, .12);
+    box-shadow: inset 3px 0 0 var(--brand);
+    font-weight: 600;
+  }
+  body.theme-dark .view-app .tab-item-active {
+    background: rgba(0, 194, 178, .18);
+    box-shadow: inset 3px 0 0 var(--brand);
+  }
+
+  /* 内容区限宽居中，避免超宽屏单行过长 */
+  .page-host > .home,
+  .page-host > .scenes,
+  .page-host > .me,
+  .page-host > .add-device { max-width: 1120px; margin: 0 auto; }
+
+  .content { padding: 22px 32px 0; }
+  .hero { padding: 24px 32px; }
+  .scenes { padding: 22px 32px calc(32px + var(--safe-bottom)); }
+
+  /* 设备 / 场景卡片改为自适应多列 */
+  .device-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+    gap: 12px;
+    justify-content: initial;
+  }
+  .grid-item { width: auto; margin-bottom: 0; }
+
+  .scene-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+    justify-content: initial;
+  }
+  .scene-item { width: auto; margin-bottom: 0; }
+
+  /* AI 页输入区限宽 */
+  .page-host.page-ai > * { max-width: 1120px; margin-left: auto; margin-right: auto; width: 100%; }
+
+  .login-card { max-width: 440px; }
+}
+
+/* ---------- 超宽屏（>=1600px）---------- */
+@media (min-width: 1600px) {
+  .page-host > .home,
+  .page-host > .scenes,
+  .page-host > .me,
+  .page-host > .add-device { max-width: 1280px; }
+  .device-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+}
+
+/* ============================================================
+ * 深色模式修正：提示条 / 品牌色 / 阴影 / 开关
+ * ============================================================ */
+body.theme-dark {
+  --brand: #00c2b2;
+  --brand-light: #33d6c8;
+  --skip-1: #4a5056;
+  /* 深色下弱化文字提亮，保证正文/导航可读性 */
+  --text-secondary: #d2d8dd;
+  --text-muted: #a8b0b8;
+  --line-color: #34383c;
+}
+
+body.theme-dark .demo-banner,
+body.theme-dark .demo-tip,
+body.theme-dark .notice {
+  background: rgba(255, 176, 102, .14);
+  color: #ffb066;
+}
+
+body.theme-dark .switch::after { background: #e8ebee; }
+body.theme-dark .topbar-scrolled { box-shadow: 0 1px 6px rgba(0, 0, 0, .5); }
+body.theme-dark .card,
+body.theme-dark .device-card,
+body.theme-dark .scene-card { box-shadow: none; }

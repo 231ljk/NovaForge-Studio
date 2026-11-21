@@ -60,11 +60,131 @@
     weapp: '微信小程序'
   };
 
-  var RELEASES = 'https://github.com/231ljk/NovaForge-Studio/releases/latest/download/';
-  var FLASH_EXE = RELEASES + 'NovaForge-Flash-Setup-0.1.0.exe';
-  var STUDIO_DMG = RELEASES + 'NovaForge-Studio-0.1.0-arm64.dmg';
-  var ANDROID_APK = RELEASES + 'NovaForge-Studio-0.1.0-android-release.apk';
+  /* ---------------- 下载线路：国内 / 国际双仓库 ----------------
+   * CN_RELEASES 填国内仓库的 releases 直链前缀（留空则自动回退 GitHub）。
+   * 判定顺序：用户手动选择 > 网络探测 + 时区/语言 > 默认国内镜像。
+   */
+  var GH_RELEASES = 'https://github.com/231ljk/NovaForge-Studio/releases/latest/download/';
+  var CN_RELEASES = 'https://gitee.com/q3w6/NovaForge-Studio/releases/download/v0.1.0/';
+  var MIRROR_KEY = 'nf-mirror';
 
+  var mirror = 'global';
+  var RELEASES = GH_RELEASES;
+  var FLASH_EXE = '';
+  var STUDIO_DMG = '';
+  var ANDROID_APK = '';
+
+  function setMirror(m) {
+    mirror = (m === 'cn' && CN_RELEASES) ? 'cn' : 'global';
+    RELEASES = mirror === 'cn' ? CN_RELEASES : GH_RELEASES;
+    FLASH_EXE = RELEASES + 'NovaForge-Flash-Setup-0.1.0.exe';
+    STUDIO_DMG = RELEASES + 'NovaForge-Studio-0.1.0-arm64.dmg';
+    ANDROID_APK = RELEASES + 'NovaForge-Studio-0.1.0-android-release.apk';
+  }
+  setMirror('global');
+
+  /* 国内镜像已上传的文件（Gitee 单文件上限 100MB，超限文件自动回退 GitHub） */
+  var CN_FILES = {
+    'NovaForge-Studio-0.1.0-android-release.apk': 1,
+    'NovaForge-Studio-0.1.0-harmony-signed.hap': 1,
+    'NovaForge-Studio-0.1.0-ios-unsigned.ipa': 1
+  };
+  var CN_SPLIT_BASE = 'NovaForge-Studio-Setup-0.1.0.exe';
+
+  function cnUrlFor(file) {
+    if (mirror !== 'cn') return '';
+    if (CN_FILES[file]) return CN_RELEASES + file;
+    if (file === CN_SPLIT_BASE) return CN_RELEASES + CN_SPLIT_BASE + '.part1';
+    return '';
+  }
+
+  /* 把页面里写死的 GitHub 直链统一改写到当前线路 */
+  function rewriteStaticLinks() {
+    $$('a[href]').forEach(function (a) {
+      var h = a.getAttribute('href') || '';
+      var file = '';
+      if (h.indexOf(GH_RELEASES) === 0) file = h.slice(GH_RELEASES.length);
+      else if (CN_RELEASES && h.indexOf(CN_RELEASES) === 0) file = h.slice(CN_RELEASES.length);
+      if (!file) return;
+      var cn = cnUrlFor(file);
+      a.setAttribute('href', cn || (GH_RELEASES + file));
+      if (cn && file === CN_SPLIT_BASE) a.setAttribute('data-cn-split', '1');
+      else a.removeAttribute('data-cn-split');
+    });
+  }
+
+  /* 国内线路下，Windows 安装包为 5 卷分卷，动态列出全部卷 */
+  function renderSplitBox() {
+    var old = document.getElementById('cnSplitBox');
+    if (old && old.parentNode) old.parentNode.removeChild(old);
+    if (mirror !== 'cn') return;
+    var target = null;
+    $$('a[href]').forEach(function (a) {
+      if (!target && a.getAttribute('data-cn-split') === '1') target = a;
+    });
+    if (!target) return;
+    var host = target.parentNode;
+    var box = document.createElement('div');
+    box.id = 'cnSplitBox';
+    box.className = 'cn-split';
+    var html = '<p class="cn-split-title">国内镜像：Windows 安装包为 5 卷分卷（Gitee 单文件上限 100MB）</p><div class="cn-split-links">';
+    for (var i = 1; i <= 5; i++) {
+      html += '<a href="' + CN_RELEASES + CN_SPLIT_BASE + '.part' + i + '">part' + i + '</a>';
+    }
+    html += '</div><p class="cn-split-tip">5 卷全部下载到同一目录后，在该目录打开命令提示符执行：<code>copy /b ' + CN_SPLIT_BASE + '.part1+' + CN_SPLIT_BASE + '.part2+' + CN_SPLIT_BASE + '.part3+' + CN_SPLIT_BASE + '.part4+' + CN_SPLIT_BASE + '.part5 ' + CN_SPLIT_BASE + '</code></p>';
+    box.innerHTML = html;
+    host.parentNode.insertBefore(box, host.nextSibling);
+  }
+
+  /* 网络归属判定：GitHub 不可达 → 国内；可达但时区/语言为中国 → 仍走国内（更快） */
+  function resolveMirror() {
+    var saved = '';
+    try { saved = localStorage.getItem(MIRROR_KEY) || ''; } catch (e) {}
+    if (saved === 'cn' || saved === 'global') return Promise.resolve(saved);
+
+    var tz = '';
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+    var lang = navigator.language || '';
+    var cnRegion = /Shanghai|Chongqing|Urumqi|Harbin|Beijing/i.test(tz) || /^zh/i.test(lang);
+
+    return new Promise(function (resolve) {
+      var settled = false;
+      var finish = function (m) { if (!settled) { settled = true; resolve(m); } };
+      var timer = setTimeout(function () { finish('cn'); }, 1800);
+      try {
+        var ctrl = window.AbortController ? new AbortController() : null;
+        var opt = { mode: 'no-cors', cache: 'no-store' };
+        if (ctrl) opt.signal = ctrl.signal;
+        fetch('https://github.com/favicon.ico', opt).then(function () {
+          clearTimeout(timer);
+          finish(cnRegion ? 'cn' : 'global');
+        }).catch(function () {
+          clearTimeout(timer);
+          finish('cn');
+        });
+      } catch (e) {
+        clearTimeout(timer);
+        finish('cn');
+      }
+    });
+  }
+
+  function updateMirrorUI() {
+    var box = document.getElementById('mirrorSwitch');
+    if (box) {
+      $$('button', box).forEach(function (b) {
+        b.classList.toggle('is-active', b.getAttribute('data-mirror') === mirror);
+      });
+    }
+    var tip = document.getElementById('mirrorTip');
+    if (tip) {
+      tip.textContent = mirror === 'cn'
+        ? '当前线路：国内镜像（下载更快）'
+        : '当前线路：GitHub 国际线路';
+    }
+  }
+
+  function applyPlatformLinks() {
   var current = detectPlatform();
   var hint = $('#uaHint');
   var primary = $('#primaryDownload');
@@ -117,6 +237,42 @@
     }
   } else if (hint) {
     hint.textContent = '请选择与设备匹配的版本；没有安装包时可直接使用网页版。';
+  }
+  }
+
+
+  /* ---------------- 启动：先按默认线路渲染，再按网络归属切换 ---------------- */
+  applyPlatformLinks();
+  rewriteStaticLinks();
+  renderSplitBox();
+  updateMirrorUI();
+
+  resolveMirror().then(function (m) {
+    setMirror(m);
+    applyPlatformLinks();
+    rewriteStaticLinks();
+    renderSplitBox();
+    updateMirrorUI();
+  });
+
+  var mirrorBox = document.getElementById('mirrorSwitch');
+  if (mirrorBox) {
+    mirrorBox.addEventListener('click', function (e) {
+      var btn = e.target.closest ? e.target.closest('button[data-mirror]') : null;
+      if (!btn) return;
+      var m = btn.getAttribute('data-mirror');
+      if (m === 'cn' && !CN_RELEASES) {
+        toast('国内镜像地址尚未配置，已使用 GitHub 线路');
+        return;
+      }
+      try { localStorage.setItem(MIRROR_KEY, m); } catch (err) {}
+      setMirror(m);
+      applyPlatformLinks();
+      rewriteStaticLinks();
+      renderSplitBox();
+      updateMirrorUI();
+      toast(m === 'cn' ? '已切换到国内镜像' : '已切换到 GitHub 国际线路');
+    });
   }
 
   // 安卓卡片高亮时滚动到可见位置不强制，仅保留视觉标记
