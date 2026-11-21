@@ -18,7 +18,7 @@
   <div class="wrap topbar-inner">
     <a class="brand" href="#top" aria-label="NovaForge 首页" data-i18n-attr="aria-label:brand.aria">
       <span class="brand-badge">NF</span>
-      <span class="brand-name">NovaForge<span class="brand-sub">Flash / Studio</span></span>
+      <span class="brand-name">NovaForge</span>
     </a>
 
     <nav class="nav" id="nav">
@@ -42,53 +42,42 @@
 
   <!-- Hero -->
   <section class="hero">
-    <div class="hero-bg" aria-hidden="true">
-      <span class="orb orb-1"></span>
-      <span class="orb orb-2"></span>
-      <span class="grid-mask"></span>
-    </div>
     <div class="wrap hero-inner">
-      <div class="hero-copy">
-        <span class="pill">
-          <span class="dot"></span>
-          <span data-i18n="hero.pill">v0.1.0 · Windows / macOS / Linux 已发布</span>
-        </span>
-        <h1><span data-i18n="hero.h1a">一个负责烧录</span><br><em data-i18n="hero.h1b">一个负责用 AI 写固件</em></h1>
-        <p class="lede" data-i18n-html="hero.lede">
-          NovaForge 拆成两款桌面软件：<b>Flash</b> 专注固件编译、烧录与串口调试；
-          <b>Studio</b> 内置 AI，用对话生成固件、创建项目文件、解答开发问题。
-          还提供免安装网页版，手机与电脑浏览器直接使用。
-        </p>
+      <span class="pill">
+        <span class="dot"></span>
+        <span data-i18n="hero.pill">v0.1.0 · 全平台已发布</span>
+      </span>
+      <h1 data-i18n="hero.h1">NovaForge 官方下载</h1>
+      <p class="lede" data-i18n-html="hero.lede">
+        <b>Flash</b> 负责固件编译、烧录与串口调试，<b>Studio</b> 内置 AI 用对话生成固件与项目文件。
+        桌面端、手机端与免安装网页版使用同一账号，配置自动同步。
+      </p>
 
-        <div class="hero-cta">
-          <a class="btn btn-primary btn-lg" id="primaryDownload"
-             href="https://github.com/231ljk/NovaForge-Studio/releases/latest">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14"/></svg>
-            <span id="primaryDownloadText" data-i18n="primary.windows">下载 NovaForge Flash</span>
-          </a>
-          <a class="btn btn-outline btn-lg" href="app/" data-i18n="hero.cta.webapp">打开网页版</a>
-        </div>
-
-        <p class="hero-note" id="uaHint" data-i18n="hero.hint.detecting">正在识别你的设备…</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary btn-lg" id="primaryDownload"
+           href="https://github.com/231ljk/NovaForge-Studio/releases/latest">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14"/></svg>
+          <span id="primaryDownloadText" data-i18n="primary.windows">下载 NovaForge Flash</span>
+        </a>
+        <a class="btn btn-outline btn-lg" href="app/" data-i18n="hero.cta.webapp">打开网页版</a>
       </div>
 
-      <div class="hero-visual" aria-hidden="true">
-        <div class="device-card">
-          <div class="device-head">
-            <span class="device-dot"></span>
-            <span class="device-title">固件烧录</span>
-            <span class="device-state">已连接</span>
-          </div>
-          <div class="device-row"><span class="k">串口</span><span class="v on">COM3</span></div>
-          <div class="device-row"><span class="k">固件</span><span class="v">app.bin · 128 KB</span></div>
-          <div class="device-row"><span class="k">开发板</span><span class="v">ESP32-S3</span></div>
-          <div class="device-row"><span class="k">烧录进度</span><span class="v on">100%</span></div>
-          <div class="device-foot"><span class="bar"><i></i></span><span>本地编译 · 数据不上传</span></div>
+      <p class="hero-note" id="uaHint" data-i18n="hero.hint.detecting">正在识别你的设备…</p>
+
+      <dl class="hero-meta">
+        <div>
+          <dt data-i18n="hero.meta.version">当前版本</dt>
+          <dd>v0.1.0</dd>
         </div>
-        <div class="device-mini mini-a"><span>Flash</span></div>
-        <div class="device-mini mini-b"><span>Studio</span></div>
-        <div class="device-mini mini-c"><span>网页版</span></div>
-      </div>
+        <div>
+          <dt data-i18n="hero.meta.platforms">支持平台</dt>
+          <dd>Windows · macOS · Linux · Android · iOS · 鸿蒙</dd>
+        </div>
+        <div>
+          <dt data-i18n="hero.meta.route">下载线路</dt>
+          <dd data-i18n="hero.meta.routeVal">国内 / 国际自动选择</dd>
+        </div>
+      </dl>
     </div>
   </section>
 
@@ -96,215 +85,332 @@
   <section class="section" id="download">
     <div class="wrap">
       <div class="section-head">
-        <h2 data-i18n="dl.h2">选择安装方式</h2>
-        <p data-i18n="dl.p">桌面端分为 Flash 与 Studio 两个独立安装包，可按需安装；网页版无需安装，浏览器直接打开。</p>
+        <h2 data-i18n="dl.h2">下载</h2>
+        <p data-i18n="dl.p">按设备选择对应安装包。桌面端 Flash 与 Studio 为两个独立安装包，可单独安装，也可同时安装。</p>
       </div>
 
-      <div class="platform-grid">
+      <!-- 桌面端 -->
+      <div class="dl-group">
+        <h3 class="dl-group-title" data-i18n="dl.group.desktop">桌面端</h3>
+        <div class="dl-grid">
 
-        <!-- NovaForge Flash -->
-        <article class="platform-card is-ready" data-platform="windows">
-          <div class="pc-head">
-            <span class="ico">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="8" height="7" rx="1"/><rect x="13" y="4" width="8" height="7" rx="1"/><rect x="3" y="13" width="8" height="7" rx="1"/><rect x="13" y="13" width="8" height="7" rx="1"/></svg>
-            </span>
-            <div>
-              <h3>NovaForge Flash</h3>
-              <p class="meta" data-i18n="flash.meta">Windows 10 / 11 · macOS 12+ · x64 / Apple Silicon</p>
+          <!-- Windows -->
+          <article class="dl-card" data-platform="windows">
+            <div class="dl-card-head">
+              <span class="dl-ico">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="8" height="7" rx="1"/><rect x="13" y="4" width="8" height="7" rx="1"/><rect x="3" y="13" width="8" height="7" rx="1"/><rect x="13" y="13" width="8" height="7" rx="1"/></svg>
+              </span>
+              <div class="dl-card-title">
+                <h4>Windows</h4>
+                <p data-i18n="win.sub">Windows 10 22H2 及以上 · x64</p>
+              </div>
+              <span class="dl-badge">v0.1.0</span>
             </div>
-          </div>
-          <p class="pc-desc" data-i18n="flash.desc">
-            固件烧录专用：导入 .bin / .hex 直接烧录，编译项目、串口监视、Wi-Fi 引脚控制与 Home Assistant 联动。不含 AI。
-          </p>
-          <div class="pc-foot">
-            <a class="btn btn-primary" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Flash-Setup-0.1.0.exe" data-i18n="btn.win">
-              Windows 版
-            </a>
-            <a class="btn btn-ghost" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Flash-0.1.0-arm64.dmg" data-i18n="btn.macArm">
-              macOS Apple 芯片
-            </a>
-            <a class="btn btn-ghost" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Flash-0.1.0-x64.dmg" data-i18n="btn.macIntel">
-              macOS Intel
-            </a>
-          </div>
-        </article>
 
-        <!-- NovaForge Studio -->
-        <article class="platform-card is-ready" data-platform="macos">
-          <div class="pc-head">
-            <span class="ico">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 4v5c0 4.2-2.9 7.6-7 9-4.1-1.4-7-4.8-7-9V7l7-4z"/><path d="M9 12l2 2 4-4"/></svg>
-            </span>
-            <div>
-              <h3>NovaForge Studio</h3>
-              <p class="meta" data-i18n="studio.meta">Windows · macOS</p>
+            <ul class="dl-files">
+              <li>
+                <div class="f-info">
+                  <span class="f-name">NovaForge Flash</span>
+                  <span class="f-meta"><span data-i18n="f.installer">安装包</span> · .exe<span class="f-size" data-size-for="NovaForge-Flash-Setup-0.1.0.exe"></span></span>
+                </div>
+                <a class="btn btn-primary btn-sm" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Flash-Setup-0.1.0.exe" data-i18n="btn.download">下载</a>
+              </li>
+              <li>
+                <div class="f-info">
+                  <span class="f-name">NovaForge Studio</span>
+                  <span class="f-meta"><span data-i18n="f.installer">安装包</span> · .exe<span class="f-size" data-size-for="NovaForge-Studio-Setup-0.1.0.exe"></span></span>
+                </div>
+                <a class="btn btn-primary btn-sm" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-Setup-0.1.0.exe" data-i18n="btn.download">下载</a>
+              </li>
+            </ul>
+
+            <details class="dl-note">
+              <summary data-i18n="dl.note.summary">安装说明与校验值</summary>
+              <div class="dl-note-body">
+                <p data-i18n="win.note">安装包已使用本地代码签名证书签名（CN=中文程助手）。首次运行若出现 SmartScreen 提示，选择「更多信息 → 仍要运行」即可。</p>
+                <p class="hash-line">Flash SHA-256 <code>—</code></p>
+                <p class="hash-line">Studio SHA-256 <code>97D81465F2AB560B44CAF97F5BFD71B929D6E4DC8FC4949DDA7C8EB00C216C08</code></p>
+                <div id="splitHost"></div>
+              </div>
+            </details>
+          </article>
+
+          <!-- macOS -->
+          <article class="dl-card" data-platform="macos">
+            <div class="dl-card-head">
+              <span class="dl-ico">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>
+              </span>
+              <div class="dl-card-title">
+                <h4>macOS</h4>
+                <p data-i18n="mac.sub">macOS 12 Monterey 及以上 · Apple 芯片 / Intel</p>
+              </div>
+              <span class="dl-badge">v0.1.0</span>
             </div>
-          </div>
-          <p class="pc-desc" data-i18n="studio.desc">
-            内置 AI：用对话生成与修改固件、创建项目文件、解答报错；同样支持代码 / 图形化编程与一键烧录。
-          </p>
-          <div class="pc-foot">
-            <a class="btn btn-primary" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-Setup-0.1.0.exe" data-i18n="btn.win">
-              Windows 版
-            </a>
-            <a class="btn btn-ghost" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-arm64.dmg" rel="noopener" data-i18n="btn.macArm">
-              macOS Apple 芯片
-            </a>
-            <a class="btn btn-ghost" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-x64.dmg" rel="noopener" data-i18n="btn.macIntel">
-              macOS Intel
-            </a>
-          </div>
-          <p class="hash-line">SHA-256 <code>97D81465F2AB560B44CAF97F5BFD71B929D6E4DC8FC4949DDA7C8EB00C216C08</code></p>
-          <p class="hash-line" data-i18n="studio.hashNote">Windows 安装包已使用本地代码签名证书签名（CN=中文程助手），安装时若出现 SmartScreen 提示请选择「更多信息 → 仍要运行」。</p>
-        </article>
 
-        <!-- 网页版 -->
-        <article class="platform-card is-ready" data-platform="web">
-          <div class="pc-head">
-            <span class="ico">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c2.5 2.6 2.5 13.4 0 16M12 4c-2.5 2.6-2.5 13.4 0 16"/></svg>
-            </span>
-            <div>
-              <h3 data-i18n="card.web">网页版</h3>
-              <p class="meta" data-i18n="web.meta">浏览器直接使用 · 免安装</p>
+            <ul class="dl-files">
+              <li>
+                <div class="f-info">
+                  <span class="f-name">NovaForge Flash</span>
+                  <span class="f-meta">Apple 芯片 · .dmg<span class="f-size" data-size-for="NovaForge-Flash-0.1.0-arm64.dmg"></span></span>
+                </div>
+                <a class="btn btn-primary btn-sm" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Flash-0.1.0-arm64.dmg" data-i18n="btn.download">下载</a>
+              </li>
+              <li>
+                <div class="f-info">
+                  <span class="f-name">NovaForge Flash</span>
+                  <span class="f-meta">Intel · .dmg<span class="f-size" data-size-for="NovaForge-Flash-0.1.0-x64.dmg"></span></span>
+                </div>
+                <a class="btn btn-ghost btn-sm" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Flash-0.1.0-x64.dmg" data-i18n="btn.download">下载</a>
+              </li>
+              <li>
+                <div class="f-info">
+                  <span class="f-name">NovaForge Studio</span>
+                  <span class="f-meta">Apple 芯片 · .dmg<span class="f-size" data-size-for="NovaForge-Studio-0.1.0-arm64.dmg"></span></span>
+                </div>
+                <a class="btn btn-primary btn-sm" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-arm64.dmg" data-i18n="btn.download">下载</a>
+              </li>
+              <li>
+                <div class="f-info">
+                  <span class="f-name">NovaForge Studio</span>
+                  <span class="f-meta">Intel · .dmg<span class="f-size" data-size-for="NovaForge-Studio-0.1.0-x64.dmg"></span></span>
+                </div>
+                <a class="btn btn-ghost btn-sm" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-x64.dmg" data-i18n="btn.download">下载</a>
+              </li>
+            </ul>
+
+            <details class="dl-note">
+              <summary data-i18n="dl.note.summary">安装说明与校验值</summary>
+              <div class="dl-note-body">
+                <p data-i18n="mac.note">首次打开若提示无法验证开发者，请在「系统设置 → 隐私与安全性」中允许打开。</p>
+              </div>
+            </details>
+          </article>
+
+          <!-- Linux -->
+          <article class="dl-card" data-platform="linux">
+            <div class="dl-card-head">
+              <span class="dl-ico">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M8 12h8M12 8v8"/><circle cx="12" cy="12" r="3"/></svg>
+              </span>
+              <div class="dl-card-title">
+                <h4>Linux</h4>
+                <p data-i18n="linux.sub">Ubuntu 22.04 / Debian 12 及以上 · x64</p>
+              </div>
+              <span class="dl-badge">v0.1.0</span>
             </div>
-          </div>
-          <p class="pc-desc" data-i18n="web.desc">
-            手机或电脑浏览器打开即用，登录同一账号即可查看设备、场景与自动化，内置 AI 助手。
-          </p>
-          <div class="pc-foot">
-            <a class="btn btn-primary" href="app/" data-i18n="web.btn">打开网页版</a>
-            <span class="tag tag-ok" data-i18n="tag.online">在线可用</span>
-          </div>
-        </article>
 
-        <!-- Android -->
-        <article class="platform-card is-ready" data-platform="android">
-          <div class="pc-head">
-            <span class="ico">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9h12v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9z"/><path d="M8 9a4 4 0 0 1 8 0"/><path d="M9 3l1.5 2.5M15 3l-1.5 2.5"/><circle cx="10" cy="13" r=".8"/><circle cx="14" cy="13" r=".8"/></svg>
-            </span>
-            <div>
-              <h3>Android</h3>
-              <p class="meta" data-i18n="android.meta">Android 7.0 及以上</p>
-            </div>
-          </div>
-          <p class="pc-desc" data-i18n="android.desc">与电脑同一账号互通，蓝牙直连与局域网发现，内置 AI 助手。</p>
-          <div class="pc-foot">
-            <a class="btn btn-primary" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-android-release.apk" rel="noopener" id="androidDownload" data-i18n="android.btn">下载 APK</a>
-            <a class="btn btn-ghost" href="https://github.com/231ljk/NovaForge-Studio/releases/latest" rel="noopener" data-releases-page data-i18n="btn.releases">查看发布页</a>
-            <span class="tag tag-ok">v0.1.0</span>
-          </div>
-          <p class="hash-line">
-            SHA-256 <code id="apkHash">527C07F067BE8CA5ABA0CF2004F9C05807B08F0F0ED8B2257669B6823EC48DB5</code>
-            <button class="copy-btn" id="copyHash" type="button" data-i18n="btn.copy">复制</button>
-          </p>
-        </article>
+            <ul class="dl-files">
+              <li>
+                <div class="f-info">
+                  <span class="f-name">NovaForge Studio</span>
+                  <span class="f-meta">Debian / Ubuntu · .deb<span class="f-size" data-size-for="NovaForge-Studio-0.1.0-amd64.deb"></span></span>
+                </div>
+                <a class="btn btn-primary btn-sm" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-amd64.deb" data-i18n="btn.download">下载</a>
+              </li>
+              <li>
+                <div class="f-info">
+                  <span class="f-name">NovaForge Studio</span>
+                  <span class="f-meta"><span data-i18n="f.noinstall">免安装</span> · .AppImage<span class="f-size" data-size-for="NovaForge-Studio-0.1.0-x86_64.AppImage"></span></span>
+                </div>
+                <a class="btn btn-ghost btn-sm" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-x86_64.AppImage" data-i18n="btn.download">下载</a>
+              </li>
+              <li>
+                <div class="f-info">
+                  <span class="f-name">NovaForge Flash</span>
+                  <span class="f-meta">Debian / Ubuntu · .deb<span class="f-size" data-size-for="NovaForge-Flash-0.1.0-amd64.deb"></span></span>
+                </div>
+                <a class="btn btn-ghost btn-sm" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Flash-0.1.0-amd64.deb" data-i18n="btn.download">下载</a>
+              </li>
+              <li>
+                <div class="f-info">
+                  <span class="f-name">NovaForge Flash</span>
+                  <span class="f-meta"><span data-i18n="f.noinstall">免安装</span> · .AppImage<span class="f-size" data-size-for="NovaForge-Flash-0.1.0-x86_64.AppImage"></span></span>
+                </div>
+                <a class="btn btn-ghost btn-sm" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Flash-0.1.0-x86_64.AppImage" data-i18n="btn.download">下载</a>
+              </li>
+            </ul>
 
-        <!-- 微信小程序 -->
-        <article class="platform-card" data-platform="weapp">
-          <div class="pc-head">
-            <span class="ico">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a5 5 0 0 1 5-5h1a5 5 0 0 1 0 10H8"/><path d="M20 15a4 4 0 0 1-4 4h-1a4 4 0 0 1 0-8h1"/></svg>
-            </span>
-            <div>
-              <h3 data-i18n="card.weapp">微信小程序</h3>
-              <p class="meta" data-i18n="weapp.meta">无需安装 · 微信内打开</p>
-            </div>
-          </div>
-          <p class="pc-desc" data-i18n="weapp.desc">轻量入口，与 App 共用账号；按平台规范不提供 AI 功能。</p>
-          <div class="pc-foot">
-            <button class="btn btn-soft" id="weappBtn" type="button" data-i18n="weapp.btn">敬请期待</button>
-            <span class="tag" data-i18n="tag.afterReview">过审后开放</span>
-          </div>
-        </article>
+            <details class="dl-note">
+              <summary data-i18n="dl.note.summary">安装说明与校验值</summary>
+              <div class="dl-note-body">
+                <p data-i18n="linux.note">deb 包使用 <code>sudo dpkg -i</code> 安装；AppImage 下载后赋予可执行权限即可直接运行。</p>
+              </div>
+            </details>
+          </article>
 
-        <!-- Linux -->
-        <article class="platform-card is-ready" data-platform="linux">
-          <div class="pc-head">
-            <span class="ico">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M8 12h8M12 8v8"/><circle cx="12" cy="12" r="3"/></svg>
-            </span>
-            <div>
-              <h3>Linux</h3>
-              <p class="meta" data-i18n="linux.meta">AppImage / deb · x64</p>
-            </div>
-          </div>
-          <p class="pc-desc" data-i18n="linux.desc">
-            Flash 与 Studio 双版本均支持 Linux。AppImage 免安装直接运行，deb 包适用于 Debian / Ubuntu 系发行版。Studio 内置 AI，Flash 不含 AI。
-          </p>
-          <div class="pc-foot">
-            <a class="btn btn-primary" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-amd64.deb" data-i18n="linux.btn.deb">
-              下载 deb
-            </a>
-            <a class="btn btn-ghost" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-x86_64.AppImage">
-              AppImage
-            </a>
-          </div>
-          <div class="pc-foot" style="margin-top:6px">
-            <a class="btn btn-ghost btn-sm" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Flash-0.1.0-amd64.deb">
-              Flash deb
-            </a>
-            <a class="btn btn-ghost btn-sm" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Flash-0.1.0-x86_64.AppImage">
-              Flash AppImage
-            </a>
-          </div>
-        </article>
-
-        <!-- iOS -->
-        <article class="platform-card is-ready" data-platform="ios">
-          <div class="pc-head">
-            <span class="ico">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M12 18h.01"/><rect x="10" y="5" width="4" height="1" rx="0.5"/></svg>
-            </span>
-            <div>
-              <h3>iOS</h3>
-              <p class="meta" data-i18n="ios.meta">iOS 15 及以上 · iPhone / iPad</p>
-            </div>
-          </div>
-          <p class="pc-desc" data-i18n="ios.desc">
-            与电脑同一账号互通，蓝牙直连与局域网发现，内置 AI 助手。当前提供未签名 IPA，需用 AltStore / Sideloadly / Xcode 以你自己的 Apple ID 重签后安装；App Store 正式版需 Apple Developer 付费账号签名。
-          </p>
-          <div class="pc-foot">
-            <a class="btn btn-primary" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-ios-unsigned.ipa" rel="noopener" id="iosDownload" data-i18n="ios.btn">下载 IPA</a>
-            <a class="btn btn-ghost" href="https://github.com/231ljk/NovaForge-Studio/releases/latest" rel="noopener" data-releases-page data-i18n="btn.releases">查看发布页</a>
-            <span class="tag tag-ok">v0.1.0</span>
-          </div>
-          <p class="hash-line">
-            SHA-256 <code id="ipaHash">6996C6C747E59C47B9898B9522A3DB32068B39E86D1AC24A87018DFF004F3A13</code>
-            <button class="copy-btn" id="copyIpaHash" type="button" data-i18n="btn.copy">复制</button>
-          </p>
-        </article>
-
-        <!-- 鸿蒙 HarmonyOS -->
-        <article class="platform-card" data-platform="harmony">
-          <div class="pc-head">
-            <span class="ico">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16M7 7l10 10M7 17l10-10"/></svg>
-            </span>
-            <div>
-              <h3 data-i18n="card.harmony">鸿蒙 HarmonyOS</h3>
-              <p class="meta" data-i18n="harmony.meta">HarmonyOS NEXT · 手机 / 平板</p>
-            </div>
-          </div>
-          <p class="pc-desc" data-i18n="harmony.desc">
-            原生鸿蒙应用，与电脑同一账号互通，内置 AI 助手。当前提供调试签名包，需在华为 AGC 配置设备白名单后安装；正式发布版待发布证书与 profile。
-          </p>
-          <div class="pc-foot">
-            <a class="btn btn-primary" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-harmony-signed.hap" rel="noopener" data-i18n="harmony.btn">
-              下载 HAP
-            </a>
-            <a class="btn btn-ghost" href="https://github.com/231ljk/NovaForge-Studio/releases/latest" rel="noopener" data-releases-page data-i18n="btn.releases">
-              查看发布页
-            </a>
-            <span class="tag" data-i18n="tag.debugSign">调试签名</span>
-          </div>
-          <p class="hash-line">
-            SHA-256 <code>75C8C1257E5CE2D83974321F6E196EC694991BFF88017FC1177228AF82FC532F</code>
-          </p>
-        </article>
-
+        </div>
       </div>
+
+      <!-- 移动端 -->
+      <div class="dl-group">
+        <h3 class="dl-group-title" data-i18n="dl.group.mobile">移动端</h3>
+        <div class="dl-grid">
+
+          <!-- Android -->
+          <article class="dl-card" data-platform="android">
+            <div class="dl-card-head">
+              <span class="dl-ico">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9h12v9a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9z"/><path d="M8 9a4 4 0 0 1 8 0"/><path d="M9 3l1.5 2.5M15 3l-1.5 2.5"/><circle cx="10" cy="13" r=".8"/><circle cx="14" cy="13" r=".8"/></svg>
+              </span>
+              <div class="dl-card-title">
+                <h4>Android</h4>
+                <p data-i18n="android.sub">Android 7.0 及以上 · arm64 / armeabi-v7a</p>
+              </div>
+              <span class="dl-badge">v0.1.0</span>
+            </div>
+
+            <ul class="dl-files">
+              <li>
+                <div class="f-info">
+                  <span class="f-name">NovaForge Studio</span>
+                  <span class="f-meta">APK · <span data-i18n="f.direct">直接安装</span><span class="f-size" data-size-for="NovaForge-Studio-0.1.0-android-release.apk"></span></span>
+                </div>
+                <a class="btn btn-primary btn-sm" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-android-release.apk" rel="noopener" id="androidDownload" data-i18n="btn.download">下载</a>
+              </li>
+            </ul>
+
+            <details class="dl-note">
+              <summary data-i18n="dl.note.summary">安装说明与校验值</summary>
+              <div class="dl-note-body">
+                <p data-i18n="android.note">安装前请在系统设置中允许「安装未知来源应用」。</p>
+                <p class="hash-line">SHA-256 <code id="apkHash">527C07F067BE8CA5ABA0CF2004F9C05807B08F0F0ED8B2257669B6823EC48DB5</code>
+                  <button class="copy-btn" id="copyHash" type="button" data-i18n="btn.copy">复制</button>
+                </p>
+              </div>
+            </details>
+          </article>
+
+          <!-- iOS -->
+          <article class="dl-card" data-platform="ios">
+            <div class="dl-card-head">
+              <span class="dl-ico">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M12 18h.01"/><rect x="10" y="5" width="4" height="1" rx="0.5"/></svg>
+              </span>
+              <div class="dl-card-title">
+                <h4>iOS</h4>
+                <p data-i18n="ios.sub">iOS 15 及以上 · iPhone / iPad</p>
+              </div>
+              <span class="dl-badge">v0.1.0</span>
+            </div>
+
+            <ul class="dl-files">
+              <li>
+                <div class="f-info">
+                  <span class="f-name">NovaForge Studio</span>
+                  <span class="f-meta">IPA<span class="f-size" data-size-for="NovaForge-Studio-0.1.0-ios-unsigned.ipa"></span></span>
+                </div>
+                <a class="btn btn-primary btn-sm" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-ios-unsigned.ipa" rel="noopener" id="iosDownload" data-i18n="btn.download">下载</a>
+              </li>
+            </ul>
+
+            <details class="dl-note">
+              <summary data-i18n="dl.note.summary">安装说明与校验值</summary>
+              <div class="dl-note-body">
+                <p data-i18n="ios.note">与电脑同一账号互通，蓝牙直连与局域网发现，内置 AI 助手。</p>
+                <p class="hash-line">SHA-256 <code id="ipaHash">6996C6C747E59C47B9898B9522A3DB32068B39E86D1AC24A87018DFF004F3A13</code>
+                  <button class="copy-btn" id="copyIpaHash" type="button" data-i18n="btn.copy">复制</button>
+                </p>
+              </div>
+            </details>
+          </article>
+
+          <!-- 鸿蒙 -->
+          <article class="dl-card" data-platform="harmony">
+            <div class="dl-card-head">
+              <span class="dl-ico">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16M7 7l10 10M7 17l10-10"/></svg>
+              </span>
+              <div class="dl-card-title">
+                <h4 data-i18n="card.harmony">鸿蒙 HarmonyOS</h4>
+                <p data-i18n="harmony.sub">HarmonyOS NEXT · 手机 / 平板</p>
+              </div>
+              <span class="dl-badge">v0.1.0</span>
+            </div>
+
+            <ul class="dl-files">
+              <li>
+                <div class="f-info">
+                  <span class="f-name">NovaForge Studio</span>
+                  <span class="f-meta">HAP<span class="f-size" data-size-for="NovaForge-Studio-0.1.0-harmony-signed.hap"></span></span>
+                </div>
+                <a class="btn btn-primary btn-sm" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-harmony-signed.hap" rel="noopener" data-i18n="btn.download">下载</a>
+              </li>
+            </ul>
+
+            <details class="dl-note">
+              <summary data-i18n="dl.note.summary">安装说明与校验值</summary>
+              <div class="dl-note-body">
+                <p data-i18n="harmony.note">原生鸿蒙应用，与电脑同一账号互通，内置 AI 助手。</p>
+                <p class="hash-line">SHA-256 <code>75C8C1257E5CE2D83974321F6E196EC694991BFF88017FC1177228AF82FC532F</code></p>
+              </div>
+            </details>
+          </article>
+
+        </div>
+      </div>
+
+      <!-- 免安装 -->
+      <div class="dl-group">
+        <h3 class="dl-group-title" data-i18n="dl.group.web">免安装</h3>
+        <div class="dl-grid">
+
+          <!-- 网页版 -->
+          <article class="dl-card" data-platform="web">
+            <div class="dl-card-head">
+              <span class="dl-ico">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c2.5 2.6 2.5 13.4 0 16M12 4c-2.5 2.6-2.5 13.4 0 16"/></svg>
+              </span>
+              <div class="dl-card-title">
+                <h4 data-i18n="card.web">网页版</h4>
+                <p data-i18n="web.sub">Chrome / Edge / Safari 最新版</p>
+              </div>
+              <span class="dl-badge dl-badge-ok" data-i18n="tag.online">在线可用</span>
+            </div>
+
+            <ul class="dl-files">
+              <li>
+                <div class="f-info">
+                  <span class="f-name" data-i18n="web.name">浏览器直接打开</span>
+                  <span class="f-meta" data-i18n="web.meta">无需安装 · 手机与电脑通用</span>
+                </div>
+                <a class="btn btn-primary btn-sm" href="app/" data-i18n="web.btn">打开</a>
+              </li>
+            </ul>
+          </article>
+
+          <!-- 微信小程序 -->
+          <article class="dl-card" data-platform="weapp">
+            <div class="dl-card-head">
+              <span class="dl-ico">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10a5 5 0 0 1 5-5h1a5 5 0 0 1 0 10H8"/><path d="M20 15a4 4 0 0 1-4 4h-1a4 4 0 0 1 0-8h1"/></svg>
+              </span>
+              <div class="dl-card-title">
+                <h4 data-i18n="card.weapp">微信小程序</h4>
+                <p data-i18n="weapp.sub">微信 8.0 及以上</p>
+              </div>
+              <span class="dl-badge" data-i18n="tag.afterReview">过审后开放</span>
+            </div>
+
+            <ul class="dl-files">
+              <li>
+                <div class="f-info">
+                  <span class="f-name" data-i18n="weapp.name">微信内打开</span>
+                  <span class="f-meta" data-i18n="weapp.meta">无需安装 · 与 App 共用账号</span>
+                </div>
+                <button class="btn btn-soft btn-sm" id="weappBtn" type="button" data-i18n="weapp.btn">敬请期待</button>
+              </li>
+            </ul>
+          </article>
+
+        </div>
+      </div>
+
+      <p class="dl-foot-note">
+        <span data-i18n="dl.foot">所有安装包均可在</span>
+        <a href="https://github.com/231ljk/NovaForge-Studio/releases/latest" rel="noopener" data-releases-page data-i18n="btn.releases">发布页</a>
+        <span data-i18n="dl.foot2">查看完整版本记录与校验值。</span>
+      </p>
     </div>
   </section>
 
@@ -353,7 +459,7 @@
     <div class="wrap">
       <div class="section-head">
         <h2 data-i18n="req.h2">系统要求</h2>
-        <p data-i18n="req.p">Windows 安装包为未签名版本，首次运行如遇 SmartScreen 提示，选择「更多信息 → 仍要运行」即可。macOS 如提示无法验证开发者，请在「系统设置 → 隐私与安全性」中允许打开。</p>
+        <p data-i18n="req.p">Windows 安装包首次运行如遇 SmartScreen 提示，选择「更多信息 → 仍要运行」即可。macOS 如提示无法验证开发者，请在「系统设置 → 隐私与安全性」中允许打开。</p>
       </div>
       <div class="table-wrap">
         <table class="req-table">
@@ -372,8 +478,8 @@
             <tr><td>NovaForge Flash / Studio</td><td>Ubuntu 22.04 / Debian 12</td><td>x64</td><td><span class="status ok" data-i18n="status.released">已发布 0.1.0</span></td></tr>
             <tr><td data-i18n="req.webapp">网页版</td><td data-i18n="req.browser">Chrome / Edge / Safari 最新版</td><td>—</td><td><span class="status ok" data-i18n="status.online">在线可用</span></td></tr>
             <tr><td>Android</td><td>7.0（API 24）</td><td>arm64-v8a / armeabi-v7a</td><td><span class="status ok" data-i18n="status.released">已发布 0.1.0</span></td></tr>
-            <tr><td>iOS</td><td>iOS 15</td><td>iPhone / iPad</td><td><span class="status ok" data-i18n="status.ipa">未签名 IPA 已发布 0.1.0</span></td></tr>
-            <tr><td data-i18n="req.harmony">鸿蒙 HarmonyOS</td><td>HarmonyOS NEXT</td><td data-i18n="req.device">手机 / 平板</td><td><span class="status ok" data-i18n="status.debug">调试签名可用</span></td></tr>
+            <tr><td>iOS</td><td>iOS 15</td><td>iPhone / iPad</td><td><span class="status ok" data-i18n="status.released">已发布 0.1.0</span></td></tr>
+            <tr><td data-i18n="req.harmony">鸿蒙 HarmonyOS</td><td>HarmonyOS NEXT</td><td data-i18n="req.device">手机 / 平板</td><td><span class="status ok" data-i18n="status.released">已发布 0.1.0</span></td></tr>
             <tr><td data-i18n="req.weapp">微信小程序</td><td data-i18n="req.wechat">微信 8.0 及以上</td><td>—</td><td><span class="status wait" data-i18n="status.review">过审后开放</span></td></tr>
           </tbody>
         </table>
@@ -409,7 +515,7 @@
       </details>
       <details class="faq">
         <summary data-i18n="faq6.q">安装包提示未知发布者怎么办？</summary>
-        <p data-i18n-html="faq6.a">当前 Windows 安装包尚未购买代码签名证书。点击「更多信息 → 仍要运行」即可完成安装；校验值可在 Releases 页面核对。</p>
+        <p data-i18n-html="faq6.a">点击「更多信息 → 仍要运行」即可完成安装；校验值可在 Releases 页面核对。</p>
       </details>
     </div>
   </section>

@@ -23,70 +23,77 @@
       'lang.aria': '切换到英文',
 
       /* ---- Hero ---- */
-      'hero.pill': 'v0.1.0 · Windows / macOS / Linux 已发布',
-      'hero.h1a': '一个负责烧录',
-      'hero.h1b': '一个负责用 AI 写固件',
-      'hero.lede': 'NovaForge 拆成两款桌面软件：<b>Flash</b> 专注固件编译、烧录与串口调试；<b>Studio</b> 内置 AI，用对话生成固件、创建项目文件、解答开发问题。还提供免安装网页版，手机与电脑浏览器直接使用。',
-      'hero.cta.flash': '下载 NovaForge Flash',
+      'hero.pill': 'v0.1.0 · 全平台已发布',
+      'hero.h1': 'NovaForge 官方下载',
+      'hero.lede': '<b>Flash</b> 负责固件编译、烧录与串口调试，<b>Studio</b> 内置 AI 用对话生成固件与项目文件。桌面端、手机端与免安装网页版使用同一账号，配置自动同步。',
       'hero.cta.webapp': '打开网页版',
       'hero.hint.detecting': '正在识别你的设备…',
+      'hero.meta.version': '当前版本',
+      'hero.meta.platforms': '支持平台',
+      'hero.meta.route': '下载线路',
+      'hero.meta.routeVal': '国内 / 国际自动选择',
+
       'hint.ready': '已识别到你的设备：<b>{p}</b>，可直接下载安装包。',
       'hint.web': '已识别到你的设备：<b>{p}</b>，可先使用免安装网页版。',
       'hint.none': '请选择与设备匹配的版本；没有安装包时可直接使用网页版。',
+
       'primary.windows': '下载 NovaForge Flash',
-      'primary.android': '下载 Android 版 v0.1.0',
+      'primary.android': '下载 Android 版',
       'primary.macos': '下载 NovaForge Studio',
       'primary.linux': '下载 Linux 版',
-      'primary.harmony': '下载鸿蒙 HAP',
-      'primary.ios': '下载 iOS 版 v0.1.0（未签名）',
+      'primary.harmony': '下载鸿蒙版',
+      'primary.ios': '下载 iOS 版',
       'primary.weapp': '小程序即将开放',
       'primary.web': '使用网页版',
-      'btn.copy': '复制',
 
       /* ---- 下载区 ---- */
-      'dl.h2': '选择安装方式',
-      'dl.p': '桌面端分为 Flash 与 Studio 两个独立安装包，可按需安装；网页版无需安装，浏览器直接打开。',
+      'dl.h2': '下载',
+      'dl.p': '按设备选择对应安装包。桌面端 Flash 与 Studio 为两个独立安装包，可单独安装，也可同时安装。',
+      'dl.group.desktop': '桌面端',
+      'dl.group.mobile': '移动端',
+      'dl.group.web': '免安装',
+      'dl.note.summary': '安装说明与校验值',
+      'dl.foot': '所有安装包均可在',
+      'dl.foot2': '查看完整版本记录与校验值。',
 
-      'flash.meta': 'Windows 10 / 11 · macOS 12+ · x64 / Apple Silicon',
-      'flash.desc': '固件烧录专用：导入 .bin / .hex 直接烧录，编译项目、串口监视、Wi-Fi 引脚控制与 Home Assistant 联动。不含 AI。',
-      'btn.win': 'Windows 版',
-      'btn.macArm': 'macOS Apple 芯片',
-      'btn.macIntel': 'macOS Intel',
-
-      'studio.meta': 'Windows · macOS',
-      'studio.desc': '内置 AI：用对话生成与修改固件、创建项目文件、解答报错；同样支持代码 / 图形化编程与一键烧录。',
-      'studio.hashNote': 'Windows 安装包已使用本地代码签名证书签名（CN=中文程助手），安装时若出现 SmartScreen 提示请选择「更多信息 → 仍要运行」。',
+      'win.sub': 'Windows 10 22H2 及以上 · x64',
+      'mac.sub': 'macOS 12 Monterey 及以上 · Apple 芯片 / Intel',
+      'linux.sub': 'Ubuntu 22.04 / Debian 12 及以上 · x64',
+      'android.sub': 'Android 7.0 及以上 · arm64 / armeabi-v7a',
+      'ios.sub': 'iOS 15 及以上 · iPhone / iPad',
+      'harmony.sub': 'HarmonyOS NEXT · 手机 / 平板',
+      'web.sub': 'Chrome / Edge / Safari 最新版',
+      'weapp.sub': '微信 8.0 及以上',
 
       'card.web': '网页版',
       'card.weapp': '微信小程序',
       'card.harmony': '鸿蒙 HarmonyOS',
-      'web.meta': '浏览器直接使用 · 免安装',
-      'web.desc': '手机或电脑浏览器打开即用，登录同一账号即可查看设备、场景与自动化，内置 AI 助手。',
-      'web.btn': '打开网页版',
+
+      'f.installer': '安装包',
+      'f.noinstall': '免安装',
+      'f.direct': '直接安装',
+
+      'btn.download': '下载',
+      'btn.copy': '复制',
+      'btn.releases': '发布页',
+
+      'win.note': '安装包已使用本地代码签名证书签名（CN=中文程助手）。首次运行若出现 SmartScreen 提示，选择「更多信息 → 仍要运行」即可。',
+      'mac.note': '首次打开若提示无法验证开发者，请在「系统设置 → 隐私与安全性」中允许打开。',
+      'linux.note': 'deb 包使用 sudo dpkg -i 安装；AppImage 下载后赋予可执行权限即可直接运行。',
+      'android.note': '安装前请在系统设置中允许「安装未知来源应用」。',
+      'ios.note': '与电脑同一账号互通，蓝牙直连与局域网发现，内置 AI 助手。',
+      'harmony.note': '原生鸿蒙应用，与电脑同一账号互通，内置 AI 助手。',
+
       'tag.online': '在线可用',
-
-      'android.meta': 'Android 7.0 及以上',
-      'android.desc': '与电脑同一账号互通，蓝牙直连与局域网发现，内置 AI 助手。',
-      'android.btn': '下载 APK',
-      'btn.releases': '查看发布页',
-
-      'weapp.meta': '无需安装 · 微信内打开',
-      'weapp.desc': '轻量入口，与 App 共用账号；按平台规范不提供 AI 功能。',
-      'weapp.btn': '敬请期待',
       'tag.afterReview': '过审后开放',
 
-      'linux.meta': 'AppImage / deb · x64',
-      'linux.desc': 'Flash 与 Studio 双版本均支持 Linux。AppImage 免安装直接运行，deb 包适用于 Debian / Ubuntu 系发行版。Studio 内置 AI，Flash 不含 AI。',
-      'linux.btn.deb': '下载 deb',
+      'web.name': '浏览器直接打开',
+      'web.meta': '无需安装 · 手机与电脑通用',
+      'web.btn': '打开',
 
-      'ios.meta': 'iOS 15 及以上 · iPhone / iPad',
-      'ios.desc': '与电脑同一账号互通，蓝牙直连与局域网发现，内置 AI 助手。当前提供未签名 IPA，需用 AltStore / Sideloadly / Xcode 以你自己的 Apple ID 重签后安装；App Store 正式版需 Apple Developer 付费账号签名。',
-      'ios.btn': '下载 IPA',
-
-      'harmony.meta': 'HarmonyOS NEXT · 手机 / 平板',
-      'harmony.desc': '原生鸿蒙应用，与电脑同一账号互通，内置 AI 助手。当前提供调试签名包，需在华为 AGC 配置设备白名单后安装；正式发布版待发布证书与 profile。',
-      'harmony.btn': '下载 HAP',
-      'tag.debugSign': '调试签名',
+      'weapp.name': '微信内打开',
+      'weapp.meta': '无需安装 · 与 App 共用账号',
+      'weapp.btn': '敬请期待',
 
       /* ---- 功能 ---- */
       'feat.h2': '两款软件，各司其职',
@@ -102,7 +109,7 @@
 
       /* ---- 系统要求 ---- */
       'req.h2': '系统要求',
-      'req.p': 'Windows 安装包为未签名版本，首次运行如遇 SmartScreen 提示，选择「更多信息 → 仍要运行」即可。macOS 如提示无法验证开发者，请在「系统设置 → 隐私与安全性」中允许打开。',
+      'req.p': 'Windows 安装包首次运行如遇 SmartScreen 提示，选择「更多信息 → 仍要运行」即可。macOS 如提示无法验证开发者，请在「系统设置 → 隐私与安全性」中允许打开。',
       'req.th.platform': '平台',
       'req.th.min': '最低版本',
       'req.th.arch': '架构',
@@ -115,8 +122,6 @@
       'req.wechat': '微信 8.0 及以上',
       'status.released': '已发布 0.1.0',
       'status.online': '在线可用',
-      'status.ipa': '未签名 IPA 已发布 0.1.0',
-      'status.debug': '调试签名可用',
       'status.review': '过审后开放',
 
       /* ---- FAQ ---- */
@@ -132,7 +137,7 @@
       'faq5.q': '支持哪些开发板？',
       'faq5.a': 'ESP32 全系列（含 S3 / C3 / C6）、ESP8266、树莓派 Pico（RP2040）以及 Arduino AVR 系列；树莓派 Linux 单板通过 SSH 部署。',
       'faq6.q': '安装包提示未知发布者怎么办？',
-      'faq6.a': '当前 Windows 安装包尚未购买代码签名证书。点击「更多信息 → 仍要运行」即可完成安装；校验值可在 Releases 页面核对。',
+      'faq6.a': '点击「更多信息 → 仍要运行」即可完成安装；校验值可在 Releases 页面核对。',
 
       /* ---- 页脚 ---- */
       'footer.slogan': 'Flash 烧录 · Studio AI 编程 · 网页版',
@@ -183,70 +188,77 @@
       'lang.aria': 'Switch to Chinese',
 
       /* ---- Hero ---- */
-      'hero.pill': 'v0.1.0 · Available for Windows / macOS / Linux',
-      'hero.h1a': 'One burns the firmware',
-      'hero.h1b': 'One writes it with AI',
-      'hero.lede': 'NovaForge ships as two desktop apps: <b>Flash</b> handles firmware compilation, flashing and serial debugging; <b>Studio</b> embeds AI to generate firmware, create project files and answer development questions. A no-install web version runs in any mobile or desktop browser.',
-      'hero.cta.flash': 'Download NovaForge Flash',
+      'hero.pill': 'v0.1.0 · Released on all platforms',
+      'hero.h1': 'Download NovaForge',
+      'hero.lede': '<b>Flash</b> handles firmware compilation, flashing and serial debugging. <b>Studio</b> embeds AI to generate firmware and project files from a conversation. Desktop, mobile and the no-install web version share one account, so settings sync automatically.',
       'hero.cta.webapp': 'Open web version',
       'hero.hint.detecting': 'Detecting your device…',
+      'hero.meta.version': 'Version',
+      'hero.meta.platforms': 'Platforms',
+      'hero.meta.route': 'Download route',
+      'hero.meta.routeVal': 'Auto (China / Global)',
+
       'hint.ready': 'Detected your device: <b>{p}</b> — you can download the installer directly.',
       'hint.web': 'Detected your device: <b>{p}</b> — try the no-install web version first.',
       'hint.none': 'Pick the build that matches your device, or use the web version if there is no installer.',
+
       'primary.windows': 'Download NovaForge Flash',
-      'primary.android': 'Download Android v0.1.0',
+      'primary.android': 'Download Android build',
       'primary.macos': 'Download NovaForge Studio',
       'primary.linux': 'Download Linux build',
-      'primary.harmony': 'Download HarmonyOS HAP',
-      'primary.ios': 'Download iOS v0.1.0 (unsigned)',
+      'primary.harmony': 'Download HarmonyOS build',
+      'primary.ios': 'Download iOS build',
       'primary.weapp': 'Mini Program coming soon',
       'primary.web': 'Use web version',
-      'btn.copy': 'Copy',
 
       /* ---- download ---- */
-      'dl.h2': 'Choose your install',
-      'dl.p': 'Desktop builds come as two separate installers, Flash and Studio — install either or both. The web version needs no installation at all.',
+      'dl.h2': 'Download',
+      'dl.p': 'Pick the installer for your device. On desktop, Flash and Studio are two separate installers — install either or both.',
+      'dl.group.desktop': 'Desktop',
+      'dl.group.mobile': 'Mobile',
+      'dl.group.web': 'No install',
+      'dl.note.summary': 'Install notes and checksums',
+      'dl.foot': 'All installers are also listed on the',
+      'dl.foot2': 'with full version history and checksums.',
 
-      'flash.meta': 'Windows 10 / 11 · macOS 12+ · x64 / Apple Silicon',
-      'flash.desc': 'Built for flashing: import .bin / .hex and flash directly, compile projects, monitor the serial port, control Wi-Fi pins and integrate with Home Assistant. No AI included.',
-      'btn.win': 'Windows',
-      'btn.macArm': 'macOS Apple Silicon',
-      'btn.macIntel': 'macOS Intel',
-
-      'studio.meta': 'Windows · macOS',
-      'studio.desc': 'AI built in: generate and modify firmware, create project files and explain errors through conversation. Also supports code / block programming and one-click flashing.',
-      'studio.hashNote': 'The Windows installer is signed with a local code-signing certificate (CN=中文程助手). If SmartScreen appears during installation, choose “More info → Run anyway”.',
+      'win.sub': 'Windows 10 22H2 and above · x64',
+      'mac.sub': 'macOS 12 Monterey and above · Apple Silicon / Intel',
+      'linux.sub': 'Ubuntu 22.04 / Debian 12 and above · x64',
+      'android.sub': 'Android 7.0 and above · arm64 / armeabi-v7a',
+      'ios.sub': 'iOS 15 and above · iPhone / iPad',
+      'harmony.sub': 'HarmonyOS NEXT · Phone / Tablet',
+      'web.sub': 'Latest Chrome / Edge / Safari',
+      'weapp.sub': 'WeChat 8.0 and above',
 
       'card.web': 'Web version',
       'card.weapp': 'WeChat Mini Program',
       'card.harmony': 'HarmonyOS',
-      'web.meta': 'Runs in your browser · No install',
-      'web.desc': 'Open it in any mobile or desktop browser. Sign in with the same account to view devices, scenes and automations, with the AI assistant built in.',
-      'web.btn': 'Open web version',
+
+      'f.installer': 'Installer',
+      'f.noinstall': 'Portable',
+      'f.direct': 'Direct install',
+
+      'btn.download': 'Download',
+      'btn.copy': 'Copy',
+      'btn.releases': 'releases page',
+
+      'win.note': 'The installer is signed with a local code-signing certificate (CN=中文程助手). If SmartScreen appears on first run, choose “More info → Run anyway”.',
+      'mac.note': 'If macOS reports an unverified developer on first launch, allow it under System Settings → Privacy & Security.',
+      'linux.note': 'Install the deb with sudo dpkg -i; for the AppImage, make it executable and run it directly.',
+      'android.note': 'Allow “Install unknown apps” in system settings before installing.',
+      'ios.note': 'Shares one account with desktop, direct Bluetooth connection and LAN discovery, with the AI assistant built in.',
+      'harmony.note': 'A native HarmonyOS app sharing one account with desktop, with the AI assistant built in.',
+
       'tag.online': 'Available online',
-
-      'android.meta': 'Android 7.0 and above',
-      'android.desc': 'Shares one account with desktop, direct Bluetooth connection and LAN discovery, with the AI assistant built in.',
-      'android.btn': 'Download APK',
-      'btn.releases': 'View releases',
-
-      'weapp.meta': 'No install · Opens in WeChat',
-      'weapp.desc': 'A lightweight entry point sharing the same account as the app. AI is not offered here due to platform category rules.',
-      'weapp.btn': 'Coming soon',
       'tag.afterReview': 'After review',
 
-      'linux.meta': 'AppImage / deb · x64',
-      'linux.desc': 'Both Flash and Studio support Linux. AppImage runs without installation; the deb package targets Debian / Ubuntu distributions. Studio includes AI, Flash does not.',
-      'linux.btn.deb': 'Download deb',
+      'web.name': 'Open in your browser',
+      'web.meta': 'No install · Works on phone and desktop',
+      'web.btn': 'Open',
 
-      'ios.meta': 'iOS 15 and above · iPhone / iPad',
-      'ios.desc': 'Shares one account with desktop, direct Bluetooth connection and LAN discovery, with the AI assistant built in. The current IPA is unsigned — re-sign it with your own Apple ID via AltStore / Sideloadly / Xcode before installing. An App Store release requires a paid Apple Developer account.',
-      'ios.btn': 'Download IPA',
-
-      'harmony.meta': 'HarmonyOS NEXT · Phone / Tablet',
-      'harmony.desc': 'A native HarmonyOS app sharing one account with desktop, with the AI assistant built in. The current build is debug-signed and requires whitelisting your device in Huawei AGC. The public release awaits a release certificate and profile.',
-      'harmony.btn': 'Download HAP',
-      'tag.debugSign': 'Debug signed',
+      'weapp.name': 'Opens in WeChat',
+      'weapp.meta': 'No install · Shares the app account',
+      'weapp.btn': 'Coming soon',
 
       /* ---- features ---- */
       'feat.h2': 'Two apps, two jobs',
@@ -262,7 +274,7 @@
 
       /* ---- requirements ---- */
       'req.h2': 'System requirements',
-      'req.p': 'The Windows installer is unsigned. If SmartScreen appears on first run, choose “More info → Run anyway”. On macOS, if the developer cannot be verified, allow it under System Settings → Privacy & Security.',
+      'req.p': 'If SmartScreen appears on first run of the Windows installer, choose “More info → Run anyway”. On macOS, if the developer cannot be verified, allow it under System Settings → Privacy & Security.',
       'req.th.platform': 'Platform',
       'req.th.min': 'Minimum version',
       'req.th.arch': 'Architecture',
@@ -275,8 +287,6 @@
       'req.wechat': 'WeChat 8.0 and above',
       'status.released': 'Released 0.1.0',
       'status.online': 'Available online',
-      'status.ipa': 'Unsigned IPA released 0.1.0',
-      'status.debug': 'Debug signed',
       'status.review': 'After review',
 
       /* ---- FAQ ---- */
@@ -292,7 +302,7 @@
       'faq5.q': 'Which development boards are supported?',
       'faq5.a': 'The full ESP32 family (including S3 / C3 / C6), ESP8266, Raspberry Pi Pico (RP2040) and Arduino AVR boards. Raspberry Pi Linux boards are deployed over SSH.',
       'faq6.q': 'What if the installer says the publisher is unknown?',
-      'faq6.a': 'The current Windows installer does not yet use a purchased code-signing certificate. Click “More info → Run anyway” to finish installing; you can verify the checksum on the Releases page.',
+      'faq6.a': 'Click “More info → Run anyway” to finish installing; you can verify the checksum on the Releases page.',
 
       /* ---- footer ---- */
       'footer.slogan': 'Flash flashing · Studio AI coding · Web version',

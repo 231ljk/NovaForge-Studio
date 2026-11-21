@@ -71,7 +71,7 @@
   var SPLIT_PARTS = 5;
 
   var LANG_KEY = 'nf-lang';
-  var CACHE_KEY = 'nf-assets-v2';
+  var CACHE_KEY = 'nf-assets-v3';
   var CACHE_TTL = 10 * 60 * 1000;
 
   /* ======================================================================
@@ -85,7 +85,9 @@
     ghTag: 'v0.1.0',
     cnTag: 'v0.1.0',
     ghAssets: null,
-    cnAssets: null
+    cnAssets: null,
+    ghSizes: {},
+    cnSizes: {}
   };
 
   /* ======================================================================
@@ -100,6 +102,11 @@
   }
 
   function detectLang() {
+    /* URL 参数优先：?lang=en / ?lang=zh，便于分享指定语言的链接 */
+    var q = '';
+    try { q = (new URLSearchParams(location.search).get('lang') || '').toLowerCase(); } catch (e) {}
+    if (q === 'zh' || q === 'en') return q;
+
     var saved = '';
     try { saved = localStorage.getItem(LANG_KEY) || ''; } catch (e) {}
     if (saved === 'zh' || saved === 'en') return saved;
@@ -211,7 +218,7 @@
   }
 
   /* ======================================================================
-     真实资产清单：拉取两个仓库的 Release 资产名
+     真实资产清单：拉取两个仓库的 Release 资产名与体积
      ====================================================================== */
   function readCache() {
     try {
@@ -231,25 +238,36 @@
     } catch (e) {}
   }
 
-  function applyAssets(ghNames, cnNames, ghTag, cnTag) {
+  function toSizeMap(assets) {
+    var m = {};
+    (assets || []).forEach(function (a) {
+      if (a && a.name && typeof a.size === 'number') m[a.name] = a.size;
+    });
+    return m;
+  }
+
+  function applyAssets(ghNames, cnNames, ghTag, cnTag, ghSizes, cnSizes) {
     state.ghAssets = {};
     ghNames.forEach(function (n) { state.ghAssets[n] = 1; });
     state.cnAssets = {};
     cnNames.forEach(function (n) { state.cnAssets[n] = 1; });
     state.ghTag = ghTag || 'v0.1.0';
     state.cnTag = cnTag || 'v0.1.0';
+    state.ghSizes = ghSizes || {};
+    state.cnSizes = cnSizes || {};
   }
 
   function loadAssets() {
     var cached = readCache();
     if (cached) {
-      applyAssets(cached.gh, cached.cn, cached.ghTag, cached.cnTag);
+      applyAssets(cached.gh, cached.cn, cached.ghTag, cached.cnTag, cached.ghSizes, cached.cnSizes);
       return Promise.resolve();
     }
 
     var ghP = fetchJSON(GH_API, 5000).then(function (j) {
       return {
         names: (j.assets || []).map(function (a) { return a.name; }),
+        sizes: toSizeMap(j.assets),
         tag: j.tag_name || ''
       };
     }).catch(function () { return null; });
@@ -257,6 +275,7 @@
     var cnP = fetchJSON(CN_API, 5000).then(function (j) {
       return {
         names: (j.assets || []).map(function (a) { return a.name; }),
+        sizes: toSizeMap(j.assets),
         tag: j.tag_name || ''
       };
     }).catch(function () { return null; });
@@ -265,9 +284,17 @@
       var gh = r[0], cn = r[1];
       var ghNames = (gh && gh.names.length) ? gh.names : GH_FALLBACK;
       var cnNames = (cn && cn.names.length) ? cn.names : CN_FALLBACK;
-      applyAssets(ghNames, cnNames, (gh && gh.tag) || 'v0.1.0', (cn && cn.tag) || 'v0.1.0');
+      applyAssets(
+        ghNames, cnNames,
+        (gh && gh.tag) || 'v0.1.0', (cn && cn.tag) || 'v0.1.0',
+        (gh && gh.sizes) || {}, (cn && cn.sizes) || {}
+      );
       if (gh || cn) {
-        writeCache({ gh: ghNames, cn: cnNames, ghTag: state.ghTag, cnTag: state.cnTag });
+        writeCache({
+          gh: ghNames, cn: cnNames,
+          ghTag: state.ghTag, cnTag: state.cnTag,
+          ghSizes: state.ghSizes, cnSizes: state.cnSizes
+        });
       }
     });
   }
@@ -322,19 +349,44 @@
     });
   }
 
+  /* 文件体积：从真实 Release 资产里取，取不到就留空 */
+  function formatSize(bytes) {
+    if (!bytes || bytes < 0) return '';
+    var mb = bytes / 1048576;
+    if (mb >= 1024) return (mb / 1024).toFixed(2) + ' GB';
+    if (mb >= 10) return mb.toFixed(1) + ' MB';
+    if (mb >= 1) return mb.toFixed(2) + ' MB';
+    return Math.max(1, Math.round(bytes / 1024)) + ' KB';
+  }
+
+  function fillSizes() {
+    $$('[data-size-for]').forEach(function (el) {
+      var name = el.getAttribute('data-size-for');
+      var bytes = 0;
+      if (state.mirror === 'cn' && state.cnSizes[name]) bytes = state.cnSizes[name];
+      else if (state.ghSizes[name]) bytes = state.ghSizes[name];
+      else if (state.cnSizes[name]) bytes = state.cnSizes[name];
+      el.textContent = formatSize(bytes);
+    });
+  }
+
   /* 国内线路下，Windows 安装包为 5 卷分卷，动态列出全部卷 */
   function renderSplitBox() {
     var old = document.getElementById('cnSplitBox');
     if (old && old.parentNode) old.parentNode.removeChild(old);
     if (!splitAvailable()) return;
 
-    var target = null;
-    $$('a[href]').forEach(function (a) {
-      if (!target && a.getAttribute('data-cn-split') === '1') target = a;
-    });
-    if (!target) return;
+    var host = document.getElementById('splitHost');
+    if (!host) {
+      /* 兜底：没有专用挂载点时，插到分卷下载按钮所在行的后面 */
+      var target = null;
+      $$('a[href]').forEach(function (a) {
+        if (!target && a.getAttribute('data-cn-split') === '1') target = a;
+      });
+      if (!target) return;
+      host = target.parentNode;
+    }
 
-    var host = target.parentNode;
     var box = document.createElement('div');
     box.id = 'cnSplitBox';
     box.className = 'cn-split';
@@ -349,7 +401,7 @@
     html += parts.join('+') + ' ' + SPLIT_BASE + '</code></p>';
 
     box.innerHTML = html;
-    host.parentNode.insertBefore(box, host.nextSibling);
+    host.appendChild(box);
   }
 
   /* ======================================================================
@@ -442,8 +494,10 @@
     var primary = $('#primaryDownload');
     var primaryText = $('#primaryDownloadText');
 
+    $$('.dl-card').forEach(function (c) { c.classList.remove('is-current'); });
+
     if (current) {
-      var card = $('.platform-card[data-platform="' + current + '"]');
+      var card = $('.dl-card[data-platform="' + current + '"]');
       if (card) card.classList.add('is-current');
 
       if (hint) {
@@ -477,6 +531,7 @@
   function renderAll() {
     applyPlatformLinks();
     rewriteStaticLinks();
+    fillSizes();
     renderSplitBox();
     updateRouteUI();
   }
@@ -598,7 +653,7 @@
   /* ======================================================================
      入场动画
      ====================================================================== */
-  var reveals = $$('.platform-card, .feature, .req-table, .faq, .section-head');
+  var reveals = $$('.dl-card, .feature, .table-wrap, .faq, .section-head');
   if ('IntersectionObserver' in window) {
     reveals.forEach(function (el, i) {
       el.classList.add('reveal');
@@ -628,7 +683,7 @@
   applyI18n();
 
   /* 首屏：先用兜底清单 + 时区猜测渲染，避免白屏等待 */
-  applyAssets(GH_FALLBACK, CN_FALLBACK, 'v0.1.0', 'v0.1.0');
+  applyAssets(GH_FALLBACK, CN_FALLBACK, 'v0.1.0', 'v0.1.0', {}, {});
   state.mirror = tzRegion() === 'CN' ? 'cn' : 'global';
   renderAll();
 
