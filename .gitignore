@@ -32,14 +32,30 @@ tmp/
 .cache/
 
 # Keep distributable Electron resources, never large model weights
+# build/mimo 下的 llama-server.exe 属本地运行时二进制，不进版本库（打包时本地存在即可）
 build/*
 !build/icon.png
 !build/icon.ico
 !build/entitlements.mac.plist
 !build/license.txt
-!build/mimo/
-!build/mimo/**
+build/mimo/
 *.gguf
+
+# 安装包产物：由 GitHub / Gitee Release 分发，不进版本库
+site/downloads/
+
+# 运营与上架材料（应用宝材料、软著源码、客服知识库、内部计划文档）
+store/
+.trae/
+客服知识库-*
+
+# 编辑器/工具缓存与临时备份
+*.bak
+*.salive
+.kotlin/
+.pai/
+.tmp-shots/
+.trae-html-share-packages/
 
 # Native build outputs
 android/.gradle/

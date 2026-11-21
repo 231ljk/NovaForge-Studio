@@ -19,7 +19,10 @@ import type { AuthProvider, AuthState, AuthUser } from '../shared/auth'
 // ⚠ 应用详情页的"回调地址 URL"必须与下面完全一致：
 //    http://127.0.0.1:5599/oauth/callback
 const GITEE_CLIENT_ID = '4df6312f85d1a4da8739016f260fb7e08b0ec221a9a520ce359189a14cc0c479'
-const GITEE_CLIENT_SECRET = '72a29395cf37fc03dc3b72ac22496a0c4df1ec2c74ef11ddc771053164ce4997'
+// client_secret 由构建时从 .env.local 注入（见 electron.vite.config.ts），严禁硬编码入库
+declare const __NF_GITEE_CLIENT_SECRET__: string
+const GITEE_CLIENT_SECRET =
+  typeof __NF_GITEE_CLIENT_SECRET__ !== 'undefined' ? __NF_GITEE_CLIENT_SECRET__ : ''
 const GITEE_REDIRECT_URI = 'http://127.0.0.1:5599/oauth/callback'
 const GITEE_CALLBACK_PORT = 5599
 
@@ -331,6 +334,14 @@ export class AuthService {
   }
 
   private async finishGiteeLogin(code: string): Promise<void> {
+    if (!GITEE_CLIENT_SECRET) {
+      this.state = {
+        phase: 'error',
+        provider: 'gitee',
+        error: '构建缺少 NF_GITEE_CLIENT_SECRET，请在 .env.local 配置后重新构建'
+      }
+      return
+    }
     try {
       const resp = await fetch('https://gitee.com/oauth/token', {
         method: 'POST',
