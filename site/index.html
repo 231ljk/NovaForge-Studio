@@ -49,7 +49,7 @@
     <div class="wrap hero-inner">
       <span class="pill">
         <span class="dot"></span>
-        <span data-i18n="hero.pill">v0.1.0 · 全平台已发布</span>
+        <span data-i18n="hero.pill">v0.1.0 · 已发布 Linux / macOS / 鸿蒙 / Windows / Android</span>
       </span>
       <h1 data-i18n="hero.h1">NovaForge 官方下载</h1>
       <p class="lede" data-i18n-html="hero.lede">
@@ -295,7 +295,7 @@
                 <h4>iOS</h4>
                 <p data-i18n="ios.sub">iOS 15 及以上 · iPhone / iPad</p>
               </div>
-              <span class="dl-badge">v0.1.0</span>
+              <span class="dl-badge wait" data-i18n="badge.pendingSign">待签名</span>
             </div>
 
             <ul class="dl-files">
@@ -304,14 +304,15 @@
                   <span class="f-name">NovaForge Studio</span>
                   <span class="f-meta">IPA<span class="f-size" data-size-for="NovaForge-Studio-0.1.0-ios-unsigned.ipa" data-size="744941"></span></span>
                 </div>
-                <a class="btn btn-primary btn-sm" href="https://github.com/231ljk/NovaForge-Studio/releases/latest/download/NovaForge-Studio-0.1.0-ios-unsigned.ipa" rel="noopener" id="iosDownload" data-i18n="btn.download">下载</a>
+                <a class="btn btn-primary btn-sm" href="https://github.com/231ljk/NovaForge-Studio/releases/latest" rel="noopener" data-i18n="btn.releases">查看发布页</a>
               </li>
             </ul>
 
-            <details class="dl-note">
+            <details class="dl-note" open>
               <summary data-i18n="dl.note.summary">安装说明与校验值</summary>
               <div class="dl-note-body">
-                <p data-i18n="ios.note">与电脑同一账号互通，蓝牙直连与局域网发现，内置 AI 助手。</p>
+                <p data-i18n="ios.pending">正式 IPA 需要 Apple Developer 证书与描述文件签名；当前 Release 中的 iOS 构建为未签名开发归档，无法直接安装到 iPhone / iPad。拿到签名材料后将重新发布签名版 IPA。</p>
+                <p data-i18n="ios.note">与电脑同一账号互通，蓝牙直连与局域网发现，内置 AI 助手。签名完成后可在 App Store Connect 分发。</p>
                 <p class="hash-line">SHA-256 <code id="ipaHash">6996C6C747E59C47B9898B9522A3DB32068B39E86D1AC24A87018DFF004F3A13</code>
                   <button class="copy-btn" id="copyIpaHash" type="button" data-i18n="btn.copy">复制</button>
                 </p>
@@ -482,7 +483,7 @@
             <tr><td>NovaForge Flash / Studio</td><td>Ubuntu 22.04 / Debian 12</td><td>x64</td><td><span class="status ok" data-i18n="status.released">已发布 0.1.0</span></td></tr>
             <tr><td data-i18n="req.webapp">网页版</td><td data-i18n="req.browser">Chrome / Edge / Safari 最新版</td><td>—</td><td><span class="status ok" data-i18n="status.online">在线可用</span></td></tr>
             <tr><td>Android</td><td>7.0（API 24）</td><td>arm64-v8a / armeabi-v7a</td><td><span class="status ok" data-i18n="status.released">已发布 0.1.0</span></td></tr>
-            <tr><td>iOS</td><td>iOS 15</td><td>iPhone / iPad</td><td><span class="status ok" data-i18n="status.released">已发布 0.1.0</span></td></tr>
+            <tr><td>iOS</td><td>iOS 15</td><td>iPhone / iPad</td><td><span class="status wait" data-i18n="status.pendingSign">待 Apple 签名</span></td></tr>
             <tr><td data-i18n="req.harmony">鸿蒙 HarmonyOS</td><td>HarmonyOS NEXT</td><td data-i18n="req.device">手机 / 平板</td><td><span class="status ok" data-i18n="status.released">已发布 0.1.0</span></td></tr>
             <tr><td data-i18n="req.weapp">微信小程序</td><td data-i18n="req.wechat">微信 8.0 及以上</td><td>—</td><td><span class="status wait" data-i18n="status.review">过审后开放</span></td></tr>
           </tbody>

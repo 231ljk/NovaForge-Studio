@@ -24,7 +24,7 @@
       'lang.aria': '切换到英文',
 
       /* ---- Hero ---- */
-      'hero.pill': 'v0.1.0 · 全平台已发布',
+      'hero.pill': 'v0.1.0 · 已发布 Linux / macOS / 鸿蒙 / Windows / Android',
       'hero.h1': 'NovaForge 官方下载',
       'hero.lede': '<b>Flash</b> 负责固件编译、烧录与串口调试，<b>Studio</b> 内置 AI 用对话生成固件与项目文件。桌面端、手机端与免安装网页版使用同一账号，配置自动同步。',
       'hero.cta.webapp': '打开网页版',
@@ -43,7 +43,7 @@
       'primary.macos': '下载 NovaForge Studio',
       'primary.linux': '下载 Linux 版',
       'primary.harmony': '下载鸿蒙版',
-      'primary.ios': '下载 iOS 版',
+      'primary.ios': 'iOS 待签名 · 用网页版',
       'primary.weapp': '小程序即将开放',
       'primary.web': '使用网页版',
 
@@ -74,6 +74,8 @@
       'f.noinstall': '免安装',
       'f.direct': '直接安装',
 
+      'badge.pendingSign': '待签名',
+
       'btn.download': '下载',
       'btn.copy': '复制',
       'btn.releases': '发布页',
@@ -82,7 +84,8 @@
       'mac.note': '首次打开若提示无法验证开发者，请在「系统设置 → 隐私与安全性」中允许打开。',
       'linux.note': 'deb 包使用 sudo dpkg -i 安装；AppImage 下载后赋予可执行权限即可直接运行。',
       'android.note': '安装前请在系统设置中允许「安装未知来源应用」。',
-      'ios.note': '与电脑同一账号互通，蓝牙直连与局域网发现，内置 AI 助手。',
+      'ios.pending': '正式 IPA 需要 Apple Developer 证书与描述文件签名；当前 Release 中的 iOS 构建为未签名开发归档，无法直接安装到 iPhone / iPad。拿到签名材料后将重新发布签名版 IPA。',
+      'ios.note': '与电脑同一账号互通，蓝牙直连与局域网发现，内置 AI 助手。签名完成后可在 App Store Connect 分发。',
       'harmony.note': '原生鸿蒙应用，与电脑同一账号互通，内置 AI 助手。',
 
       'tag.online': '在线可用',
@@ -124,6 +127,7 @@
       'status.released': '已发布 0.1.0',
       'status.online': '在线可用',
       'status.review': '过审后开放',
+      'status.pendingSign': '待 Apple 签名',
 
       /* ---- FAQ ---- */
       'faq.h2': '常见问题',
@@ -207,7 +211,7 @@
       'lang.aria': 'Switch to Chinese',
 
       /* ---- Hero ---- */
-      'hero.pill': 'v0.1.0 · Released on all platforms',
+      'hero.pill': 'v0.1.0 · Released Linux / macOS / HarmonyOS / Windows / Android',
       'hero.h1': 'Download NovaForge',
       'hero.lede': '<b>Flash</b> handles firmware compilation, flashing and serial debugging. <b>Studio</b> embeds AI to generate firmware and project files from a conversation. Desktop, mobile and the no-install web version share one account, so settings sync automatically.',
       'hero.cta.webapp': 'Open web version',
@@ -226,7 +230,7 @@
       'primary.macos': 'Download NovaForge Studio',
       'primary.linux': 'Download Linux build',
       'primary.harmony': 'Download HarmonyOS build',
-      'primary.ios': 'Download iOS build',
+      'primary.ios': 'iOS pending sign · use web version',
       'primary.weapp': 'Mini Program coming soon',
       'primary.web': 'Use web version',
 
@@ -257,6 +261,8 @@
       'f.noinstall': 'Portable',
       'f.direct': 'Direct install',
 
+      'badge.pendingSign': 'Pending signature',
+
       'btn.download': 'Download',
       'btn.copy': 'Copy',
       'btn.releases': 'releases page',
@@ -265,7 +271,8 @@
       'mac.note': 'If macOS reports an unverified developer on first launch, allow it under System Settings → Privacy & Security.',
       'linux.note': 'Install the deb with sudo dpkg -i; for the AppImage, make it executable and run it directly.',
       'android.note': 'Allow “Install unknown apps” in system settings before installing.',
-      'ios.note': 'Shares one account with desktop, direct Bluetooth connection and LAN discovery, with the AI assistant built in.',
+      'ios.pending': 'A production IPA requires an Apple Developer certificate and provisioning profile. The current iOS build in the Release is an unsigned development archive that cannot be installed directly on iPhone / iPad. Once signing material is available, a signed IPA will be republished.',
+      'ios.note': 'Shares one account with desktop, direct Bluetooth connection and LAN discovery, with the AI assistant built in. After signing it can be distributed via App Store Connect.',
       'harmony.note': 'A native HarmonyOS app sharing one account with desktop, with the AI assistant built in.',
 
       'tag.online': 'Available online',
@@ -307,6 +314,7 @@
       'status.released': 'Released 0.1.0',
       'status.online': 'Available online',
       'status.review': 'After review',
+      'status.pendingSign': 'Pending Apple signature',
 
       /* ---- FAQ ---- */
       'faq.h2': 'Frequently asked questions',

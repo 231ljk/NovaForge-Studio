@@ -387,6 +387,7 @@ svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width:
   white-space: nowrap;
 }
 .dl-badge-ok { background: var(--brand-soft); color: var(--brand); }
+.dl-badge.wait { background: var(--surface-2); color: var(--text-muted); border: 1px dashed var(--line); }
 
 /* 文件行 */
 .dl-files { border-top: 1px solid var(--line); }

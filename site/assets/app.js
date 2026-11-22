@@ -485,7 +485,7 @@
       case 'macos': return 'NovaForge-Studio-0.1.0-arm64.dmg';
       case 'linux': return 'NovaForge-Studio-0.1.0-amd64.deb';
       case 'harmony': return 'NovaForge-Studio-0.1.0-harmony-signed.hap';
-      case 'ios': return 'NovaForge-Studio-0.1.0-ios-unsigned.ipa';
+      case 'ios': return '';
       default: return '';
     }
   }
@@ -503,7 +503,7 @@
       if (card) card.classList.add('is-current');
 
       if (hint) {
-        var ready = current === 'android' || current === 'windows' || current === 'macos' || current === 'linux';
+        var ready = current === 'android' || current === 'windows' || current === 'macos' || current === 'linux' || current === 'harmony';
         var tpl = ready ? t('hint.ready') : t('hint.web');
         hint.innerHTML = tpl.replace('{p}', PLATFORM_LABEL[current] || current);
       }
