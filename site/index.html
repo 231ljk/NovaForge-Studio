@@ -47,26 +47,74 @@
   <!-- Hero -->
   <section class="hero">
     <div class="wrap hero-inner">
-      <span class="pill">
-        <span class="dot"></span>
-        <span data-i18n="hero.pill">v0.1.0 · 已发布 Linux / macOS / 鸿蒙 / Windows / Android</span>
-      </span>
-      <h1 data-i18n="hero.h1">NovaForge 官方下载</h1>
-      <p class="lede" data-i18n-html="hero.lede">
-        <b>Flash</b> 负责固件编译、烧录与串口调试，<b>Studio</b> 内置 AI 用对话生成固件与项目文件。
-        桌面端、手机端与免安装网页版使用同一账号，配置自动同步。
-      </p>
+      <div class="hero-copy">
+        <span class="pill">
+          <span class="dot"></span>
+          <span data-i18n="hero.pill">v0.1.0 · 已发布 Linux / macOS / 鸿蒙 / Windows / Android</span>
+        </span>
+        <h1 data-i18n="hero.h1">NovaForge 官方下载</h1>
+        <p class="lede" data-i18n-html="hero.lede">
+          <b>Flash</b> 负责固件编译、烧录与串口调试，<b>Studio</b> 内置 AI 用对话生成固件与项目文件。
+          桌面端、手机端与免安装网页版使用同一账号，配置自动同步。
+        </p>
 
-      <div class="hero-cta">
-        <a class="btn btn-primary btn-lg" id="primaryDownload"
-           href="https://github.com/231ljk/NovaForge-Studio/releases/latest">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14"/></svg>
-          <span id="primaryDownloadText" data-i18n="primary.windows">下载 NovaForge Flash</span>
-        </a>
-        <a class="btn btn-outline btn-lg" href="app/" data-i18n="hero.cta.webapp">打开网页版</a>
+        <div class="hero-cta">
+          <a class="btn btn-primary btn-lg" id="primaryDownload"
+             href="https://github.com/231ljk/NovaForge-Studio/releases/latest">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14"/></svg>
+            <span id="primaryDownloadText" data-i18n="primary.windows">下载 NovaForge Flash</span>
+          </a>
+          <a class="btn btn-outline btn-lg" href="app/" data-i18n="hero.cta.webapp">打开网页版</a>
+        </div>
+
+        <p class="hero-note" id="uaHint" data-i18n="hero.hint.detecting">正在识别你的设备…</p>
       </div>
 
-      <p class="hero-note" id="uaHint" data-i18n="hero.hint.detecting">正在识别你的设备…</p>
+      <!-- 产品预览：纯 CSS 绘制的示意窗口，无外部图片 -->
+      <div class="hero-visual" aria-hidden="true">
+        <div class="mock-window">
+          <div class="mock-bar">
+            <span class="mock-dots"><i></i><i></i><i></i></span>
+            <span class="mock-title">NovaForge Studio — main.cpp</span>
+            <span class="mock-badge">AI</span>
+          </div>
+          <div class="mock-body">
+            <aside class="mock-side">
+              <span class="mock-side-title">EXPLORER</span>
+              <span class="mock-file is-active">main.cpp</span>
+              <span class="mock-file">platformio.ini</span>
+              <span class="mock-file">wifi.h</span>
+              <span class="mock-file">mqtt.cpp</span>
+              <span class="mock-side-title">BOARDS</span>
+              <span class="mock-file">ESP32-S3</span>
+            </aside>
+            <div class="mock-main">
+              <div class="mock-tabs"><span class="is-active">main.cpp</span><span>serial</span></div>
+              <div class="mock-code">
+                <div class="mock-line"><span class="ln">1</span><span><span class="k">#include</span> <span class="s">&lt;WiFi.h&gt;</span></span></div>
+                <div class="mock-line"><span class="ln">2</span><span><span class="k">#include</span> <span class="s">&lt;PubSubClient.h&gt;</span></span></div>
+                <div class="mock-line"><span class="ln">3</span><span>&nbsp;</span></div>
+                <div class="mock-line"><span class="ln">4</span><span><span class="k">void</span> <span class="f">setup</span>() {</span></div>
+                <div class="mock-line"><span class="ln">5</span><span>&nbsp;&nbsp;<span class="n">Serial</span>.<span class="f">begin</span>(<span class="n">115200</span>);</span></div>
+                <div class="mock-line"><span class="ln">6</span><span>&nbsp;&nbsp;<span class="n">wifi</span>.<span class="f">connect</span>(<span class="s">"home-iot"</span>);</span></div>
+                <div class="mock-line"><span class="ln">7</span><span>&nbsp;&nbsp;<span class="n">ha</span>.<span class="f">discover</span>(<span class="s">"living-room"</span>);</span></div>
+                <div class="mock-line"><span class="ln">8</span><span>}</span></div>
+              </div>
+              <div class="mock-status">
+                <span class="mock-status-left"><i class="status-dot"></i> ESP32-S3 · COM3</span>
+                <span class="mock-progress"><i></i></span>
+                <span class="mock-status-right">100%</span>
+              </div>
+              <div class="mock-terminal">
+                <span>✓ build finished · 4.2s</span>
+                <span>✓ flashed 1.24 MB · 0 errors</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="mock-float mock-float-a"><span class="mock-float-dot"></span> WiFi connected</span>
+        <span class="mock-float mock-float-b"><b>AI</b> main.cpp generated</span>
+      </div>
 
       <dl class="hero-meta">
         <div>
@@ -525,6 +573,22 @@
     </div>
   </section>
 
+  <!-- 结尾 CTA -->
+  <section class="cta-band" aria-labelledby="ctaTitle">
+    <div class="wrap">
+      <div class="cta-inner">
+        <div class="cta-copy">
+          <h2 id="ctaTitle" data-i18n="cta.h2">从第一块开发板开始</h2>
+          <p data-i18n="cta.p">下载对应平台的安装包，或用浏览器直接打开网页版。桌面端、手机端与网页版使用同一账号，配置自动同步。</p>
+        </div>
+        <div class="cta-actions">
+          <a class="btn btn-primary btn-lg" href="#download" data-i18n="nav.download">下载</a>
+          <a class="btn btn-outline btn-lg" href="app/" data-i18n="nav.webapp">打开网页版</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <footer class="footer">
@@ -546,6 +610,7 @@
       <a href="https://github.com/231ljk/NovaForge-Studio" id="repoLink" rel="noopener" data-repo-page data-i18n="footer.repo">代码仓库</a>
     </div>
   </div>
+  <p class="footer-wordmark" aria-hidden="true">NovaForge</p>
   <div class="wrap footer-bottom">
     <div class="mirror-status" id="mirrorStatus">
       <span class="mirror-label" data-i18n="mirror.label">下载线路</span>

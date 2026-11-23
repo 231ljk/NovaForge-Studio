@@ -846,7 +846,7 @@
   /* ======================================================================
      入场动画
      ====================================================================== */
-  var reveals = $$('.dl-card, .feature, .table-wrap, .faq, .section-head');
+  var reveals = $$('.dl-card, .feature, .table-wrap, .faq, .section-head, .cta-inner');
   if ('IntersectionObserver' in window) {
     reveals.forEach(function (el, i) {
       el.classList.add('reveal');

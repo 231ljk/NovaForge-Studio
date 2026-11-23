@@ -144,6 +144,10 @@
       'faq6.q': '安装包提示未知发布者怎么办？',
       'faq6.a': '点击「更多信息 → 仍要运行」即可完成安装；校验值可在 Releases 页面核对。',
 
+      /* ---- 结尾 CTA ---- */
+      'cta.h2': '从第一块开发板开始',
+      'cta.p': '下载对应平台的安装包，或用浏览器直接打开网页版。桌面端、手机端与网页版使用同一账号，配置自动同步。',
+
       /* ---- 页脚 ---- */
       'footer.slogan': 'Flash 烧录 · Studio AI 编程 · 网页版',
       'footer.download': '下载',
@@ -330,6 +334,10 @@
       'faq5.a': 'The full ESP32 family (including S3 / C3 / C6), ESP8266, Raspberry Pi Pico (RP2040) and Arduino AVR boards. Raspberry Pi Linux boards are deployed over SSH.',
       'faq6.q': 'What if the installer says the publisher is unknown?',
       'faq6.a': 'Click “More info → Run anyway” to finish installing; you can verify the checksum on the Releases page.',
+
+      /* ---- closing CTA ---- */
+      'cta.h2': 'Start with your first board',
+      'cta.p': 'Download the installer for your platform, or open the web version right in your browser. Desktop, mobile and web share one account, so settings sync automatically.',
 
       /* ---- footer ---- */
       'footer.slogan': 'Flash flashing · Studio AI coding · Web version',
