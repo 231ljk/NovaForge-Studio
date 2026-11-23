@@ -874,7 +874,6 @@
      ====================================================================== */
   state.lang = detectLang();
   applyI18n();
-  csRenderChips();
 
   /* 首屏：先用兜底清单 + 时区猜测渲染，避免白屏等待 */
   applyAssets(GH_FALLBACK, CN_FALLBACK, 'v0.1.0', 'v0.1.0', {}, {});
