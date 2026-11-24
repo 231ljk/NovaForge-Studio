@@ -438,18 +438,19 @@
                 <h4 data-i18n="card.weapp">微信小程序</h4>
                 <p data-i18n="weapp.sub">微信 8.0 及以上</p>
               </div>
-              <span class="dl-badge" data-i18n="tag.afterReview">过审后开放</span>
+              <span class="dl-badge dl-badge-ok" data-i18n="tag.online">在线可用</span>
             </div>
 
-            <ul class="dl-files">
-              <li>
-                <div class="f-info">
-                  <span class="f-name" data-i18n="weapp.name">微信内打开</span>
-                  <span class="f-meta" data-i18n="weapp.meta">无需安装 · 与 App 共用账号</span>
-                </div>
-                <button class="btn btn-soft btn-sm" id="weappBtn" type="button" data-i18n="weapp.btn">敬请期待</button>
-              </li>
-            </ul>
+            <div class="weapp-open">
+              <a class="weapp-qr" href="assets/weapp-code.png" target="_blank" rel="noopener" aria-label="查看 NovaForge 微信小程序码大图">
+                <img src="assets/weapp-code.png" width="847" height="848" alt="NovaForge 微信小程序码" loading="lazy">
+              </a>
+              <div class="weapp-copy">
+                <strong data-i18n="weapp.name">微信扫码打开</strong>
+                <p data-i18n="weapp.meta">无需安装 · 与 App 共用账号</p>
+                <span data-i18n="weapp.btn">手机可长按二维码识别</span>
+              </div>
+            </div>
           </article>
 
         </div>
@@ -529,7 +530,7 @@
             <tr><td>Android</td><td>7.0（API 24）</td><td>arm64-v8a / armeabi-v7a</td><td><span class="status ok" data-i18n="status.released">已发布 0.1.0</span></td></tr>
             <tr><td>iOS</td><td>iOS 15</td><td>iPhone / iPad</td><td><span class="status wait" data-i18n="status.pendingSign">待 Apple 签名</span></td></tr>
             <tr><td data-i18n="req.harmony">鸿蒙 HarmonyOS</td><td>HarmonyOS NEXT</td><td data-i18n="req.device">手机 / 平板</td><td><span class="status ok" data-i18n="status.released">已发布 0.1.0</span></td></tr>
-            <tr><td data-i18n="req.weapp">微信小程序</td><td data-i18n="req.wechat">微信 8.0 及以上</td><td>—</td><td><span class="status wait" data-i18n="status.review">过审后开放</span></td></tr>
+            <tr><td data-i18n="req.weapp">微信小程序</td><td data-i18n="req.wechat">微信 8.0 及以上</td><td>—</td><td><span class="status ok" data-i18n="status.online">在线可用</span></td></tr>
           </tbody>
         </table>
       </div>

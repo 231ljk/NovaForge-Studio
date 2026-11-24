@@ -44,7 +44,7 @@
       'primary.linux': '下载 Linux 版',
       'primary.harmony': '下载鸿蒙版',
       'primary.ios': 'iOS 待签名 · 用网页版',
-      'primary.weapp': '小程序即将开放',
+      'primary.weapp': '查看小程序码',
       'primary.web': '使用网页版',
 
       /* ---- 下载区 ---- */
@@ -89,15 +89,14 @@
       'harmony.note': '原生鸿蒙应用，与电脑同一账号互通，内置 AI 助手。',
 
       'tag.online': '在线可用',
-      'tag.afterReview': '过审后开放',
 
       'web.name': '浏览器直接打开',
       'web.meta': '无需安装 · 手机与电脑通用',
       'web.btn': '打开',
 
-      'weapp.name': '微信内打开',
+      'weapp.name': '微信扫码打开',
       'weapp.meta': '无需安装 · 与 App 共用账号',
-      'weapp.btn': '敬请期待',
+      'weapp.btn': '手机可长按二维码识别',
 
       /* ---- 功能 ---- */
       'feat.h2': '两款软件，各司其职',
@@ -126,7 +125,6 @@
       'req.wechat': '微信 8.0 及以上',
       'status.released': '已发布 0.1.0',
       'status.online': '在线可用',
-      'status.review': '过审后开放',
       'status.pendingSign': '待 Apple 签名',
 
       /* ---- FAQ ---- */
@@ -193,7 +191,6 @@
 
       'toast.copied': '校验值已复制',
       'toast.copyFail': '复制失败，请手动选中复制',
-      'toast.weapp': '微信小程序正式版过审后会在此开放入口',
       'toast.android': '开始下载，安装前请允许“安装未知来源应用”',
       'toast.lang': '已切换为中文'
     },
@@ -235,7 +232,7 @@
       'primary.linux': 'Download Linux build',
       'primary.harmony': 'Download HarmonyOS build',
       'primary.ios': 'iOS pending sign · use web version',
-      'primary.weapp': 'Mini Program coming soon',
+      'primary.weapp': 'View Mini Program code',
       'primary.web': 'Use web version',
 
       /* ---- download ---- */
@@ -280,15 +277,14 @@
       'harmony.note': 'A native HarmonyOS app sharing one account with desktop, with the AI assistant built in.',
 
       'tag.online': 'Available online',
-      'tag.afterReview': 'After review',
 
       'web.name': 'Open in your browser',
       'web.meta': 'No install · Works on phone and desktop',
       'web.btn': 'Open',
 
-      'weapp.name': 'Opens in WeChat',
+      'weapp.name': 'Open with WeChat',
       'weapp.meta': 'No install · Shares the app account',
-      'weapp.btn': 'Coming soon',
+      'weapp.btn': 'On mobile, touch and hold the code',
 
       /* ---- features ---- */
       'feat.h2': 'Two apps, two jobs',
@@ -317,7 +313,6 @@
       'req.wechat': 'WeChat 8.0 and above',
       'status.released': 'Released 0.1.0',
       'status.online': 'Available online',
-      'status.review': 'After review',
       'status.pendingSign': 'Pending Apple signature',
 
       /* ---- FAQ ---- */
@@ -384,7 +379,6 @@
 
       'toast.copied': 'Checksum copied',
       'toast.copyFail': 'Copy failed — please select and copy manually',
-      'toast.weapp': 'The WeChat Mini Program will open here once approved',
       'toast.android': 'Download started. Allow “Install unknown apps” before installing.',
       'toast.lang': 'Switched to English'
     }

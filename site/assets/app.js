@@ -622,15 +622,8 @@
   bindCopy('copyIpaHash', 'ipaHash');
 
   /* ======================================================================
-     未开放入口提示
+     下载反馈
      ====================================================================== */
-  var weappBtn = $('#weappBtn');
-  if (weappBtn) {
-    weappBtn.addEventListener('click', function () {
-      toast(t('toast.weapp'));
-    });
-  }
-
   var androidDownload = $('#androidDownload');
   if (androidDownload) {
     androidDownload.addEventListener('click', function () {

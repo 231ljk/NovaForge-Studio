@@ -1605,6 +1605,40 @@ svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width:
   body::after { display: none; }
 }
 
+/* ---------- 微信小程序 ---------- */
+.weapp-open {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin: 0 18px 18px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--surface-2);
+}
+.weapp-qr {
+  display: block;
+  flex: none;
+  width: 156px;
+  padding: 7px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .1);
+  transition: transform .25s var(--ease), box-shadow .25s var(--ease);
+}
+.weapp-qr:hover { transform: scale(1.035); box-shadow: 0 12px 32px rgba(0, 0, 0, .16); }
+.weapp-qr img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; }
+.weapp-copy { min-width: 0; }
+.weapp-copy strong { display: block; font-size: 16px; letter-spacing: -.01em; }
+.weapp-copy p { margin-top: 7px; color: var(--text-secondary); font-size: 13px; line-height: 1.6; }
+.weapp-copy > span { display: block; margin-top: 10px; color: var(--brand); font-size: 12px; font-weight: 600; }
+@media (max-width: 480px) {
+  .weapp-open { gap: 14px; margin-inline: 14px; padding: 13px; }
+  .weapp-qr { width: 128px; }
+  .weapp-copy strong { font-size: 15px; }
+  .weapp-copy p { font-size: 12px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .reveal { opacity: 1; transform: none; transition: none; }
