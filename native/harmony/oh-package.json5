@@ -1,0 +1,9 @@
+{
+  "name": "novaforge-studio-native",
+  "version": "0.1.0",
+  "description": "NovaForge Studio HarmonyOS native client",
+  "main": "",
+  "author": "NovaForge",
+  "license": "",
+  "dependencies": {}
+}

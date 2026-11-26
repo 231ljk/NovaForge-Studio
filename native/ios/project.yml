@@ -1,0 +1,20 @@
+name: NovaForgeStudio
+options:
+  bundleIdPrefix: com.novaforge
+  deploymentTarget:
+    iOS: "16.0"
+targets:
+  NovaForgeStudio:
+    type: application
+    platform: iOS
+    sources:
+      - Sources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.novaforge.studio
+        PRODUCT_NAME: NovaForge Studio
+        SWIFT_VERSION: "5.9"
+        INFOPLIST_KEY_UILaunchScreen_Generation: true
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription: 用于发现并连接附近的 ESP32 设备
+        INFOPLIST_KEY_NSLocalNetworkUsageDescription: 用于连接你的家庭服务器与局域网设备

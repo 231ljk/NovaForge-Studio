@@ -1,0 +1,9 @@
+**/build/
+**/.build/
+**/.gradle/
+**/DerivedData/
+**/local.properties
+**/*.xcarchive
+*.apk
+*.ipa
+*.zip

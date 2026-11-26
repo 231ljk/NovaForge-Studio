@@ -1,0 +1,83 @@
+name: Build Native Apple
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'native/macos/**'
+      - 'native/ios/**'
+      - '.github/workflows/native-apple.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  native-macos:
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build and package Studio
+        run: bash native/macos/package-app.sh NovaForgeStudio "NovaForge Studio" com.novaforge.studio 0.1.0
+        timeout-minutes: 20
+
+      - name: Build and package Flash
+        run: bash native/macos/package-app.sh NovaForgeFlash "NovaForge Flash" com.novaforge.flash 0.1.0
+        timeout-minutes: 20
+
+      - name: Upload native macOS apps
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-macos-apps
+          path: native/macos/build/*.zip
+          if-no-files-found: error
+
+  native-ios:
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate Xcode project
+        working-directory: native/ios
+        run: |
+          brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
+          xcodegen generate
+          test -d NovaForgeStudio.xcodeproj
+        timeout-minutes: 10
+
+      - name: Build unsigned native iOS app
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project native/ios/NovaForgeStudio.xcodeproj \
+            -scheme NovaForgeStudio \
+            -configuration Release \
+            -destination generic/platform=iOS \
+            -derivedDataPath native/ios/build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_IDENTITY="" \
+            build
+        timeout-minutes: 20
+
+      - name: Package unsigned IPA
+        run: |
+          set -euo pipefail
+          APP_PATH="native/ios/build/Build/Products/Release-iphoneos/NovaForgeStudio.app"
+          test -d "$APP_PATH"
+          rm -rf native/ios/build/Payload
+          mkdir -p native/ios/build/Payload
+          cp -R "$APP_PATH" native/ios/build/Payload/
+          cd native/ios/build
+          zip -qry NovaForge-Studio-native-0.1.0-ios-unsigned.ipa Payload
+          test -s NovaForge-Studio-native-0.1.0-ios-unsigned.ipa
+          ls -lh NovaForge-Studio-native-0.1.0-ios-unsigned.ipa
+
+      - name: Upload native iOS IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-ios-unsigned
+          path: native/ios/build/*.ipa
+          if-no-files-found: error
