@@ -65,8 +65,8 @@ jobs:
       - name: Package unsigned IPA
         run: |
           set -euo pipefail
-          APP_PATH="native/ios/build/Build/Products/Release-iphoneos/NovaForgeStudio.app"
-          test -d "$APP_PATH"
+          APP_PATH="$(find native/ios/build/Build/Products/Release-iphoneos -maxdepth 1 -name '*.app' -print -quit)"
+          test -n "$APP_PATH" && test -d "$APP_PATH"
           rm -rf native/ios/build/Payload
           mkdir -p native/ios/build/Payload
           cp -R "$APP_PATH" native/ios/build/Payload/
