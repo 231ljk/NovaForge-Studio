@@ -14,6 +14,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.novaforge.studio
         PRODUCT_NAME: NovaForge Studio
         SWIFT_VERSION: "5.9"
+        GENERATE_INFOPLIST_FILE: true
         INFOPLIST_KEY_UILaunchScreen_Generation: true
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
         INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription: 用于发现并连接附近的 ESP32 设备
