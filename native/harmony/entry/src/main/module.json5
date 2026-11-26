@@ -15,6 +15,9 @@
       {
         "name": "EntryAbility",
         "srcEntry": "./ets/entryability/EntryAbility.ets",
+        "icon": "$media:icon",
+        "startWindowIcon": "$media:icon",
+        "startWindowBackground": "$color:start_window_background",
         "description": "$string:EntryAbility_desc",
         "label": "$string:EntryAbility_label",
         "exported": true,

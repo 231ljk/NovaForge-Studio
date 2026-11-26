@@ -18,13 +18,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build and package Studio
-        run: bash native/macos/package-app.sh NovaForgeStudio "NovaForge Studio" com.novaforge.studio 0.1.0
-        timeout-minutes: 20
-
-      - name: Build and package Flash
-        run: bash native/macos/package-app.sh NovaForgeFlash "NovaForge Flash" com.novaforge.flash 0.1.0
-        timeout-minutes: 20
+      - name: Build and package macOS apps
+        run: |
+          set -euo pipefail
+          for arch in arm64 x86_64 universal; do
+            bash native/macos/package-app.sh NovaForgeStudio "NovaForge Studio" com.novaforge.studio 0.1.0 "$arch"
+            bash native/macos/package-app.sh NovaForgeFlash "NovaForge Flash" com.novaforge.flash 0.1.0 "$arch"
+          done
+        timeout-minutes: 40
 
       - name: Upload native macOS apps
         uses: actions/upload-artifact@v4

@@ -1,19 +1,37 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PRODUCT="${1:?用法: package-app.sh <product> <app-name> <bundle-id> [version]}"
+PRODUCT="${1:?用法: package-app.sh <product> <app-name> <bundle-id> [version] [arch]}"
 APP_NAME="${2:?缺少 App 名称}"
 BUNDLE_ID="${3:?缺少 Bundle ID}"
 VERSION="${4:-0.1.0}"
+ARCH_MODE="${5:-native}"
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 
+BUILD_ARGS=()
+case "$ARCH_MODE" in
+  native) ;;
+  arm64) BUILD_ARGS=(--arch arm64) ;;
+  x86_64) BUILD_ARGS=(--arch x86_64) ;;
+  universal) BUILD_ARGS=(--arch arm64 --arch x86_64) ;;
+  *) echo "未知架构: $ARCH_MODE" >&2; exit 1 ;;
+esac
+
 cd "$ROOT"
-swift build -c release --product "$PRODUCT"
-BIN_DIR="$(swift build -c release --product "$PRODUCT" --show-bin-path)"
+if [ ${#BUILD_ARGS[@]} -eq 0 ]; then
+  swift build -c release --product "$PRODUCT"
+  BIN_DIR="$(swift build -c release --product "$PRODUCT" --show-bin-path)"
+else
+  swift build -c release --product "$PRODUCT" "${BUILD_ARGS[@]}"
+  BIN_DIR="$(swift build -c release --product "$PRODUCT" "${BUILD_ARGS[@]}" --show-bin-path)"
+fi
 BINARY="$BIN_DIR/$PRODUCT"
 test -f "$BINARY"
 
-APP_DIR="$ROOT/build/$APP_NAME.app"
+ARCHS="$(lipo -archs "$BINARY")"
+echo "二进制架构: $ARCHS"
+
+APP_DIR="$ROOT/build/$ARCH_MODE/$APP_NAME.app"
 rm -rf "$APP_DIR"
 mkdir -p "$APP_DIR/Contents/MacOS"
 cp "$BINARY" "$APP_DIR/Contents/MacOS/$PRODUCT"
@@ -44,8 +62,7 @@ codesign --force --deep --sign - "$APP_DIR"
 codesign --verify --deep --strict "$APP_DIR"
 
 cd "$ROOT/build"
-ARCH="$(uname -m)"
-ZIP_NAME="${APP_NAME// /-}-native-$VERSION-macos-$ARCH.zip"
+ZIP_NAME="${APP_NAME// /-}-native-$VERSION-macos-$ARCH_MODE.zip"
 rm -f "$ZIP_NAME"
-zip -qry "$ZIP_NAME" "$APP_NAME.app"
+(cd "$ARCH_MODE" && zip -qry "../$ZIP_NAME" "$APP_NAME.app")
 ls -lh "$ZIP_NAME"

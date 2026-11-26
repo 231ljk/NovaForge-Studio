@@ -6,4 +6,7 @@
 **/*.xcarchive
 *.apk
 *.ipa
+*.hap
 *.zip
+**/.hvigor/
+**/oh_modules/
