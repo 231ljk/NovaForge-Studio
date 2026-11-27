@@ -1,4 +1,4 @@
-name: Build Native Apple
+﻿name: Build Native Apple
 
 on:
   workflow_dispatch:
@@ -22,8 +22,8 @@ jobs:
         run: |
           set -euo pipefail
           for arch in arm64 x86_64 universal; do
-            bash native/macos/package-app.sh NovaForgeStudio "NovaForge Studio" com.novaforge.studio 0.1.0 "$arch"
-            bash native/macos/package-app.sh NovaForgeFlash "NovaForge Flash" com.novaforge.flash 0.1.0 "$arch"
+            bash native/macos/package-app.sh NovaForgeStudio "NovaForge Studio" com.novaforge.studio 0.2.0 "$arch"
+            bash native/macos/package-app.sh NovaForgeFlash "NovaForge Flash" com.novaforge.flash 0.2.0 "$arch"
           done
         timeout-minutes: 40
 
@@ -72,9 +72,9 @@ jobs:
           mkdir -p native/ios/build/Payload
           cp -R "$APP_PATH" native/ios/build/Payload/
           cd native/ios/build
-          zip -qry NovaForge-Studio-native-0.1.0-ios-unsigned.ipa Payload
-          test -s NovaForge-Studio-native-0.1.0-ios-unsigned.ipa
-          ls -lh NovaForge-Studio-native-0.1.0-ios-unsigned.ipa
+          zip -qry NovaForge-Studio-native-0.2.0-ios-unsigned.ipa Payload
+          test -s NovaForge-Studio-native-0.2.0-ios-unsigned.ipa
+          ls -lh NovaForge-Studio-native-0.2.0-ios-unsigned.ipa
 
       - name: Upload native iOS IPA
         uses: actions/upload-artifact@v4
