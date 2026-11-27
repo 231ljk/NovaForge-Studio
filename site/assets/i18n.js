@@ -13,6 +13,7 @@
 
       /* ---- 顶栏 ---- */
       'brand.aria': 'NovaForge 首页',
+      'nav.portal': '开放平台',
       'nav.download': '下载',
       'nav.features': '功能',
       'nav.requirements': '系统要求',
@@ -210,6 +211,7 @@
 
       /* ---- topbar ---- */
       'brand.aria': 'NovaForge home',
+      'nav.portal': 'Open Platform',
       'nav.download': 'Download',
       'nav.features': 'Features',
       'nav.requirements': 'Requirements',
