@@ -23,8 +23,15 @@
   var GH_API = 'https://api.github.com/repos/' + GH_OWNER + '/' + GH_REPO + '/releases/latest';
   var CN_API = 'https://gitee.com/api/v5/repos/' + CN_OWNER + '/' + CN_REPO + '/releases/latest';
 
-  var GH_BASE = 'https://github.com/' + GH_OWNER + '/' + GH_REPO + '/releases/latest/download/';
+  var GH_BASE = 'https://github.com/' + GH_OWNER + '/' + GH_REPO + '/releases/download/';
   var CN_BASE = 'https://gitee.com/' + CN_OWNER + '/' + CN_REPO + '/releases/download/';
+
+  /* v0.2.0 只有原生版（macOS / iOS / Android / 鸿蒙），Windows / Linux 仍留在 v0.1.0。
+     按文件名里的版本号拼出固定版本 URL，避免 latest 指向 v0.2.0 后旧包 404 */
+  function versionFor(file) {
+    var m = /-(\d+\.\d+\.\d+)(?:-|\.)/.exec(file);
+    return m ? 'v' + m[1] : 'v0.2.0';
+  }
 
   var GH_REPO_PAGE = 'https://github.com/' + GH_OWNER + '/' + GH_REPO;
   var CN_REPO_PAGE = 'https://gitee.com/' + CN_OWNER + '/' + CN_REPO;
@@ -36,29 +43,24 @@
 
   /* 接口不可用时的静态兜底清单（仅用于首屏占位，接口返回后以真实清单为准） */
   var GH_FALLBACK = [
-    'llama-server-win-x64.exe',
     'NovaForge-Flash-0.1.0-amd64.deb',
-    'NovaForge-Flash-0.1.0-arm64.dmg',
-    'NovaForge-Flash-0.1.0-arm64.zip',
-    'NovaForge-Flash-0.1.0-x64.dmg',
-    'NovaForge-Flash-0.1.0-x64.zip',
     'NovaForge-Flash-0.1.0-x86_64.AppImage',
     'NovaForge-Flash-Setup-0.1.0.exe',
+    'NovaForge-Flash-native-0.2.0-macos-arm64.zip',
+    'NovaForge-Flash-native-0.2.0-macos-universal.zip',
+    'NovaForge-Flash-native-0.2.0-macos-x86_64.zip',
     'NovaForge-Studio-0.1.0-amd64.deb',
-    'NovaForge-Studio-0.1.0-android-release.apk',
-    'NovaForge-Studio-0.1.0-arm64.dmg',
-    'NovaForge-Studio-0.1.0-arm64.zip',
-    'NovaForge-Studio-0.1.0-harmony-signed.hap',
-    'NovaForge-Studio-0.1.0-ios-unsigned.ipa',
-    'NovaForge-Studio-0.1.0-x64.dmg',
-    'NovaForge-Studio-0.1.0-x64.zip',
     'NovaForge-Studio-0.1.0-x86_64.AppImage',
-    'NovaForge-Studio-Setup-0.1.0.exe'
+    'NovaForge-Studio-0.2.0-harmony-signed.hap',
+    'NovaForge-Studio-Setup-0.1.0.exe',
+    'NovaForge-Studio-native-0.2.0-debug.apk',
+    'NovaForge-Studio-native-0.2.0-ios-unsigned.ipa',
+    'NovaForge-Studio-native-0.2.0-macos-arm64.zip',
+    'NovaForge-Studio-native-0.2.0-macos-universal.zip',
+    'NovaForge-Studio-native-0.2.0-macos-x86_64.zip'
   ];
+  /* 国内镜像只收录 Windows 0.1.0 安装包的分卷，其余文件缺失时自动回退 GitHub 固定版本链接 */
   var CN_FALLBACK = [
-    'NovaForge-Studio-0.1.0-android-release.apk',
-    'NovaForge-Studio-0.1.0-harmony-signed.hap',
-    'NovaForge-Studio-0.1.0-ios-unsigned.ipa',
     'NovaForge-Studio-Setup-0.1.0.exe.part1',
     'NovaForge-Studio-Setup-0.1.0.exe.part2',
     'NovaForge-Studio-Setup-0.1.0.exe.part3',
@@ -71,7 +73,7 @@
   var SPLIT_PARTS = 5;
 
   var LANG_KEY = 'nf-lang';
-  var CACHE_KEY = 'nf-assets-v3';
+  var CACHE_KEY = 'nf-assets-v4';
   var CACHE_TTL = 10 * 60 * 1000;
 
   /* ======================================================================
@@ -82,8 +84,8 @@
     mirror: 'global',   /* 'cn' | 'global' */
     region: '',         /* 两位国家码，空表示未判定成功 */
     resolved: false,    /* 地区判定是否已完成 */
-    ghTag: 'v0.1.0',
-    cnTag: 'v0.1.0',
+    ghTag: 'v0.2.0',
+    cnTag: 'v0.2.0',
     ghAssets: null,
     cnAssets: null,
     ghSizes: {},
@@ -251,8 +253,8 @@
     ghNames.forEach(function (n) { state.ghAssets[n] = 1; });
     state.cnAssets = {};
     cnNames.forEach(function (n) { state.cnAssets[n] = 1; });
-    state.ghTag = ghTag || 'v0.1.0';
-    state.cnTag = cnTag || 'v0.1.0';
+    state.ghTag = ghTag || 'v0.2.0';
+    state.cnTag = cnTag || 'v0.2.0';
     state.ghSizes = ghSizes || {};
     state.cnSizes = cnSizes || {};
   }
@@ -286,7 +288,7 @@
       var cnNames = (cn && cn.names.length) ? cn.names : CN_FALLBACK;
       applyAssets(
         ghNames, cnNames,
-        (gh && gh.tag) || 'v0.1.0', (cn && cn.tag) || 'v0.1.0',
+        (gh && gh.tag) || 'v0.2.0', (cn && cn.tag) || 'v0.2.0',
         (gh && gh.sizes) || {}, (cn && cn.sizes) || {}
       );
       if (gh || cn) {
@@ -311,16 +313,16 @@
   function cnUrlFor(file) {
     if (state.mirror !== 'cn') return '';
     if (!state.cnAssets || !state.cnAssets[file]) return '';
-    return CN_BASE + state.cnTag + '/' + file;
+    return CN_BASE + versionFor(file) + '/' + file;
   }
 
   function ghUrlFor(file) {
-    return GH_BASE + file;
+    return GH_BASE + versionFor(file) + '/' + file;
   }
 
   function urlFor(file) {
     if (file === SPLIT_BASE && splitAvailable()) {
-      return CN_BASE + state.cnTag + '/' + SPLIT_BASE + '.part1';
+      return cnUrlFor(SPLIT_BASE + '.part1');
     }
     return cnUrlFor(file) || ghUrlFor(file);
   }
@@ -395,7 +397,7 @@
 
     var html = '<p class="cn-split-title">' + t('split.title') + '</p><div class="cn-split-links">';
     for (var i = 1; i <= SPLIT_PARTS; i++) {
-      html += '<a href="' + CN_BASE + state.cnTag + '/' + SPLIT_BASE + '.part' + i + '">part' + i + '</a>';
+      html += '<a href="' + CN_BASE + versionFor(SPLIT_BASE) + '/' + SPLIT_BASE + '.part' + i + '">part' + i + '</a>';
     }
     html += '</div><p class="cn-split-tip">' + t('split.tip') + '<code>copy /b ';
     var parts = [];
@@ -481,10 +483,10 @@
   function primaryFileFor(platform) {
     switch (platform) {
       case 'windows': return 'NovaForge-Flash-Setup-0.1.0.exe';
-      case 'android': return 'NovaForge-Studio-0.1.0-android-release.apk';
-      case 'macos': return 'NovaForge-Studio-0.1.0-arm64.dmg';
+      case 'android': return 'NovaForge-Studio-native-0.2.0-debug.apk';
+      case 'macos': return 'NovaForge-Studio-native-0.2.0-macos-universal.zip';
       case 'linux': return 'NovaForge-Studio-0.1.0-amd64.deb';
-      case 'harmony': return 'NovaForge-Studio-0.1.0-harmony-signed.hap';
+      case 'harmony': return 'NovaForge-Studio-0.2.0-harmony-signed.hap';
       case 'ios': return '';
       default: return '';
     }
@@ -869,7 +871,7 @@
   applyI18n();
 
   /* 首屏：先用兜底清单 + 时区猜测渲染，避免白屏等待 */
-  applyAssets(GH_FALLBACK, CN_FALLBACK, 'v0.1.0', 'v0.1.0', {}, {});
+  applyAssets(GH_FALLBACK, CN_FALLBACK, 'v0.2.0', 'v0.2.0', {}, {});
   state.mirror = tzRegion() === 'CN' ? 'cn' : 'global';
   renderAll();
 
