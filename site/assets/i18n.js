@@ -93,7 +93,7 @@
       'linux.note': 'deb 包使用 sudo dpkg -i 安装；AppImage 下载后赋予可执行权限即可直接运行。',
       'ios.pending': '未签名 IPA，需自行签名后安装。当前 Release 中的 iOS 构建为未签名归档，无法直接安装到 iPhone / iPad；请使用自己的 Apple Developer 证书与描述文件重新签名。',
       'ios.note': '与电脑同一账号互通，蓝牙直连与局域网发现，内置 AI 助手。签名完成后可在 App Store Connect 分发。',
-      'android.note': '这是调试签名 APK，安装前请在系统设置中允许「安装未知来源应用」。',
+      'android.note': '已使用正式密钥签名，安装前请在系统设置中允许「安装未知来源应用」。',
       'harmony.note': '原生 ArkTS 应用，debug 签名，绑定 1 台设备，有效期至 2026-12-01。与电脑同一账号互通，内置 AI 助手。',
 
       'tag.online': '在线可用',
@@ -290,7 +290,7 @@
       'linux.note': 'Install the deb with sudo dpkg -i; for the AppImage, make it executable and run it directly.',
       'ios.pending': 'Unsigned IPA — you must sign it yourself before installing. The iOS build in this Release is an unsigned archive that cannot be installed on iPhone / iPad directly; re-sign it with your own Apple Developer certificate and provisioning profile.',
       'ios.note': 'Shares one account with desktop, direct Bluetooth connection and LAN discovery, with the AI assistant built in. After signing it can be distributed via App Store Connect.',
-      'android.note': 'This is a debug-signed APK. Allow “Install unknown apps” in system settings before installing.',
+      'android.note': 'Signed with the release key; allow “Install unknown apps” in system settings before installing.',
       'harmony.note': 'Native ArkTS app, debug-signed, bound to 1 device, valid until 2026-12-01. Shares one account with desktop and includes the AI assistant.',
 
       'tag.online': 'Available online',

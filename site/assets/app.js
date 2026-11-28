@@ -53,7 +53,7 @@
     'NovaForge-Studio-0.1.0-x86_64.AppImage',
     'NovaForge-Studio-0.2.0-harmony-signed.hap',
     'NovaForge-Studio-Setup-0.1.0.exe',
-    'NovaForge-Studio-native-0.2.0-debug.apk',
+    'NovaForge-Studio-0.1.0-android-release.apk',
     'NovaForge-Studio-native-0.2.0-ios-unsigned.ipa',
     'NovaForge-Studio-native-0.2.0-macos-arm64.zip',
     'NovaForge-Studio-native-0.2.0-macos-universal.zip',
@@ -483,7 +483,7 @@
   function primaryFileFor(platform) {
     switch (platform) {
       case 'windows': return 'NovaForge-Flash-Setup-0.1.0.exe';
-      case 'android': return 'NovaForge-Studio-native-0.2.0-debug.apk';
+      case 'android': return 'NovaForge-Studio-0.1.0-android-release.apk';
       case 'macos': return 'NovaForge-Studio-native-0.2.0-macos-universal.zip';
       case 'linux': return 'NovaForge-Studio-0.1.0-amd64.deb';
       case 'harmony': return 'NovaForge-Studio-0.2.0-harmony-signed.hap';
