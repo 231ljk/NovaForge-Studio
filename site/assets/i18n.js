@@ -50,7 +50,7 @@
 
       /* ---- 下载区 ---- */
       'dl.h2': '下载',
-      'dl.p': '按设备选择对应安装包。macOS、Android、iOS、鸿蒙为 v0.2.0 原生版；Windows 与 Linux 仍为 v0.1.0 旧版（网页框架），原生版开发中。',
+      'dl.p': '按设备选择对应安装包。Windows、Linux、Android、iOS、鸿蒙均已更新为 v0.2.0 版本，账号与微信小程序共用同一套云端账号。',
       'dl.group.desktop': '桌面端',
       'dl.group.mobile': '移动端',
       'dl.group.web': '免安装',
@@ -67,7 +67,7 @@
       'web.sub': 'Chrome / Edge / Safari 最新版',
       'weapp.sub': '微信 8.0 及以上',
 
-      'legacy.note': '旧版 0.1.0 · 网页框架，原生版开发中',
+      'legacy.note': 'v0.2.0 · 已接入云端账号（与小程序同一套账号）',
       'arch.apple': 'Apple 芯片',
       'arch.intel': 'Intel',
       'arch.universal': '通用',
@@ -91,9 +91,9 @@
       'win.note': '安装包已使用本地代码签名证书签名（CN=中文程助手）。首次运行若出现 SmartScreen 提示，选择「更多信息 → 仍要运行」即可。',
       'mac.note': 'v0.2.0 为原生 SwiftUI 重写。安装包为 ad-hoc 签名、未公证，首次打开需在 Finder 中右键点击 App 选择「打开」，或在「系统设置 → 隐私与安全性」中允许。',
       'linux.note': 'deb 包使用 sudo dpkg -i 安装；AppImage 下载后赋予可执行权限即可直接运行。',
-      'android.note': '这是调试签名 APK，安装前请在系统设置中允许「安装未知来源应用」。',
       'ios.pending': '未签名 IPA，需自行签名后安装。当前 Release 中的 iOS 构建为未签名归档，无法直接安装到 iPhone / iPad；请使用自己的 Apple Developer 证书与描述文件重新签名。',
       'ios.note': '与电脑同一账号互通，蓝牙直连与局域网发现，内置 AI 助手。签名完成后可在 App Store Connect 分发。',
+      'android.note': '这是调试签名 APK，安装前请在系统设置中允许「安装未知来源应用」。',
       'harmony.note': '原生 ArkTS 应用，debug 签名，绑定 1 台设备，有效期至 2026-12-01。与电脑同一账号互通，内置 AI 助手。',
 
       'tag.online': '在线可用',
@@ -247,7 +247,7 @@
 
       /* ---- download ---- */
       'dl.h2': 'Download',
-      'dl.p': 'Pick the installer for your device. macOS, Android, iOS and HarmonyOS ship v0.2.0 native builds; Windows and Linux remain on legacy v0.1.0 (web-framework) builds while their native versions are in development.',
+      'dl.p': 'Pick the installer for your device. Windows, Linux, Android, iOS and HarmonyOS all ship v0.2.0 builds; accounts are shared with the WeChat mini program.',
       'dl.group.desktop': 'Desktop',
       'dl.group.mobile': 'Mobile',
       'dl.group.web': 'No install',
@@ -264,7 +264,7 @@
       'web.sub': 'Latest Chrome / Edge / Safari',
       'weapp.sub': 'WeChat 8.0 and above',
 
-      'legacy.note': 'Legacy 0.1.0 · web-framework build, native version in development',
+      'legacy.note': 'v0.2.0 · Cloud accounts enabled (same account pool as the mini program)',
       'arch.apple': 'Apple Silicon',
       'arch.intel': 'Intel',
       'arch.universal': 'Universal',
@@ -288,9 +288,9 @@
       'win.note': 'The installer is signed with a local code-signing certificate (CN=中文程助手). If SmartScreen appears on first run, choose “More info → Run anyway”.',
       'mac.note': 'v0.2.0 is a native SwiftUI rewrite. The builds are ad-hoc signed and not notarized: on first launch, right-click the app in Finder and choose “Open”, or allow it under System Settings → Privacy & Security.',
       'linux.note': 'Install the deb with sudo dpkg -i; for the AppImage, make it executable and run it directly.',
-      'android.note': 'This is a debug-signed APK. Allow “Install unknown apps” in system settings before installing.',
       'ios.pending': 'Unsigned IPA — you must sign it yourself before installing. The iOS build in this Release is an unsigned archive that cannot be installed on iPhone / iPad directly; re-sign it with your own Apple Developer certificate and provisioning profile.',
       'ios.note': 'Shares one account with desktop, direct Bluetooth connection and LAN discovery, with the AI assistant built in. After signing it can be distributed via App Store Connect.',
+      'android.note': 'This is a debug-signed APK. Allow “Install unknown apps” in system settings before installing.',
       'harmony.note': 'Native ArkTS app, debug-signed, bound to 1 device, valid until 2026-12-01. Shares one account with desktop and includes the AI assistant.',
 
       'tag.online': 'Available online',

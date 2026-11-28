@@ -9,36 +9,43 @@
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <style>
   :root {
-    --brand: #008a7f;
-    --brand-strong: #006d64;
-    --brand-soft: rgba(0, 138, 127, .09);
-    --bg: #f6f8f8;
+    --brand: #007a70;
+    --brand-strong: #005f57;
+    --brand-soft: rgba(0, 122, 112, .09);
+    --ring: rgba(0, 122, 112, .24);
+    --bg: #f2f4f4;
+    --bg-2: #e9eded;
     --surface: #ffffff;
-    --surface-2: #f2f5f5;
-    --text: #101817;
-    --text-2: #4c5a58;
-    --muted: #8a9694;
-    --line: #e6ebea;
-    --radius: 16px;
-    --shadow-sm: 0 1px 2px rgba(16, 32, 30, .05);
-    --shadow: 0 12px 30px rgba(16, 32, 30, .09);
+    --surface-2: #f4f6f6;
+    --text: #1b2423;
+    --text-2: #45524f;
+    --muted: #76817e;
+    --line: rgba(27, 36, 35, .12);
+    --line-strong: rgba(27, 36, 35, .22);
+    --radius: 10px;
+    --shadow-sm: 0 1px 2px rgba(18, 26, 25, .06);
+    --shadow: 0 6px 18px -10px rgba(18, 26, 25, .18), 0 1px 3px rgba(18, 26, 25, .06);
     --ease: cubic-bezier(.22, .61, .36, 1);
+    --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --brand: #2fd0be;
-      --brand-strong: #5ce0d1;
-      --brand-soft: rgba(47, 208, 190, .12);
-      --bg: #0c1111;
-      --surface: #141b1a;
-      --surface-2: #1b2322;
-      --text: #eef3f2;
-      --text-2: #a9b6b3;
-      --muted: #7b8a87;
-      --line: #232e2c;
+      --brand: #2dd4bf;
+      --brand-strong: #5eead4;
+      --brand-soft: rgba(45, 212, 191, .12);
+      --ring: rgba(45, 212, 191, .28);
+      --bg: #171b1d;
+      --bg-2: #121617;
+      --surface: #202528;
+      --surface-2: #272d30;
+      --text: #e3e9ea;
+      --text-2: #a6b2b3;
+      --muted: #7c8789;
+      --line: rgba(255, 255, 255, .09);
+      --line-strong: rgba(255, 255, 255, .17);
       --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
-      --shadow: 0 12px 30px rgba(0, 0, 0, .45);
+      --shadow: 0 8px 24px -12px rgba(0, 0, 0, .6), 0 1px 3px rgba(0, 0, 0, .35);
     }
   }
 
@@ -57,6 +64,31 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  /* 克制背景：单光晕 + 细网格，与下载页同一套语言 */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: -18vmax;
+    z-index: -2;
+    pointer-events: none;
+    background: radial-gradient(46vmax 46vmax at 50% -12%, var(--brand-soft), transparent 64%);
+    filter: blur(8px);
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, var(--line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+    background-size: 72px 72px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 56% at 50% 0%, #000 8%, transparent 74%);
+    mask-image: radial-gradient(ellipse 80% 56% at 50% 0%, #000 8%, transparent 74%);
+    opacity: .4;
+  }
+
   a { color: inherit; text-decoration: none; }
   h1, h2, h3, p { margin: 0; }
   svg { display: block; }
@@ -68,21 +100,21 @@
     padding-inline: 22px;
   }
 
-  /* 顶栏 */
+  /* 顶栏：编辑器标题栏质感 */
   .bar {
     position: sticky;
     top: 0;
     z-index: 30;
-    background: color-mix(in srgb, var(--bg) 82%, transparent);
-    backdrop-filter: saturate(180%) blur(14px);
-    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    background: color-mix(in srgb, var(--bg-2) 92%, transparent);
+    backdrop-filter: saturate(140%) blur(10px);
+    -webkit-backdrop-filter: saturate(140%) blur(10px);
     border-bottom: 1px solid var(--line);
   }
   .bar-inner {
     display: flex;
     align-items: center;
     gap: 12px;
-    height: 62px;
+    height: 58px;
   }
   .brand { display: inline-flex; align-items: center; gap: 10px; }
   .brand-badge {
@@ -90,7 +122,7 @@
     place-items: center;
     width: 30px;
     height: 30px;
-    border-radius: 9px;
+    border-radius: 7px;
     background: var(--brand);
     color: #fff;
     font-size: 12px;
@@ -102,7 +134,8 @@
     padding-left: 12px;
     margin-left: 4px;
     border-left: 1px solid var(--line);
-    font-size: 13px;
+    font-family: var(--font-mono);
+    font-size: 12px;
     color: var(--muted);
   }
   .bar-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
@@ -113,7 +146,7 @@
     gap: 7px;
     padding: 8px 16px;
     border: 1px solid transparent;
-    border-radius: 999px;
+    border-radius: 7px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -127,9 +160,9 @@
   .btn-primary {
     background: var(--brand);
     color: #fff;
-    box-shadow: 0 6px 18px rgba(0, 138, 127, .22);
+    box-shadow: var(--shadow-sm);
   }
-  .btn-primary:hover { background: var(--brand-strong); }
+  .btn-primary:hover { background: var(--brand-strong); transform: translateY(-1px); }
 
   /* Hero */
   .hero {
@@ -138,37 +171,19 @@
     padding: 84px 0 68px;
     text-align: center;
   }
-  .hero::before,
-  .hero::after {
-    content: "";
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    opacity: .5;
-    pointer-events: none;
-  }
-  .hero::before {
-    width: 460px; height: 460px;
-    left: -140px; top: -220px;
-    background: radial-gradient(circle, rgba(0, 138, 127, .35), transparent 65%);
-  }
-  .hero::after {
-    width: 420px; height: 420px;
-    right: -120px; top: -160px;
-    background: radial-gradient(circle, rgba(0, 179, 164, .3), transparent 65%);
-  }
   .hero-inner { position: relative; z-index: 1; }
   .eyebrow {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 5px 13px;
+    padding: 5px 12px;
     border: 1px solid var(--line);
-    border-radius: 999px;
+    border-radius: 6px;
     background: var(--surface);
-    font-size: 12.5px;
+    font-family: var(--font-mono);
+    font-size: 12px;
     color: var(--text-2);
-    box-shadow: var(--shadow-sm);
+    box-shadow: none;
   }
   .eyebrow .dot {
     width: 6px; height: 6px;
@@ -376,7 +391,7 @@
 <main>
   <section class="hero">
     <div class="wrap hero-inner">
-      <span class="eyebrow"><span class="dot"></span>当前版本 v0.2.0 · 原生四端已发布</span>
+      <span class="eyebrow"><span class="dot"></span>当前版本 v0.2.0 · 已接入云端账号</span>
       <h1>一个入口，进入 NovaForge 全部平台</h1>
       <p>网页版、桌面与移动客户端、微信小程序、开源仓库与发布版本，从这里直接启动。</p>
       <div class="hero-cta">
@@ -411,7 +426,7 @@
           </span>
           <span class="tile-body">
             <h3>桌面客户端<span class="tag">v0.2.0</span></h3>
-            <p>Flash 烧录器与 Studio，支持 macOS 与 Windows / Linux 旧版</p>
+            <p>Flash 烧录器与 Studio，Windows / Linux / macOS 全平台 v0.2.0</p>
           </span>
           <span class="tile-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M17 7H9M17 7v8"/></svg></span>
         </a>
@@ -478,7 +493,7 @@
           </span>
           <span class="tile-body">
             <h3>版本发布页</h3>
-            <p>v0.2.0 原生版与 v0.1.0 旧版安装包</p>
+            <p>v0.2.0 全平台安装包（Windows / Linux / macOS / 移动端）</p>
           </span>
           <span class="tile-arrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M17 7H9M17 7v8"/></svg></span>
         </a>
