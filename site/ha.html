@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NovaForge × Home Assistant 集成 · 自动发现与实体映射</title>
+<meta name="description" content="NovaForge 官方 Home Assistant 社区集成：mDNS 自动发现、局域网 HTTP 直连、免 MQTT Broker，或使用固件内置 MQTT Discovery，输入输出引脚自动生成开关与二元传感器。">
+<meta name="theme-color" content="#008a7f">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<style>
+  :root {
+    --brand: #007a70;
+    --brand-strong: #005f57;
+    --brand-soft: rgba(0, 122, 112, .09);
+    --bg: #f2f4f4;
+    --bg-2: #e9eded;
+    --surface: #ffffff;
+    --surface-2: #f4f6f6;
+    --text: #1b2423;
+    --text-2: #45524f;
+    --muted: #76817e;
+    --line: rgba(27, 36, 35, .12);
+    --line-strong: rgba(27, 36, 35, .22);
+    --radius: 10px;
+    --shadow-sm: 0 1px 2px rgba(18, 26, 25, .06);
+    --shadow: 0 6px 18px -10px rgba(18, 26, 25, .18), 0 1px 3px rgba(18, 26, 25, .06);
+    --ease: cubic-bezier(.22, .61, .36, 1);
+    --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --brand: #2dd4bf;
+      --brand-strong: #5eead4;
+      --brand-soft: rgba(45, 212, 191, .12);
+      --bg: #171b1d;
+      --bg-2: #121617;
+      --surface: #202528;
+      --surface-2: #272d30;
+      --text: #e3e9ea;
+      --text-2: #a6b2b3;
+      --muted: #7c8789;
+      --line: rgba(255, 255, 255, .09);
+      --line-strong: rgba(255, 255, 255, .17);
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
+      --shadow: 0 8px 24px -12px rgba(0, 0, 0, .6), 0 1px 3px rgba(0, 0, 0, .35);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    font-size: 15px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: -18vmax;
+    z-index: -2;
+    pointer-events: none;
+    background: radial-gradient(46vmax 46vmax at 50% -12%, var(--brand-soft), transparent 64%);
+    filter: blur(8px);
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(to right, var(--line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+    background-size: 72px 72px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 56% at 50% 0%, #000 8%, transparent 74%);
+    mask-image: radial-gradient(ellipse 80% 56% at 50% 0%, #000 8%, transparent 74%);
+    opacity: .4;
+  }
+
+  a { color: inherit; text-decoration: none; }
+  h1, h2, h3, p { margin: 0; }
+  svg { display: block; }
+
+  .wrap {
+    width: 100%;
+    max-width: 1160px;
+    margin-inline: auto;
+    padding-inline: 22px;
+  }
+
+  .bar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: color-mix(in srgb, var(--bg-2) 92%, transparent);
+    backdrop-filter: saturate(140%) blur(10px);
+    -webkit-backdrop-filter: saturate(140%) blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .bar-inner { display: flex; align-items: center; gap: 12px; height: 58px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; }
+  .brand-badge {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    background: var(--brand);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .02em;
+  }
+  .brand-name { font-weight: 700; font-size: 15.5px; }
+  .brand-sub {
+    padding-left: 12px;
+    margin-left: 4px;
+    border-left: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .bar-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 8px 16px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .18s var(--ease), border-color .18s var(--ease),
+                color .18s var(--ease), transform .18s var(--ease);
+  }
+  .btn:active { transform: scale(.98); }
+  .btn-ghost { color: var(--text-2); }
+  .btn-ghost:hover { background: var(--surface-2); color: var(--text); }
+  .btn-primary { background: var(--brand); color: #fff; box-shadow: var(--shadow-sm); }
+  .btn-primary:hover { background: var(--brand-strong); transform: translateY(-1px); }
+  .btn-lg { padding: 12px 26px; font-size: 15px; }
+  .btn-outline {
+    background: var(--surface);
+    border-color: var(--line);
+    color: var(--text);
+    box-shadow: var(--shadow-sm);
+  }
+  .btn-outline:hover { border-color: var(--brand); color: var(--brand); }
+
+  .hero { position: relative; overflow: hidden; padding: 76px 0 52px; text-align: center; }
+  .hero-inner { position: relative; z-index: 1; }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-2);
+  }
+  .eyebrow .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--brand);
+    box-shadow: 0 0 0 3px var(--brand-soft);
+  }
+  .hero h1 {
+    margin-top: 22px;
+    font-size: clamp(28px, 4.4vw, 42px);
+    letter-spacing: -.03em;
+    font-weight: 700;
+  }
+  .hero p {
+    max-width: 620px;
+    margin: 16px auto 0;
+    font-size: 15.5px;
+    color: var(--text-2);
+  }
+  .hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  .section { padding: 22px 0 34px; }
+  .section-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+  .section-head h2 { font-size: 17px; letter-spacing: -.01em; }
+  .section-head span { font-size: 13px; color: var(--muted); }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
+    gap: 14px;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px;
+    box-shadow: var(--shadow-sm);
+  }
+  .panel + .panel { margin-top: 14px; }
+  .panel h3 { font-size: 15.5px; font-weight: 650; letter-spacing: -.01em; }
+  .panel .desc { margin-top: 6px; font-size: 13.5px; color: var(--text-2); }
+  .panel-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+
+  .tag {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: var(--brand-soft);
+    color: var(--brand);
+    font-size: 11px;
+    font-weight: 600;
+    vertical-align: 1px;
+  }
+  .tag.gray { background: var(--surface-2); color: var(--muted); }
+
+  .lead {
+    max-width: 760px;
+    font-size: 14.5px;
+    color: var(--text-2);
+  }
+
+  /* 方案对比 */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow-sm);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 620px; }
+  th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12.5px; font-weight: 600; color: var(--muted); background: var(--surface-2); white-space: nowrap; }
+  tbody tr:last-child td { border-bottom: none; }
+  code, .mono { font-family: var(--font-mono); font-size: 12.5px; }
+  td code {
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    white-space: nowrap;
+  }
+
+  /* 步骤 */
+  .steps { display: grid; gap: 12px; margin-top: 14px; }
+  .step { display: flex; gap: 13px; align-items: flex-start; }
+  .step-num {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    margin-top: 2px;
+    border-radius: 7px;
+    background: var(--brand-soft);
+    color: var(--brand);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .step-body b { font-weight: 650; font-size: 14px; }
+  .step-body p { margin-top: 2px; font-size: 13.5px; color: var(--text-2); }
+
+  pre {
+    margin: 14px 0 0;
+    padding: 16px;
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface-2);
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--text-2);
+  }
+  pre .k { color: var(--brand); }
+
+  .note {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-left: 2px solid var(--brand);
+    background: var(--brand-soft);
+    border-radius: 0 8px 8px 0;
+    font-size: 13.5px;
+    color: var(--text-2);
+  }
+
+  details.faq {
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 0 18px;
+    box-shadow: var(--shadow-sm);
+  }
+  details.faq + details.faq { margin-top: 10px; }
+  details.faq summary {
+    cursor: pointer;
+    padding: 15px 0;
+    font-size: 14px;
+    font-weight: 600;
+    list-style: none;
+  }
+  details.faq summary::-webkit-details-marker { display: none; }
+  details.faq summary::after { content: "+"; float: right; color: var(--muted); font-weight: 400; }
+  details.faq[open] summary::after { content: "−"; }
+  details.faq p { padding-bottom: 15px; font-size: 13.5px; color: var(--text-2); }
+
+  footer {
+    margin-top: 26px;
+    padding: 26px 0 40px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    align-items: center;
+  }
+  footer a:hover { color: var(--brand); }
+
+  @media (max-width: 560px) {
+    .hero { padding: 56px 0 40px; }
+    .brand-sub { display: none; }
+    .bar-actions .btn-ghost { display: none; }
+    .panel { padding: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap bar-inner">
+    <a class="brand" href="index.html" aria-label="NovaForge 开放平台">
+      <span class="brand-badge">NF</span>
+      <span class="brand-name">NovaForge</span>
+      <span class="brand-sub">Home Assistant</span>
+    </a>
+    <div class="bar-actions">
+      <a class="btn btn-ghost" href="index.html">开放平台</a>
+      <a class="btn btn-primary" href="download.html#download">下载客户端</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap hero-inner">
+      <span class="eyebrow"><span class="dot"></span>集成 v1.0.0 · 支持 Home Assistant 2024.6.0+</span>
+      <h1>烧好固件，剩下交给 Home Assistant</h1>
+      <p>NovaForge 编译的 ESP32 固件内置局域网 HTTP 接口与 mDNS 广播。装好官方社区集成后，设备会被自动发现，引脚自动变成开关与传感器——不需要 MQTT Broker，也不需要刷 ESPHome、Tasmota。</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary btn-lg" href="#install">查看安装步骤</a>
+        <a class="btn btn-outline btn-lg" href="https://github.com/231ljk/ha-novaforg" target="_blank" rel="noopener">集成仓库</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>三种接入方式</h2>
+        <span>按网络环境选其一</span>
+      </div>
+      <p class="lead">官方推荐走社区集成：全局域网直连，不依赖任何中间服务。已经跑着 MQTT Broker 的环境可以直接用固件内置的 MQTT Discovery。前两者都不可用时，还有一份手动 YAML 兜底。</p>
+      <div class="table-wrap" style="margin-top:16px">
+        <table>
+          <thead>
+            <tr>
+              <th>方式</th>
+              <th>通信路径</th>
+              <th>需要 MQTT</th>
+              <th>适用场景</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>社区集成</b><span class="tag">推荐</span></td>
+              <td>mDNS 发现 + 局域网 HTTP</td>
+              <td>不需要</td>
+              <td>家庭局域网、无需额外服务</td>
+            </tr>
+            <tr>
+              <td><b>MQTT Discovery</b></td>
+              <td>MQTT Broker 发布发现报文</td>
+              <td>需要</td>
+              <td>已有 Mosquitto / HAOS 环境</td>
+            </tr>
+            <tr>
+              <td><b>手动 YAML</b></td>
+              <td>configuration.yaml 静态配置</td>
+              <td>需要</td>
+              <td>自动发现被网络隔离时的兜底</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="install">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>安装社区集成</h2>
+        <span>两种装法，选一种</span>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>方式一：HACS 自定义仓库</h3>
+          <span class="tag">推荐</span>
+        </div>
+        <p class="desc">仓库地址 <code class="mono">https://github.com/231ljk/ha-novaforg</code>，类别选 Integration。</p>
+        <div class="steps">
+          <div class="step">
+            <span class="step-num">1</span>
+            <div class="step-body">
+              <b>打开 HACS 自定义仓库</b>
+              <p>HACS → 右上角菜单 → Custom repositories。</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-num">2</span>
+            <div class="step-body">
+              <b>填入仓库地址</b>
+              <p>地址填上面的 URL，类别选 <b>Integration</b>，点击添加。</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-num">3</span>
+            <div class="step-body">
+              <b>安装并重启</b>
+              <p>在 HACS 中安装 <b>NovaForge</b>，然后重启 Home Assistant。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>方式二：手动复制目录</h3>
+        <p class="desc">把集成目录整个放进 HA 配置目录，然后重启。</p>
+        <ul class="desc" style="margin:10px 0 0;padding-left:20px">
+          <li>将 <code class="mono">custom_components/novaforge</code> 复制到 Home Assistant 配置目录下的 <code class="mono">config/custom_components/</code></li>
+          <li>重启 Home Assistant，集成自动加载并开始监听局域网内的 NovaForge 设备</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>接入设备</h2>
+        <span>从烧录到出现在 HA 里</span>
+      </div>
+      <div class="panel">
+        <div class="steps">
+          <div class="step">
+            <span class="step-num">1</span>
+            <div class="step-body">
+              <b>编译并烧录固件</b>
+              <p>在 NovaForge Studio 中配置引脚功能，编译并烧录到 ESP32。烧录时固件会写入一枚 128 位随机控制令牌、以及由芯片 MAC 派生的硬件 ID。</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-num">2</span>
+            <div class="step-body">
+              <b>设备联网并广播</b>
+              <p>设备连上 Wi-Fi 后通过 mDNS 广播 <code class="mono">_novaforge._tcp</code> 服务，TXT 记录中携带硬件 ID、设备名与固件版本。</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-num">3</span>
+            <div class="step-body">
+              <b>在 HA 中确认发现</b>
+              <p>打开「设置 → 设备与服务」，会出现已发现的 NovaForge 设备，点击确认。</p>
+            </div>
+          </div>
+          <div class="step">
+            <span class="step-num">4</span>
+            <div class="step-body">
+              <b>粘贴控制授权码</b>
+              <p>粘贴 NovaForge 软件「Home Assistant」页面显示的设备控制授权码，完成接入。也可以「添加集成 → NovaForge」手动输入设备 IP + 授权码。</p>
+            </div>
+          </div>
+        </div>
+        <div class="note">
+          输出引脚自动生成 <b>开关（switch）</b>，输入引脚自动生成 <b>二元传感器（binary_sensor）</b>。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>实体映射</h2>
+        <span>引脚 → 实体</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>固件引脚</th>
+              <th>HA 实体</th>
+              <th>刷新方式</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>输出引脚</td>
+              <td><code>switch</code></td>
+              <td>控制即时下发</td>
+              <td>开 / 关写入 <code>1</code> / <code>0</code></td>
+            </tr>
+            <tr>
+              <td>输入引脚</td>
+              <td><code>binary_sensor</code></td>
+              <td>10 秒轮询</td>
+              <td>只读，不支持反向控制</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>MQTT 主题规范</h2>
+        <span>使用 Discovery 时生效</span>
+      </div>
+      <p class="lead">固件内置 MQTT Discovery，联网后自动在 Home Assistant 注册实体。主题以 <code class="mono">novaforge/&lt;硬件ID&gt;</code> 为根，发现前缀固定为 <code class="mono">homeassistant</code>。</p>
+      <div class="table-wrap" style="margin-top:16px">
+        <table>
+          <thead>
+            <tr>
+              <th>用途</th>
+              <th>主题</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>状态上报</td>
+              <td><code>novaforge/&lt;硬件ID&gt;/state/&lt;引脚名&gt;</code></td>
+            </tr>
+            <tr>
+              <td>控制下发</td>
+              <td><code>novaforge/&lt;硬件ID&gt;/set/&lt;引脚名&gt;</code></td>
+            </tr>
+            <tr>
+              <td>可用性</td>
+              <td><code>novaforge/&lt;硬件ID&gt;/available</code></td>
+            </tr>
+            <tr>
+              <td>发现报文</td>
+              <td><code>homeassistant/&lt;switch|binary_sensor&gt;/&lt;硬件ID&gt;/&lt;引脚名&gt;/config</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel" style="margin-top:14px">
+        <h3>发现报文示例</h3>
+        <p class="desc">一个输出引脚（引脚名 <code class="mono">relay</code>）注册为开关时，发布到发现主题的内容：</p>
+<pre>{
+  "name": "relay",
+  "uniq_id": "nf-a4cf12ff7e2a-relay",
+  "stat_t": "novaforge/nf-a4cf12ff7e2a/state/relay",
+  "avty_t": "novaforge/nf-a4cf12ff7e2a/available",
+  "dev": {
+    "ids": ["nf-a4cf12ff7e2a"],
+    "name": "客厅控制盒",
+    "mf": "NovaForge",
+    "mdl": "ESP32-DevKitC",
+    "sw": "1.0.0"
+  },
+  "cmd_t": "novaforge/nf-a4cf12ff7e2a/set/relay",
+  "pl_on": "1",
+  "pl_off": "0"
+}</pre>
+        <p class="desc" style="margin-top:12px">开关的开关量约定为 <code class="mono">pl_on = "1"</code>、<code class="mono">pl_off = "0"</code>，与固件写入的值一致。</p>
+      </div>
+
+      <div class="panel">
+        <h3>手动 YAML（兜底）</h3>
+        <p class="desc">仅在自动发现不可用时使用，粘贴到 Home Assistant 的 <code class="mono">configuration.yaml</code>。Studio 可按当前工程直接生成这段内容。</p>
+<pre>mqtt:
+  switch:
+    - name: "客厅控制盒 - relay"
+      unique_id: nf-a4cf12ff7e2a-relay
+      state_topic: "novaforge/nf-a4cf12ff7e2a/state/relay"
+      command_topic: "novaforge/nf-a4cf12ff7e2a/set/relay"
+      payload_on: "1"
+      payload_off: "0"
+      availability_topic: "novaforge/nf-a4cf12ff7e2a/available"
+  binary_sensor:
+    - name: "客厅控制盒 - button"
+      unique_id: nf-a4cf12ff7e2a-button
+      state_topic: "novaforge/nf-a4cf12ff7e2a/state/button"
+      payload_on: "1"
+      payload_off: "0"
+      availability_topic: "novaforge/nf-a4cf12ff7e2a/available"</pre>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>控制权限与设备标识</h2>
+        <span>为什么别人装了集成也控不了你的板子</span>
+      </div>
+      <div class="grid">
+        <div class="panel">
+          <h3>控制必须持授权码</h3>
+          <p class="desc">每个工程在烧录时写入一枚 128 位随机令牌。固件只接受携带令牌的 <code class="mono">/api/set</code> 请求——即使别人在自己家里装了这个集成、扫到了你的设备，没有授权码也无法操作任何引脚。</p>
+          <p class="desc" style="margin-top:8px">状态接口 <code class="mono">/api/state</code> 可匿名只读，方便做监控面板；写入一律校验令牌。</p>
+        </div>
+        <div class="panel">
+          <h3>硬件 ID 不随改名变化</h3>
+          <p class="desc">设备以芯片 MAC 派生的硬件 ID 作为唯一标识，形如 <code class="mono">nf-a4cf12ff7e2a</code>。多台设备同名、或之后随意修改设备名称，都不会串号、掉线或重复注册。</p>
+          <p class="desc" style="margin-top:8px">设备更换 IP 时，已配置条目的地址会自动更新。</p>
+        </div>
+        <div class="panel">
+          <h3>全程局域网</h3>
+          <p class="desc">社区集成方式下，状态轮询与控制请求都在本机局域网内完成（<code class="mono">GET /api/state</code> 十秒一次、<code class="mono">GET /api/set</code> 控制），设备数据不经过任何云端中转。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>常见问题</h2>
+        <span>接入过程中的高频疑问</span>
+      </div>
+
+      <details class="faq">
+        <summary>需要刷 ESPHome 或 Tasmota 吗？</summary>
+        <p>不需要。NovaForge 生成的固件本身内置局域网 HTTP 接口与 MQTT Discovery，直接用 Studio 编译烧录的固件即可接入。</p>
+      </details>
+
+      <details class="faq">
+        <summary>没有 MQTT Broker 能不能用？</summary>
+        <p>能。装社区集成后走 mDNS 发现 + 局域网 HTTP，全程不需要 MQTT。只有选择方式二（MQTT Discovery）时才需要 Broker，常见做法是在树莓派或 NAS 上跑 Mosquitto，端口 1883。</p>
+      </details>
+
+      <details class="faq">
+        <summary>设备一直没被发现怎么办？</summary>
+        <p>先确认设备与 Home Assistant 在同一网段，且路由器未开启 AP 隔离或屏蔽 mDNS。若网络确实隔离了组播，可以在 HA 中「添加集成 → NovaForge」手动输入设备 IP + 控制授权码，效果相同。</p>
+      </details>
+
+      <details class="faq">
+        <summary>为什么确认发现时要填授权码？</summary>
+        <p>授权码就是设备烧录时写入的控制令牌，用来证明你有权控制这台设备。没有它，任何人都能扫到并操作你的引脚。</p>
+      </details>
+
+      <details class="faq">
+        <summary>输入引脚能不能反向控制？</summary>
+        <p>不能。输入引脚注册为 <code class="mono">binary_sensor</code>，只读，按十秒周期轮询刷新状态；需要输出控制请使用输出引脚注册的 <code class="mono">switch</code>。</p>
+      </details>
+
+      <details class="faq">
+        <summary>改了设备名字，HA 里会不会重复出现一台？</summary>
+        <p>不会。实体与设备条目的唯一标识来自芯片 MAC 派生的硬件 ID，与设备名称、IP 都无关。</p>
+      </details>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <footer>
+      <span>© 2026 NovaForge · Home Assistant 集成</span>
+      <a href="index.html">开放平台</a>
+      <a href="download.html">下载页</a>
+      <a href="privacy.html">隐私政策</a>
+      <a href="terms.html">用户协议</a>
+      <a href="https://github.com/231ljk/ha-novaforg" target="_blank" rel="noopener">集成仓库</a>
+    </footer>
+  </div>
+</main>
+
+</body>
+</html>
